@@ -27,6 +27,27 @@ function(create_target_directory_groups target_name)
     endforeach()
 endfunction()
 
+function(get_commit_count repo_dir result_var)
+    execute_process(
+        COMMAND git rev-list --count HEAD
+        WORKING_DIRECTORY ${repo_dir}
+        OUTPUT_VARIABLE commit_count
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    set(${result_var} ${commit_count} PARENT_SCOPE)
+endfunction()
+
+set(REPO_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
+get_commit_count(${REPO_DIR} commit_count)
+
+message(STATUS "Commits Number: ${commit_count}")
+
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/Xenon/Base/CommitCount.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/Xenon/Base/CommitCount.h
+    @ONLY)
+
 find_package(SDL3 3.1.10 CONFIG)
 
 add_subdirectory(third_party)
@@ -36,6 +57,8 @@ set(Base
     Xenon/Base/SystemDevice.h
     Xenon/Base/Types.h
     Xenon/Base/Version.h
+    Xenon/Base/CommitCount.h.in
+    Xenon/Base/CommitCount.h
 )
 
 set(NAND

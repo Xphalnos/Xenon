@@ -1,0 +1,9 @@
+// Copyright 2025 Xenon Emulator Project
+
+#include "CommitCount.h"
+
+#define COMMIT_COUNT @COMMIT_COUNT@
+
+namespace Base {
+const char number_commit[] = COMMIT_COUNT;
+}

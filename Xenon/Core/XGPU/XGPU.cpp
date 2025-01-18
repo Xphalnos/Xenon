@@ -1,11 +1,13 @@
 // Copyright 2025 Xenon Emulator Project
 
 #include <iostream>
+#include <string>
 
 #include "XGPU.h"
 #include "XenosRegisters.h"
 #include "XGPUConfig.h"
 
+#include "Base/CommitCount.h"
 #include "Base/Version.h"
 
 Xe::Xenos::XGPU::XGPU(RAM* ram)
@@ -145,10 +147,11 @@ void Xe::Xenos::XGPU::XenosThread()
 		std::cout << "SDL Init Failed." << std::endl;
 	}
 
-	std::string TITLE = "Xenon " + std::string(Base::VERSION);
+	std::string TITLE = "Xenon " + std::string(Base::VERSION) + std::string(Base::number_commit);
 
-	mainWindow = SDL_CreateWindow(TITLE.c_str(), winWidth, winHeight, SDL_WINDOW_MINIMIZED | SDL_WINDOW_RESIZABLE);
+	mainWindow = SDL_CreateWindow(std::string(TITLE).c_str(), winWidth, winHeight, SDL_WINDOW_MINIMIZED | SDL_WINDOW_RESIZABLE);
 	renderer = SDL_CreateRenderer(mainWindow, NULL);
+
 	SDL_SetWindowMinimumSize(mainWindow, 640, 480);
 	// Set VSYNC on.
 	SDL_SetRenderVSync(renderer, 1);
