@@ -147,7 +147,7 @@ void Xe::Xenos::XGPU::XenosThread()
 		std::cout << "SDL Init Failed." << std::endl;
 	}
 
-	std::string TITLE = "Xenon " + std::string(Base::VERSION) + std::string(Base::number_commit);
+	std::string TITLE = "Xenon " + std::string(Base::VERSION) + reinterpret_cast<std::string>(Base::number_commit);
 
 	mainWindow = SDL_CreateWindow(std::string(TITLE).c_str(), winWidth, winHeight, SDL_WINDOW_MINIMIZED | SDL_WINDOW_RESIZABLE);
 	renderer = SDL_CreateRenderer(mainWindow, NULL);
