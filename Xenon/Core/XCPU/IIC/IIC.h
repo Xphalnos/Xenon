@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <queue>
 #include <mutex>
+#include <queue>
 
 #include "Base/Types.h"
 

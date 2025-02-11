@@ -4,7 +4,7 @@
 
 #include "Logging/Backend.h"
 
-#ifdef  _MSC_VER
+#ifdef _MSC_VER
 #define Crash() __debugbreak()
 #else
 #if defined(ARCH_X86_64)
@@ -17,19 +17,19 @@
 #endif // _MSVC_VER
 
 void assert_fail_impl() {
-    Base::Log::Stop();
-    std::fflush(stdout);
-    Crash();
+  Base::Log::Stop();
+  std::fflush(stdout);
+  Crash();
 }
 
 [[noreturn]] void unreachable_impl() {
-    Base::Log::Stop();
-    std::fflush(stdout);
-    Crash();
-    throw std::runtime_error("Unreachable code");
+  Base::Log::Stop();
+  std::fflush(stdout);
+  Crash();
+  throw std::runtime_error("Unreachable code");
 }
 
-void assert_fail_debug_msg(const std::string& msg) {
-    LOG_CRITICAL(Debug, "Assertion Failed!\n{}", msg.data());
-    assert_fail_impl();
+void assert_fail_debug_msg(const std::string &msg) {
+  LOG_CRITICAL(Debug, "Assertion Failed!\n{}", msg.data());
+  assert_fail_impl();
 }

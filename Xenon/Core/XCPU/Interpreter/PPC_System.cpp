@@ -8,9 +8,8 @@ void PPCInterpreter::PPCInterpreter_isync(PPU_STATE *hCore) {
   // Do nothing.
 }
 
-void PPCInterpreter::PPCInterpreter_eieio(PPU_STATE* hCore)
-{
-    // Do nothing.
+void PPCInterpreter::PPCInterpreter_eieio(PPU_STATE *hCore) {
+  // Do nothing.
 }
 
 void PPCInterpreter::PPCInterpreter_sc(PPU_STATE *hCore) {
@@ -301,7 +300,8 @@ void PPCInterpreter::PPCInterpreter_mfspr(PPU_STATE *hCore) {
     value = hCore->SPR.CTRL;
     break;
   default:
-    LOG_ERROR(Xenon, "{}(Thrd{:#d}) mfspr: Unknown SPR: 0x{:#x}", hCore->ppuName, (u8)hCore->currentThread, sprNum);
+    LOG_ERROR(Xenon, "{}(Thrd{:#d}) mfspr: Unknown SPR: 0x{:#x}",
+              hCore->ppuName, (u8)hCore->currentThread, sprNum);
     break;
   }
 
@@ -393,7 +393,7 @@ void PPCInterpreter::PPCInterpreter_mtspr(PPU_STATE *hCore) {
         hCore->ppuThread[hCore->currentThread].GPR[rD];
     break;
   case SPR_CTRLWR:
-    hCore->SPR.CTRL = (u32)hCore->ppuThread[hCore->currentThread].GPR[rD]; 
+    hCore->SPR.CTRL = (u32)hCore->ppuThread[hCore->currentThread].GPR[rD];
     // Also do the write on SPR_CTRLRD
     break;
   case SPR_RMOR:
@@ -441,8 +441,9 @@ void PPCInterpreter::PPCInterpreter_mtspr(PPU_STATE *hCore) {
         (hCore->ppuThread[hCore->currentThread].GPR[rD] << 32);
     break;
   default:
-    LOG_ERROR(Xenon, "{}(Thrd{:#d}) SPR {:#x} ={:#x}", hCore->ppuName, (u8)hCore->currentThread,
-        spr, hCore->ppuThread[hCore->currentThread].GPR[rD]);
+    LOG_ERROR(Xenon, "{}(Thrd{:#d}) SPR {:#x} ={:#x}", hCore->ppuName,
+              (u8)hCore->currentThread, spr,
+              hCore->ppuThread[hCore->currentThread].GPR[rD]);
     break;
   }
 }
@@ -524,27 +525,22 @@ void PPCInterpreter::PPCInterpreter_mtmsrd(PPU_STATE *hCore) {
   }
 }
 
-void PPCInterpreter::PPCInterpreter_sync(PPU_STATE* hCore)
-{
-    // Do nothing.
+void PPCInterpreter::PPCInterpreter_sync(PPU_STATE *hCore) {
+  // Do nothing.
 }
 
-void PPCInterpreter::PPCInterpreter_dcbf(PPU_STATE* hCore)
-{
-    // Do nothing.
+void PPCInterpreter::PPCInterpreter_dcbf(PPU_STATE *hCore) {
+  // Do nothing.
 }
 
-void PPCInterpreter::PPCInterpreter_dcbi(PPU_STATE* hCore)
-{
-    // Do nothing.
+void PPCInterpreter::PPCInterpreter_dcbi(PPU_STATE *hCore) {
+  // Do nothing.
 }
 
-void PPCInterpreter::PPCInterpreter_dcbt(PPU_STATE* hCore)
-{
-    // Do nothing.
+void PPCInterpreter::PPCInterpreter_dcbt(PPU_STATE *hCore) {
+  // Do nothing.
 }
 
-void PPCInterpreter::PPCInterpreter_dcbtst(PPU_STATE* hCore)
-{
-    // Do nothing.
+void PPCInterpreter::PPCInterpreter_dcbtst(PPU_STATE *hCore) {
+  // Do nothing.
 }

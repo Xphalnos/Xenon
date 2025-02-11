@@ -14,7 +14,7 @@ SFCX::SFCX(const std::string nandLoadPath, PCIBridge *parentPCIBridge) {
   pciConfigSpace.configSpaceHeader.reg2.hexData = 0x05010001;
 
   // Set our PCI Dev Sizes.
-  pciDevSizes[0] = 0x400; // BAR0
+  pciDevSizes[0] = 0x400;     // BAR0
   pciDevSizes[1] = 0x1000000; // BAR1
 
   LOG_INFO(SFCX, "Xenon Secure Flash Controller for Xbox.");
@@ -50,7 +50,9 @@ SFCX::SFCX(const std::string nandLoadPath, PCIBridge *parentPCIBridge) {
 
   // Check file magic.
   if (!checkMagic()) {
-    LOG_CRITICAL(SFCX, "Fatal error, loaded faile magic does'nt correspond to Xbox 360 NAND.");
+    LOG_CRITICAL(
+        SFCX,
+        "Fatal error, loaded faile magic does'nt correspond to Xbox 360 NAND.");
     system("PAUSE");
   }
 
@@ -85,7 +87,8 @@ SFCX::SFCX(const std::string nandLoadPath, PCIBridge *parentPCIBridge) {
 
   sfcxState.nandHeader.sysUpdateCount =
       _byteswap_ushort(sfcxState.nandHeader.sysUpdateCount);
-  LOG_INFO(SFCX, " * System Update Count: ", sfcxState.nandHeader.sysUpdateCount);
+  LOG_INFO(SFCX,
+           " * System Update Count: ", sfcxState.nandHeader.sysUpdateCount);
 
   sfcxState.nandHeader.keyvaultVer =
       _byteswap_ushort(sfcxState.nandHeader.keyvaultVer);
@@ -100,7 +103,7 @@ SFCX::SFCX(const std::string nandLoadPath, PCIBridge *parentPCIBridge) {
   LOG_INFO(SFCX, " * System Update Size: ", sfcxState.nandHeader.sysUpdateSize);
 
   sfcxState.nandHeader.smcConfigAddr =
-      _byteswap_ulong(sfcxState.nandHeader.smcConfigAddr);  
+      _byteswap_ulong(sfcxState.nandHeader.smcConfigAddr);
   LOG_INFO(SFCX, " * SMC Config Addr: ", sfcxState.nandHeader.smcConfigAddr);
 
   sfcxState.nandHeader.smcBootSize =
@@ -213,7 +216,8 @@ void SFCX::ConfigWrite(u64 writeAddress, u64 data, u8 byteCount) {
   const u8 offset = writeAddress & 0xFF;
 
   // Check if we're being scanned.
-  if (static_cast<u8>(writeAddress) >= 0x10 && static_cast<u8>(writeAddress) < 0x34) {
+  if (static_cast<u8>(writeAddress) >= 0x10 &&
+      static_cast<u8>(writeAddress) < 0x34) {
     const u32 regOffset = (static_cast<u8>(writeAddress) - 0x10) >> 2;
     if (pciDevSizes[regOffset] != 0) {
       if (data == 0xFFFFFFFF) { // PCI BAR Size discovery.
@@ -229,7 +233,7 @@ void SFCX::ConfigWrite(u64 writeAddress, u64 data, u8 byteCount) {
       }
     }
     if (static_cast<u8>(writeAddress) == 0x30) { // Expansion ROM Base Address.
-      data = 0; // Register not implemented.
+      data = 0;                                  // Register not implemented.
     }
   }
 
@@ -286,7 +290,8 @@ void SFCX::sfcxMainLoop() {
       // case UNLOCK_CMD_1:
       //	break;
       default:
-        LOG_ERROR(SFCX, "Unrecognized command was issued. {:#x}", sfcxState.commandReg);
+        LOG_ERROR(SFCX, "Unrecognized command was issued. {:#x}",
+                  sfcxState.commandReg);
         break;
       }
 

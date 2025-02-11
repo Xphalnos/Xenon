@@ -95,7 +95,7 @@ bool PCIBridge::RouteInterrupt(u8 prio) {
     }
     break;
   default:
-      LOG_ERROR(PCIBridge, "Unknown interrupt being routed: {:#x}", prio);
+    LOG_ERROR(PCIBridge, "Unknown interrupt being routed: {:#x}", prio);
     break;
   }
   return false;
@@ -202,7 +202,8 @@ bool PCIBridge::Write(u64 writeAddress, u64 data, u8 byteCount) {
       pciBridgeState.PRIO_REG_SFCX.cpuIRQ = cpuIRQ;
       break;
     default:
-      LOG_ERROR(PCIBridge, "Unknown reg being written: {:#x}, {:#x}", writeAddress, data);
+      LOG_ERROR(PCIBridge, "Unknown reg being written: {:#x}, {:#x}",
+                writeAddress, data);
       break;
     }
     return true;
@@ -272,8 +273,9 @@ void PCIBridge::ConfigRead(u64 readAddress, u64 *data, u8 byteCount) {
     currentDevName = "5841";
     break;
   default:
-    LOG_ERROR(PCIBridge, "Config Space Read: Unknown device accessed: Dev {:#x}, Reg{:#x}",
-        configAddr.devNum, configAddr.regOffset);
+    LOG_ERROR(PCIBridge,
+              "Config Space Read: Unknown device accessed: Dev {:#x}, Reg{:#x}",
+              configAddr.devNum, configAddr.regOffset);
     return;
     break;
   }
@@ -281,12 +283,14 @@ void PCIBridge::ConfigRead(u64 readAddress, u64 *data, u8 byteCount) {
   for (auto &device : connectedPCIDevices) {
     if (device->GetDeviceName() == currentDevName) {
       // Hit!
-      LOG_TRACE(PCIBridge, "Config read, device: {} offset = {:#x}", currentDevName, configAddr.regOffset);
+      LOG_TRACE(PCIBridge, "Config read, device: {} offset = {:#x}",
+                currentDevName, configAddr.regOffset);
       device->ConfigRead(readAddress, data, byteCount);
       return;
     }
   }
-  LOG_ERROR(PCIBridge, "Read to unimplemented device: {}", currentDevName.c_str());
+  LOG_ERROR(PCIBridge, "Read to unimplemented device: {}",
+            currentDevName.c_str());
   *data = 0xFFFFFFFFFFFFFFFF;
 }
 
@@ -343,8 +347,11 @@ void PCIBridge::ConfigWrite(u64 writeAddress, u64 data, u8 byteCount) {
     currentDevName = "5841";
     break;
   default:
-    LOG_ERROR(PCIBridge, "Config Space Write: Unknown device accessed: Dev {:#x} Func {:#x}"
-        "Reg {:#x} data = {:#x}", configAddr.devNum, configAddr.functNum, configAddr.regOffset, data);
+    LOG_ERROR(
+        PCIBridge,
+        "Config Space Write: Unknown device accessed: Dev {:#x} Func {:#x}"
+        "Reg {:#x} data = {:#x}",
+        configAddr.devNum, configAddr.functNum, configAddr.regOffset, data);
     return;
     break;
   }
@@ -352,10 +359,13 @@ void PCIBridge::ConfigWrite(u64 writeAddress, u64 data, u8 byteCount) {
   for (auto &device : connectedPCIDevices) {
     if (device->GetDeviceName() == currentDevName) {
       // Hit!
-      LOG_TRACE(PCIBridge, "Config write, device: {}, offset = {:#x} data = {:#x}", currentDevName.c_str(), configAddr.regOffset, data);
+      LOG_TRACE(PCIBridge,
+                "Config write, device: {}, offset = {:#x} data = {:#x}",
+                currentDevName.c_str(), configAddr.regOffset, data);
       device->ConfigWrite(writeAddress, data, byteCount);
       return;
     }
   }
-  LOG_ERROR(PCIBridge, "Write to unimplemented device: {} data = {:#x}", currentDevName.c_str(), data);
+  LOG_ERROR(PCIBridge, "Write to unimplemented device: {} data = {:#x}",
+            currentDevName.c_str(), data);
 }

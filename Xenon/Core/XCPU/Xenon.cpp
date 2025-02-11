@@ -31,7 +31,10 @@ Xenon::Xenon(RootBus *inBus, const std::string blPath, eFuses inFuseSet) {
   fopen_s(&inputFile, blPath.c_str(), "rb");
 
   if (!inputFile) {
-    LOG_CRITICAL(Xenon, "Unable to open file: {} for reading. Check your file path. System Stopped!", blPath);
+    LOG_CRITICAL(Xenon,
+                 "Unable to open file: {} for reading. Check your file path. "
+                 "System Stopped!",
+                 blPath);
     system("PAUSE");
   } else {
     fseek(inputFile, 0, SEEK_END);

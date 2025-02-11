@@ -2,9 +2,9 @@
 
 #pragma once
 
+#include <fstream>
 #include <thread>
 #include <vector>
-#include <fstream>
 
 #include <SDL3/SDL.h>
 
@@ -93,7 +93,7 @@ struct XenosState {
 };
 
 // ARGB (Console is BGRA)
-#define COLOR(r, g, b, a) ((a) << 24 | (r) << 16 | (g) << 8  | (b) << 0)
+#define COLOR(r, g, b, a) ((a) << 24 | (r) << 16 | (g) << 8 | (b) << 0)
 #define TILE(x) ((x + 31) >> 5) << 5
 class XGPU {
 public:
@@ -111,7 +111,8 @@ public:
 private:
   // XGPU Config Space Data at address 0xD0010000.
   GENRAL_PCI_DEVICE_CONFIG_SPACE xgpuConfigSpace = {0};
-  // PCI Device Size, using when determining PCI device size of each BAR in Linux.
+  // PCI Device Size, using when determining PCI device size of each BAR in
+  // Linux.
   u32 pciDevSizes[6] = {};
 
   RAM *ramPtr = nullptr;

@@ -148,7 +148,8 @@ void Xe::PCIDev::ETHERNET::ETHERNET::Write(u64 writeAddress, u64 data,
     ethPciState.address1Reg = static_cast<u32>(data);
     break;
   default:
-    LOG_ERROR(ETH, "Unknown PCI Reg being written {:#x} data = {:#x}", (u16)offset, data);
+    LOG_ERROR(ETH, "Unknown PCI Reg being written {:#x} data = {:#x}",
+              (u16)offset, data);
     break;
   }
 }
@@ -156,7 +157,8 @@ void Xe::PCIDev::ETHERNET::ETHERNET::Write(u64 writeAddress, u64 data,
 void Xe::PCIDev::ETHERNET::ETHERNET::ConfigWrite(u64 writeAddress, u64 data,
                                                  u8 byteCount) {
   // Check if we're being scanned.
-  if (static_cast<u8>(writeAddress) >= 0x10 && static_cast<u8>(writeAddress) < 0x34) {
+  if (static_cast<u8>(writeAddress) >= 0x10 &&
+      static_cast<u8>(writeAddress) < 0x34) {
     const u32 regOffset = (static_cast<u8>(writeAddress) - 0x10) >> 2;
     if (pciDevSizes[regOffset] != 0) {
       if (data == 0xFFFFFFFF) { // PCI BAR Size discovery.
@@ -172,7 +174,7 @@ void Xe::PCIDev::ETHERNET::ETHERNET::ConfigWrite(u64 writeAddress, u64 data,
       }
     }
     if (static_cast<u8>(writeAddress) == 0x30) { // Expansion ROM Base Address.
-      data = 0; // Register not implemented.
+      data = 0;                                  // Register not implemented.
     }
   }
 

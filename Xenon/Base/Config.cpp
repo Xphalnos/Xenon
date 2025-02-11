@@ -32,8 +32,9 @@ static bool shouldQuitOnWindowClosure = false;
 Base::Log::Level currentLogLevel = Base::Log::Level::Warning;
 
 // SMC.
-static int smcPowerOnReason = 0x11; // Valid values are: 0x11 (SMC_PWR_REAS_PWRBTN) and 0x12
-                                    // (SMC_PWR_REAS_EJECT).
+static int smcPowerOnReason =
+    0x11; // Valid values are: 0x11 (SMC_PWR_REAS_PWRBTN) and 0x12
+          // (SMC_PWR_REAS_EJECT).
 static int comPort = 2;
 static std::string com = "";
 
@@ -56,9 +57,9 @@ static std::string oddDiscImagePath = "C:/Xbox/xenon.iso";
 // Highly experimental.
 static int ticksPerInstruction = 1;
 
-std::string* COMPort() {
-    com = "\\\\.\\COM" + std::to_string(comPort);
-    return &com;
+std::string *COMPort() {
+  com = "\\\\.\\COM" + std::to_string(comPort);
+  return &com;
 }
 
 bool fullscreenMode() { return isFullscreen; }
@@ -107,8 +108,8 @@ void loadConfig(const std::filesystem::path &path) {
   try {
     data = toml::parse(path);
   } catch (std::exception &ex) {
-    LOG_ERROR(Config, "Got exception trying to load config file. Exception: {}", 
-        ex.what());
+    LOG_ERROR(Config, "Got exception trying to load config file. Exception: {}",
+              ex.what());
     return;
   }
 
@@ -119,7 +120,8 @@ void loadConfig(const std::filesystem::path &path) {
     isFullscreen = toml::find_or<bool>(general, "Fullscreen", false);
     shouldQuitOnWindowClosure =
         toml::find_or<bool>(general, "QuitOnWindowClosure", false);
-    currentLogLevel = (Base::Log::Level)find_or<int>(general, "Loglevel", false);
+    currentLogLevel =
+        (Base::Log::Level)find_or<int>(general, "Loglevel", false);
   }
 
   if (data.contains("SMC")) {
@@ -143,12 +145,9 @@ void loadConfig(const std::filesystem::path &path) {
 
   if (data.contains("Paths")) {
     const toml::value &paths = data.at("Paths");
-    fusesTxtPath =
-        toml::find_or<std::string>(paths, "Fuses", fusesTxtPath);
-    oneBlBinPath =
-        toml::find_or<std::string>(paths, "OneBL", oneBlBinPath);
-    nandBinPath =
-        toml::find_or<std::string>(paths, "Nand", nandBinPath);
+    fusesTxtPath = toml::find_or<std::string>(paths, "Fuses", fusesTxtPath);
+    oneBlBinPath = toml::find_or<std::string>(paths, "OneBL", oneBlBinPath);
+    nandBinPath = toml::find_or<std::string>(paths, "Nand", nandBinPath);
     oddDiscImagePath =
         toml::find_or<std::string>(paths, "ODDImage", oddDiscImagePath);
   }
@@ -169,14 +168,15 @@ void saveConfig(const std::filesystem::path &path) {
       data = toml::parse(path);
     } catch (const std::exception &ex) {
       LOG_ERROR(Config, "Exception trying to parse config file. Exception: {}",
-          ex.what());
+                ex.what());
       return;
     }
   } else {
     if (error) {
       LOG_ERROR(Config, "Filesystem error: {}", error.message());
     }
-      LOG_INFO(Config, "Config not found. Saving new configuration file: {}", path.string());
+    LOG_INFO(Config, "Config not found. Saving new configuration file: {}",
+             path.string());
   }
 
   // General.
@@ -185,7 +185,7 @@ void saveConfig(const std::filesystem::path &path) {
   data["General"]["QuitOnWindowClosure"] = shouldQuitOnWindowClosure;
   data["General"]["Loglevel"] = (int)currentLogLevel;
 
-  // SMC.                                      
+  // SMC.
   data["SMC"]["COMPort"] = comPort;
   data["SMC"]["SMCPowerOnType"] = smcPowerOnReason;
 
@@ -206,8 +206,10 @@ void saveConfig(const std::filesystem::path &path) {
   data["Paths"]["ODDImage"] = oddDiscImagePath;
 
   // HighlyExperimental.
-  data["HighlyExperimental"].comments().push_back("# Do not touch these options unless you know what you're doing!");
-  data["HighlyExperimental"].comments().push_back("# It can break execution! User beware.");
+  data["HighlyExperimental"].comments().push_back(
+      "# Do not touch these options unless you know what you're doing!");
+  data["HighlyExperimental"].comments().push_back(
+      "# It can break execution! User beware.");
   data["HighlyExperimental"]["TPI"] = ticksPerInstruction;
 
   std::ofstream file(path, std::ios::binary);

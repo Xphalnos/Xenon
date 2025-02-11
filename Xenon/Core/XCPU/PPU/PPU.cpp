@@ -7,8 +7,8 @@
 #include <thread>
 
 #include "Base/Config.h"
-#include "Base/Thread.h"
 #include "Base/Logging/Log.h"
+#include "Base/Thread.h"
 #include "Core/XCPU/Interpreter/PPCInterpreter.h"
 
 PPU::PPU() {
@@ -46,15 +46,19 @@ void PPU::Initialize(XENON_CONTEXT *inXenonContext, RootBus *mainBus, u32 PVR,
 
   // Get the instructions per second that we're able to execute.
   u32 instrPerSecond = getIPS();
-  LOG_INFO(Xenon, "{} Speed: {:#d} instructions per second.", ppuName, instrPerSecond);
+  LOG_INFO(Xenon, "{} Speed: {:#d} instructions per second.", ppuName,
+           instrPerSecond);
 
   // Find a way to calculate the right ticks/IPS ratio.
   int configTpi = Config::tpi();
   ticksPerInstruction = configTpi ? configTpi : TPI_FORMULA(instrPerSecond);
   if (!configTpi)
-    LOG_INFO(Xenon, "{} TPI: {} ticks per instruction", ppuName, ticksPerInstruction);
+    LOG_INFO(Xenon, "{} TPI: {} ticks per instruction", ppuName,
+             ticksPerInstruction);
   else
-    LOG_INFO(Xenon, "{} TPI: {} ticks per instruction (overrwriten! actual tps: {})", ppuName, ticksPerInstruction, TPI_FORMULA(instrPerSecond));
+    LOG_INFO(Xenon,
+             "{} TPI: {} ticks per instruction (overrwriten! actual tps: {})",
+             ppuName, ticksPerInstruction, TPI_FORMULA(instrPerSecond));
 
   for (u8 thrdID = 0; thrdID < 2; thrdID++) {
     ppuState->ppuThread[thrdID].ppuRes = new PPU_RES;
@@ -279,8 +283,9 @@ bool PPU::ppuReadNextInstruction() {
   ppuState->ppuThread[ppuState->currentThread].NIA += 4;
   ppuState->ppuThread[ppuState->currentThread].iFetch = true;
   // Fetch the instruction from memory.
-  ppuState->ppuThread[ppuState->currentThread].CI.opcode = PPCInterpreter::MMURead32(
-      ppuState, ppuState->ppuThread[ppuState->currentThread].CIA);
+  ppuState->ppuThread[ppuState->currentThread].CI.opcode =
+      PPCInterpreter::MMURead32(
+          ppuState, ppuState->ppuThread[ppuState->currentThread].CIA);
   if (ppuState->ppuThread[ppuState->currentThread].exceptReg & PPU_EX_INSSTOR ||
       ppuState->ppuThread[ppuState->currentThread].exceptReg &
           PPU_EX_INSTSEGM) {
@@ -333,15 +338,18 @@ void PPU::ppuCheckExceptions() {
     // A. Program - Illegal Instruction
     if (exceptions & PPU_EX_PROG &&
         ppuState->ppuThread[ppuState->currentThread].exceptTrapType == 44) {
-      LOG_ERROR(Xenon, "{}(Thrd{:#d}): Unhandled Exception: Illegal Instruction.",
-          ppuState->ppuName, (u8)ppuState->currentThread);
+      LOG_ERROR(Xenon,
+                "{}(Thrd{:#d}): Unhandled Exception: Illegal Instruction.",
+                ppuState->ppuName, (u8)ppuState->currentThread);
       exceptions &= ~PPU_EX_PROG;
       goto end;
     }
     // B. Floating-Point Unavailable
     if (exceptions & PPU_EX_FPU) {
-        LOG_ERROR(Xenon, "{}(Thrd{:#d}): Unhandled Exception: Floating-Point Unavailable.",
-            ppuState->ppuName, (u8)ppuState->currentThread);
+      LOG_ERROR(
+          Xenon,
+          "{}(Thrd{:#d}): Unhandled Exception: Floating-Point Unavailable.",
+          ppuState->ppuName, (u8)ppuState->currentThread);
       exceptions &= ~PPU_EX_FPU;
       goto end;
     }
@@ -361,14 +369,14 @@ void PPU::ppuCheckExceptions() {
     // Alignment
     if (exceptions & PPU_EX_ALIGNM) {
       LOG_ERROR(Xenon, "{}(Thrd{:#d}): Unhandled Exception: Alignment.",
-          ppuState->ppuName, (u8)ppuState->currentThread);
+                ppuState->ppuName, (u8)ppuState->currentThread);
       exceptions &= ~PPU_EX_ALIGNM;
       goto end;
     }
     // D. Trace
     if (exceptions & PPU_EX_TRACE) {
       LOG_ERROR(Xenon, "{}(Thrd{:#d}): Unhandled Exception: Trace.",
-          ppuState->ppuName, (u8)ppuState->currentThread);
+                ppuState->ppuName, (u8)ppuState->currentThread);
       exceptions &= ~PPU_EX_TRACE;
       goto end;
     }
@@ -389,8 +397,9 @@ void PPU::ppuCheckExceptions() {
     // Program - Privileged Instruction
     if (exceptions & PPU_EX_PROG &&
         ppuState->ppuThread[ppuState->currentThread].exceptTrapType == 45) {
-        LOG_ERROR(Xenon, "{}(Thrd{:#d}): Unhandled Exception: Privileged Instruction.",
-            ppuState->ppuName, (u8)ppuState->currentThread);
+      LOG_ERROR(Xenon,
+                "{}(Thrd{:#d}): Unhandled Exception: Privileged Instruction.",
+                ppuState->ppuName, (u8)ppuState->currentThread);
       exceptions &= ~PPU_EX_PROG;
       goto end;
     }
@@ -413,8 +422,10 @@ void PPU::ppuCheckExceptions() {
     //
 
     if (exceptions & PPU_EX_PROG) {
-        LOG_ERROR(Xenon, "{}(Thrd{:#d}): Unhandled Exception: Imprecise Mode Floating-Point Enabled Exception.",
-            ppuState->ppuName, (u8)ppuState->currentThread);
+      LOG_ERROR(Xenon,
+                "{}(Thrd{:#d}): Unhandled Exception: Imprecise Mode "
+                "Floating-Point Enabled Exception.",
+                ppuState->ppuName, (u8)ppuState->currentThread);
       exceptions &= ~PPU_EX_PROG;
       goto end;
     }
@@ -440,8 +451,9 @@ void PPU::ppuCheckExceptions() {
     }
     // Hypervisor Decrementer
     if (exceptions & PPU_EX_HDEC) {
-      LOG_ERROR(Xenon, "{}(Thrd{:#d}): Unhandled Exception: Hypervisor Decrementer.",
-          ppuState->ppuName, (u8)ppuState->currentThread);
+      LOG_ERROR(Xenon,
+                "{}(Thrd{:#d}): Unhandled Exception: Hypervisor Decrementer.",
+                ppuState->ppuName, (u8)ppuState->currentThread);
       exceptions &= ~PPU_EX_HDEC;
       goto end;
     }

@@ -3,9 +3,9 @@
 #include "Base/Config.h"
 #include "Base/Logging/Backend.h"
 #include "Base/Logging/Log.h"
-#include "Base/ntapi.h"
 #include "Base/Path_util.h"
 #include "Base/Version.h"
+#include "Base/ntapi.h"
 
 #include "Core/NAND/NAND.h"
 #include "Core/RAM/RAM.h"
@@ -26,14 +26,14 @@
 #include "Core/XCPU/Xenon.h"
 #include "Core/XGPU/XGPU.h"
 
-eFuses getFuses(const std::filesystem::path& path) {
+eFuses getFuses(const std::filesystem::path &path) {
 
   LOG_INFO(System, "Loading eFuses from: {}", path.string());
 
   std::ifstream file(path);
 
   if (!file.is_open()) {
-    return { 0x9999999999999999 };
+    return {0x9999999999999999};
   }
 
   std::vector<std::string> fusesets;
@@ -46,7 +46,7 @@ eFuses getFuses(const std::filesystem::path& path) {
   }
   // Got some fuses, let's print them!
   eFuses cpuFuses;
-  u64* fuses = reinterpret_cast<u64*>(&cpuFuses);
+  u64 *fuses = reinterpret_cast<u64 *>(&cpuFuses);
 
   LOG_INFO(System, "Current FuseSet:");
   for (int i = 0; i < 12; i++) {
@@ -65,11 +65,11 @@ int main(int argc, char *argv[]) {
   Base::Log::Initialize();
   Base::Log::Start();
 
-  // Initialize NT API functions and set above normal priority.
-  #ifdef _WIN32
-    Base::NtApi::Initialize();
-    SetPriorityClass(GetCurrentProcess(), ABOVE_NORMAL_PRIORITY_CLASS);
-  #endif
+// Initialize NT API functions and set above normal priority.
+#ifdef _WIN32
+  Base::NtApi::Initialize();
+  SetPriorityClass(GetCurrentProcess(), ABOVE_NORMAL_PRIORITY_CLASS);
+#endif
 
   // Display Version on Boot.
   LOG_INFO(System, "Starting Xenon {}", std::string(Base::VERSION));
@@ -166,11 +166,11 @@ int main(int argc, char *argv[]) {
 
   // Load 1BL here from given path.
   eFuses cpuFuses = getFuses(Config::fusesPath());
-  if (cpuFuses.fuseLine00 == 0x9999999999999999)
-  {
-      LOG_CRITICAL(System, "Unable to load eFuses from path: {}", Config::fusesPath());
-      system("PAUSE");
-      return EXIT_FAILURE;
+  if (cpuFuses.fuseLine00 == 0x9999999999999999) {
+    LOG_CRITICAL(System, "Unable to load eFuses from path: {}",
+                 Config::fusesPath());
+    system("PAUSE");
+    return EXIT_FAILURE;
   }
 
   Xenon xenonCPU(&RootBus, Config::oneBlPath(), cpuFuses);

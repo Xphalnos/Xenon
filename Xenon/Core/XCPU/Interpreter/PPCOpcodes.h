@@ -1,7 +1,7 @@
 #pragma once
 
-#include "PPCInternal.h"
 #include "Core/XCPU/PPU/PowerPC.h"
+#include "PPCInternal.h"
 
 namespace PPCInterpreter {
 //
@@ -9,8 +9,9 @@ namespace PPCInterpreter {
 //
 
 // Stubs
-extern void PPCInterpreter_invalid(PPU_STATE* hCore);
-extern void PPCInterpreter_known_unimplemented(const char* name, PPU_STATE* hCore);
+extern void PPCInterpreter_invalid(PPU_STATE *hCore);
+extern void PPCInterpreter_known_unimplemented(const char *name,
+                                               PPU_STATE *hCore);
 
 // ALU
 extern void PPCInterpreter_addx(PPU_STATE *hCore);
@@ -22,7 +23,7 @@ extern void PPCInterpreter_addzex(PPU_STATE *hCore);
 extern void PPCInterpreter_andx(PPU_STATE *hCore);
 extern void PPCInterpreter_andcx(PPU_STATE *hCore);
 extern void PPCInterpreter_andi(PPU_STATE *hCore);
-extern void PPCInterpreter_andis(PPU_STATE* hCore);
+extern void PPCInterpreter_andis(PPU_STATE *hCore);
 extern void PPCInterpreter_cmp(PPU_STATE *hCore);
 extern void PPCInterpreter_cmpi(PPU_STATE *hCore);
 extern void PPCInterpreter_cmpl(PPU_STATE *hCore);
@@ -113,9 +114,9 @@ extern void PPCInterpreter_sync(PPU_STATE *hCore);
 
 // Cache Management
 extern void PPCInterpreter_dcbf(PPU_STATE *hCore);
-extern void PPCInterpreter_dcbi(PPU_STATE* hCore);
-extern void PPCInterpreter_dcbt(PPU_STATE* hCore);
-extern void PPCInterpreter_dcbtst(PPU_STATE* hCore);
+extern void PPCInterpreter_dcbi(PPU_STATE *hCore);
+extern void PPCInterpreter_dcbt(PPU_STATE *hCore);
+extern void PPCInterpreter_dcbtst(PPU_STATE *hCore);
 extern void PPCInterpreter_dcbst(PPU_STATE *hCore);
 extern void PPCInterpreter_dcbz(PPU_STATE *hCore);
 extern void PPCInterpreter_icbi(PPU_STATE *hCore);
@@ -123,8 +124,8 @@ extern void PPCInterpreter_icbi(PPU_STATE *hCore);
 //
 // FPU
 //
-extern void PPCInterpreter_mffsx(PPU_STATE* hCore);
-extern void PPCInterpreter_mtfsfx(PPU_STATE* hCore);
+extern void PPCInterpreter_mffsx(PPU_STATE *hCore);
+extern void PPCInterpreter_mtfsfx(PPU_STATE *hCore);
 
 //
 // Load/Store
@@ -147,7 +148,7 @@ extern void PPCInterpreter_sthx(PPU_STATE *hCore);
 extern void PPCInterpreter_stswi(PPU_STATE *hCore);
 
 // Store Multiple Word
-extern void PPCInterpreter_stmw(PPU_STATE* hCore);
+extern void PPCInterpreter_stmw(PPU_STATE *hCore);
 
 // Store Word
 extern void PPCInterpreter_stw(PPU_STATE *hCore);
@@ -187,7 +188,7 @@ extern void PPCInterpreter_lhzx(PPU_STATE *hCore);
 extern void PPCInterpreter_lswi(PPU_STATE *hCore);
 
 // Load Multiple Word
-extern void PPCInterpreter_lmw(PPU_STATE* hCore);
+extern void PPCInterpreter_lmw(PPU_STATE *hCore);
 
 // Load Word
 extern void PPCInterpreter_lwa(PPU_STATE *hCore);
@@ -214,4 +215,4 @@ extern void PPCInterpreter_ldx(PPU_STATE *hCore);
 extern void PPCInterpreter_lfd(PPU_STATE *hCore);
 extern void PPCInterpreter_lfs(PPU_STATE *hCore);
 
-}
+} // namespace PPCInterpreter

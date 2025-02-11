@@ -4,8 +4,8 @@
 
 #include <filesystem>
 
-#include "Types.h"
 #include "Logging/Backend.h"
+#include "Types.h"
 
 namespace Config {
 
@@ -17,7 +17,7 @@ void saveConfig(const std::filesystem::path &path);
 //
 
 // Selected COM Port.
-std::string* COMPort();
+std::string *COMPort();
 // Show in fullscreen.
 bool fullscreenMode();
 // Enable GPU Render thread.
@@ -66,7 +66,8 @@ std::string nandPath();
 std::string oddImagePath();
 
 //
-// Highly experimental. (things that can either break the emulator or drastically increase performance)
+// Highly experimental. (things that can either break the emulator or
+// drastically increase performance)
 //
 int tpi();
 

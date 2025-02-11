@@ -4,8 +4,8 @@
 
 #include "PPCInternal.h"
 
-#include "PPC_Instruction.h"
 #include "PPCOpcodes.h"
+#include "PPC_Instruction.h"
 
 #include "Core/RootBus/RootBus.h"
 #include "Core/XCPU/PPU/PowerPC.h"

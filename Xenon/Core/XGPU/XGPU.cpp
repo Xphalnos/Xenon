@@ -6,9 +6,9 @@
 #include "XenosRegisters.h"
 
 #include "Base/Config.h"
+#include "Base/Logging/Log.h"
 #include "Base/Path_util.h"
 #include "Base/Version.h"
-#include "Base/Logging/Log.h"
 
 Xe::Xenos::XGPU::XGPU(RAM *ram) {
   // Assign RAM Pointer
@@ -59,18 +59,18 @@ bool Xe::Xenos::XGPU::Read(u64 readAddress, u64 *data, u8 byteCount) {
 
     // Switch for properly return the requested amount of data.
     switch (byteCount) {
-  case 2:
+    case 2:
       regData = regData >> 16;
       break;
-  case 1:
+    case 1:
       regData = regData >> 24;
       break;
-  default:
+    default:
       break;
-  }
+    }
 
-*data = regData;
-    
+    *data = regData;
+
     if (regIndex == 0x00000a07)
       *data = 0x2000000;
 
@@ -91,20 +91,20 @@ bool Xe::Xenos::XGPU::Write(u64 writeAddress, u64 data, u8 byteCount) {
 
     const u32 regIndex = (writeAddress & 0xFFFFF) / 4;
 
-    LOG_TRACE(Xenos, "Write Addr = {:#x}, reg: {:#x}, data = {:#x}.", writeAddress, regIndex,
-        _byteswap_ulong(static_cast<u32>(data)));
+    LOG_TRACE(Xenos, "Write Addr = {:#x}, reg: {:#x}, data = {:#x}.",
+              writeAddress, regIndex, _byteswap_ulong(static_cast<u32>(data)));
 
     XeRegister reg = static_cast<XeRegister>(regIndex);
 
     // Set our internal width.
     if (reg == XeRegister::D1GRPH_X_END) {
-        internalWidth = _byteswap_ulong(static_cast<u32>(data));
-        LOG_INFO(Xenos, "Setting new Internal Width: {:#x}", internalWidth);
+      internalWidth = _byteswap_ulong(static_cast<u32>(data));
+      LOG_INFO(Xenos, "Setting new Internal Width: {:#x}", internalWidth);
     }
     // Set our internal height.
     if (reg == XeRegister::D1GRPH_Y_END) {
-        internalHeight = _byteswap_ulong(static_cast<u32>(data));
-        LOG_INFO(Xenos, "Setting new Internal Height: {:#x}", internalHeight);
+      internalHeight = _byteswap_ulong(static_cast<u32>(data));
+      LOG_INFO(Xenos, "Setting new Internal Height: {:#x}", internalHeight);
     }
 
     memcpy(&xenosState.Regs[regIndex * 4], &data, byteCount);
@@ -120,26 +120,27 @@ void Xe::Xenos::XGPU::ConfigRead(u64 readAddress, u64 *data, u8 byteCount) {
 }
 
 void Xe::Xenos::XGPU::ConfigWrite(u64 writeAddress, u64 data, u8 byteCount) {
-    // Check if we're being scanned.
-    if (static_cast<u8>(writeAddress) >= 0x10 && static_cast<u8>(writeAddress) < 0x34) {
-        const u32 regOffset = (static_cast<u8>(writeAddress) - 0x10) >> 2;
-        if (pciDevSizes[regOffset] != 0) {
-            if (data == 0xFFFFFFFF) { // PCI BAR Size discovery.
-                u64 x = 2;
-                for (int idx = 2; idx < 31; idx++) {
-                    data &= ~x;
-                    x <<= 1;
-                    if (x >= pciDevSizes[regOffset]) {
-                        break;
-                    }
-                }
-                data &= ~0x3;
-            }
+  // Check if we're being scanned.
+  if (static_cast<u8>(writeAddress) >= 0x10 &&
+      static_cast<u8>(writeAddress) < 0x34) {
+    const u32 regOffset = (static_cast<u8>(writeAddress) - 0x10) >> 2;
+    if (pciDevSizes[regOffset] != 0) {
+      if (data == 0xFFFFFFFF) { // PCI BAR Size discovery.
+        u64 x = 2;
+        for (int idx = 2; idx < 31; idx++) {
+          data &= ~x;
+          x <<= 1;
+          if (x >= pciDevSizes[regOffset]) {
+            break;
+          }
         }
-        if (static_cast<u8>(writeAddress) == 0x30) { // Expansion ROM Base Address.
-            data = 0; // Register not implemented.
-        }
+        data &= ~0x3;
+      }
     }
+    if (static_cast<u8>(writeAddress) == 0x30) { // Expansion ROM Base Address.
+      data = 0;                                  // Register not implemented.
+    }
+  }
   memcpy(&xgpuConfigSpace.data[writeAddress & 0xFF], &data, byteCount);
   return;
 }
@@ -165,7 +166,7 @@ bool Xe::Xenos::XGPU::isAddressMappedInBAR(u32 address) {
 }
 
 // Shaders
-constexpr const char* vertexShaderSource = R"(
+constexpr const char *vertexShaderSource = R"(
 #version 430 core
 
 out vec2 o_texture_coord;
@@ -176,7 +177,7 @@ void main() {
 }
 )";
 
-constexpr const char* fragmentShaderSource = R"(
+constexpr const char *fragmentShaderSource = R"(
 #version 430 core
 
 in vec2 o_texture_coord;
@@ -195,7 +196,7 @@ void main() {
 }
 )";
 
-constexpr const char* computeShaderSource = R"(
+constexpr const char *computeShaderSource = R"(
 #version 430 core
 
 layout (local_size_x = 16, local_size_y = 16) in;
@@ -250,30 +251,30 @@ void main() {
 }
 )";
 
-void compileShader(GLuint shader, const char* source) {
-    glShaderSource(shader, 1, &source, nullptr);
-    glCompileShader(shader);
-    int success;
-    char infoLog[512];
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-      glGetShaderInfoLog(shader, 512, NULL, infoLog);
-      LOG_ERROR(System, "Failed to initialize SDL video subsystem: {}", infoLog);
-    }
+void compileShader(GLuint shader, const char *source) {
+  glShaderSource(shader, 1, &source, nullptr);
+  glCompileShader(shader);
+  int success;
+  char infoLog[512];
+  glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+  if (!success) {
+    glGetShaderInfoLog(shader, 512, NULL, infoLog);
+    LOG_ERROR(System, "Failed to initialize SDL video subsystem: {}", infoLog);
+  }
 }
 
-GLuint createShaderProgram(const char* vertex, const char* fragment) {
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    compileShader(vertexShader, vertex);
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    compileShader(fragmentShader, fragment);
-    GLuint program = glCreateProgram();
-    glAttachShader(program, vertexShader);
-    glAttachShader(program, fragmentShader);
-    glLinkProgram(program);
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-    return program;
+GLuint createShaderProgram(const char *vertex, const char *fragment) {
+  GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+  compileShader(vertexShader, vertex);
+  GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+  compileShader(fragmentShader, fragment);
+  GLuint program = glCreateProgram();
+  glAttachShader(program, vertexShader);
+  glAttachShader(program, fragmentShader);
+  glLinkProgram(program);
+  glDeleteShader(vertexShader);
+  glDeleteShader(fragmentShader);
+  return program;
 }
 
 void Xe::Xenos::XGPU::XenosResize(int x, int y) {
@@ -292,7 +293,8 @@ void Xe::Xenos::XGPU::XenosResize(int x, int y) {
   pixels.resize(pitch);
   // Recreate the buffer
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, pixelBuffer);
-  glBufferData(GL_SHADER_STORAGE_BUFFER, pixels.size(), pixels.data(), GL_DYNAMIC_DRAW);
+  glBufferData(GL_SHADER_STORAGE_BUFFER, pixels.size(), pixels.data(),
+               GL_DYNAMIC_DRAW);
   LOG_DEBUG(Xenos, "Resized window to {}x{}", resWidth, resHeight);
 }
 
@@ -313,7 +315,8 @@ void Xe::Xenos::XGPU::XenosThread() {
   const u32 resHeight = TILE(Config::windowHeight());
 
   if (!SDL_Init(SDL_INIT_VIDEO)) {
-    LOG_ERROR(System, "Failed to initialize SDL video subsystem: {:#x}", SDL_GetError());
+    LOG_ERROR(System, "Failed to initialize SDL video subsystem: {:#x}",
+              SDL_GetError());
   }
 
   // Set the title.
@@ -321,12 +324,18 @@ void Xe::Xenos::XGPU::XenosThread() {
 
   // SDL3 window properties.
   SDL_PropertiesID props = SDL_CreateProperties();
-  SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, std::string(TITLE).c_str());
-  SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_X_NUMBER, SDL_WINDOWPOS_CENTERED);
-  SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, SDL_WINDOWPOS_CENTERED);
-  SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, Config::windowWidth());
-  SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, Config::windowHeight());
-  // For a new Vulkan support, don't forget to change 'SDL_WINDOW_OPENGL' by 'SDL_WINDOW_VULKAN'.
+  SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING,
+                        std::string(TITLE).c_str());
+  SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_X_NUMBER,
+                        SDL_WINDOWPOS_CENTERED);
+  SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER,
+                        SDL_WINDOWPOS_CENTERED);
+  SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER,
+                        Config::windowWidth());
+  SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER,
+                        Config::windowHeight());
+  // For a new Vulkan support, don't forget to change 'SDL_WINDOW_OPENGL' by
+  // 'SDL_WINDOW_VULKAN'.
   SDL_SetNumberProperty(props, "flags", SDL_WINDOW_OPENGL);
   SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_RESIZABLE_BOOLEAN, true);
   SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_OPENGL_BOOLEAN, true);
@@ -367,7 +376,8 @@ void Xe::Xenos::XGPU::XenosThread() {
   glAttachShader(shaderProgram, computeShader);
   glLinkProgram(shaderProgram);
   glDeleteShader(computeShader);
-  renderShaderProgram = createShaderProgram(vertexShaderSource, fragmentShaderSource);
+  renderShaderProgram =
+      createShaderProgram(vertexShaderSource, fragmentShaderSource);
 
   // Init GL texture
   glGenTextures(1, &texture);
@@ -380,7 +390,8 @@ void Xe::Xenos::XGPU::XenosThread() {
   pixels.resize(pitch, COLOR(30, 30, 30, 255)); // Init with dark grey
   glGenBuffers(1, &pixelBuffer);
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, pixelBuffer);
-  glBufferData(GL_SHADER_STORAGE_BUFFER, pixels.size(), pixels.data(), GL_DYNAMIC_DRAW);
+  glBufferData(GL_SHADER_STORAGE_BUFFER, pixels.size(), pixels.data(),
+               GL_DYNAMIC_DRAW);
 
   // Create a dummy VAO
   glGenVertexArrays(1, &dummyVAO);
@@ -427,12 +438,13 @@ void Xe::Xenos::XGPU::XenosThread() {
         }
         if (windowEvent.key.key == SDLK_F9) {
           LOG_INFO(Xenos, "RenderWindow: Taking a XenosFB snapshot");
-          std::ofstream f(Base::FS::GetUserPath(Base::FS::PathType::UserDir) / "fbmem.bin", std::ios::out | std::ios::binary | std::ios::trunc);
+          std::ofstream f(Base::FS::GetUserPath(Base::FS::PathType::UserDir) /
+                              "fbmem.bin",
+                          std::ios::out | std::ios::binary | std::ios::trunc);
           if (!f) {
             LOG_ERROR(Xenos, "Failed to open fbmem.bin for writing");
-          }
-          else {
-            f.write(reinterpret_cast<const char*>(fbPointer), pitch * 4);
+          } else {
+            f.write(reinterpret_cast<const char *>(fbPointer), pitch * 4);
             LOG_INFO(Xenos, "Framebuffer dumped to Xenon/fbmem.bin");
           }
           f.close();
@@ -449,19 +461,23 @@ void Xe::Xenos::XGPU::XenosThread() {
     }
 
     // Upload buffer
-    const u32* ui_fbPointer = reinterpret_cast<u32*>(fbPointer);
+    const u32 *ui_fbPointer = reinterpret_cast<u32 *>(fbPointer);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, pixelBuffer);
     glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, pitch, ui_fbPointer);
 
     // Use the compute shader
     glUseProgram(shaderProgram);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, pixelBuffer);
-    glUniform1i(glGetUniformLocation(shaderProgram, "internalWidth"), internalWidth);
-    glUniform1i(glGetUniformLocation(shaderProgram, "internalHeight"), internalHeight);
+    glUniform1i(glGetUniformLocation(shaderProgram, "internalWidth"),
+                internalWidth);
+    glUniform1i(glGetUniformLocation(shaderProgram, "internalHeight"),
+                internalHeight);
     glUniform1i(glGetUniformLocation(shaderProgram, "resWidth"), resWidth);
     glUniform1i(glGetUniformLocation(shaderProgram, "resHeight"), resHeight);
     glDispatchCompute(resWidth / 16, resHeight / 16, 1);
-    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT |
+                    GL_TEXTURE_UPDATE_BARRIER_BIT |
+                    GL_TEXTURE_FETCH_BARRIER_BIT);
 
     // Render the texture
     glUseProgram(renderShaderProgram);

@@ -22,7 +22,8 @@ bool NAND::Load(const std::string filePath) {
   CheckMagic();
 
   if (!CheckMagic()) {
-    LOG_ERROR(System, "NAND: Wrong magic found, Xbox 360 Retail NAND magic is 0xFF4F and Devkit NAND magic 0x0F4F.");
+    LOG_ERROR(System, "NAND: Wrong magic found, Xbox 360 Retail NAND magic is "
+                      "0xFF4F and Devkit NAND magic 0x0F4F.");
     return false;
   }
 

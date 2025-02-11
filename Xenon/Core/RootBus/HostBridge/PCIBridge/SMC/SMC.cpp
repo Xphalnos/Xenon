@@ -95,9 +95,7 @@ Xe::PCIDev::SMC::SMCCore::SMCCore(PCIBridge *parentPCIBridge,
 }
 
 // Class Destructor.
-Xe::PCIDev::SMC::SMCCore::~SMCCore() {
-    LOG_INFO(SMC, "Core: Exiting.");
-}
+Xe::PCIDev::SMC::SMCCore::~SMCCore() { LOG_INFO(SMC, "Core: Exiting."); }
 
 // PCI Read
 void Xe::PCIDev::SMC::SMCCore::Read(u64 readAddress, u64 *data, u8 byteCount) {
@@ -159,7 +157,8 @@ void Xe::PCIDev::SMC::SMCCore::Read(u64 readAddress, u64 *data, u8 byteCount) {
     smcCoreState->fifoBufferPos += 4;
     break;
   default:
-    LOG_ERROR(SMC, "Unknown register being read, offset {:#x}", static_cast<u16>(regOffset));
+    LOG_ERROR(SMC, "Unknown register being read, offset {:#x}",
+              static_cast<u16>(regOffset));
     break;
   }
 }
@@ -167,7 +166,8 @@ void Xe::PCIDev::SMC::SMCCore::Read(u64 readAddress, u64 *data, u8 byteCount) {
 // PCI Config Read
 void Xe::PCIDev::SMC::SMCCore::ConfigRead(u64 readAddress, u64 *data,
                                           u8 byteCount) {
-  LOG_INFO(SMC, "ConfigRead: Address = {:#x}, ByteCount = {:#x}.", readAddress, byteCount);
+  LOG_INFO(SMC, "ConfigRead: Address = {:#x}, ByteCount = {:#x}.", readAddress,
+           byteCount);
   memcpy(data, &pciConfigSpace.data[static_cast<u8>(readAddress)], byteCount);
 }
 
@@ -231,8 +231,8 @@ void Xe::PCIDev::SMC::SMCCore::Write(u64 writeAddress, u64 data, u8 byteCount) {
     smcCoreState->fifoBufferPos += 4;
     break;
   default:
-    LOG_ERROR(SMC, "Unknown register being written, offset {:#x}, data {:#x}", 
-        static_cast<u16>(regOffset), data);
+    LOG_ERROR(SMC, "Unknown register being written, offset {:#x}, data {:#x}",
+              static_cast<u16>(regOffset), data);
     break;
   }
 }
@@ -240,10 +240,13 @@ void Xe::PCIDev::SMC::SMCCore::Write(u64 writeAddress, u64 data, u8 byteCount) {
 // PCI Config Write
 void Xe::PCIDev::SMC::SMCCore::ConfigWrite(u64 writeAddress, u64 data,
                                            u8 byteCount) {
-  LOG_INFO(SMC, "ConfigWrite: Address = {:#x}, Data = {:#x}, ByteCount = {:#x}.", writeAddress, data, byteCount);
+  LOG_INFO(SMC,
+           "ConfigWrite: Address = {:#x}, Data = {:#x}, ByteCount = {:#x}.",
+           writeAddress, data, byteCount);
 
   // Check if we're being scanned.
-  if (static_cast<u8>(writeAddress) >= 0x10 && static_cast<u8>(writeAddress) < 0x34) {
+  if (static_cast<u8>(writeAddress) >= 0x10 &&
+      static_cast<u8>(writeAddress) < 0x34) {
     const u32 regOffset = (static_cast<u8>(writeAddress) - 0x10) >> 2;
     if (pciDevSizes[regOffset] != 0) {
       if (data == 0xFFFFFFFF) { // PCI BAR Size discovery.
@@ -259,7 +262,7 @@ void Xe::PCIDev::SMC::SMCCore::ConfigWrite(u64 writeAddress, u64 data,
       }
     }
     if (static_cast<u8>(writeAddress) == 0x30) { // Expansion ROM Base Address.
-      data = 0; // Register not implemented.
+      data = 0;                                  // Register not implemented.
     }
   }
 
@@ -277,50 +280,60 @@ void Xe::PCIDev::SMC::SMCCore::setupUART(u32 uartConfig) {
   smcCoreState->comPortDCB.DCBlength = sizeof(DCB);
   switch (uartConfig) {
   case 0x1e6:
-    LOG_INFO(SMC, " * BaudRate: 115200bps, DataSize: 8, Parity: N, StopBits: 1.");
+    LOG_INFO(SMC,
+             " * BaudRate: 115200bps, DataSize: 8, Parity: N, StopBits: 1.");
     smcCoreState->comPortDCB.BaudRate = CBR_115200;
     smcCoreState->comPortDCB.ByteSize = 8;
     smcCoreState->comPortDCB.Parity = NOPARITY;
     smcCoreState->comPortDCB.StopBits = ONESTOPBIT;
     break;
   case 0x1bb2:
-    LOG_INFO(SMC, " * BaudRate: 38400bps, DataSize: 8, Parity: N, StopBits: 1.");
+    LOG_INFO(SMC,
+             " * BaudRate: 38400bps, DataSize: 8, Parity: N, StopBits: 1.");
     smcCoreState->comPortDCB.BaudRate = CBR_38400;
     smcCoreState->comPortDCB.ByteSize = 8;
     smcCoreState->comPortDCB.Parity = NOPARITY;
     smcCoreState->comPortDCB.StopBits = ONESTOPBIT;
     break;
   case 0x163:
-    LOG_INFO(SMC, " * BaudRate: 19200bps, DataSize: 8, Parity: N, StopBits: 1.");
+    LOG_INFO(SMC,
+             " * BaudRate: 19200bps, DataSize: 8, Parity: N, StopBits: 1.");
     smcCoreState->comPortDCB.BaudRate = CBR_19200;
     smcCoreState->comPortDCB.ByteSize = 8;
     smcCoreState->comPortDCB.Parity = NOPARITY;
     smcCoreState->comPortDCB.StopBits = ONESTOPBIT;
     break;
   default:
-    LOG_WARNING(SMC, "SMCCore: Unknown UART config being set: ConfigValue = {:#x}", uartConfig);
+    LOG_WARNING(SMC,
+                "SMCCore: Unknown UART config being set: ConfigValue = {:#x}",
+                uartConfig);
     break;
   }
 
   // Open COM# port using the CreateFile function.
   smcCoreState->comPortHandle =
-      CreateFileA(smcCoreState->currentCOMPort, GENERIC_READ | GENERIC_WRITE, 0, nullptr,
-                 OPEN_EXISTING, 0, nullptr);
+      CreateFileA(smcCoreState->currentCOMPort, GENERIC_READ | GENERIC_WRITE, 0,
+                  nullptr, OPEN_EXISTING, 0, nullptr);
 
   if (smcCoreState->comPortHandle == INVALID_HANDLE_VALUE) {
-    LOG_ERROR(SMC, "CreateFile failed with error {:#x}. Make sure the Selected COM Port is avaliable "
-        "in your system.", GetLastError());
+    LOG_ERROR(SMC,
+              "CreateFile failed with error {:#x}. Make sure the Selected COM "
+              "Port is avaliable "
+              "in your system.",
+              GetLastError());
     smcCoreState->uartPresent = false;
     return;
   }
 
   // Get Current COM Port State
   if (!GetCommState(smcCoreState->comPortHandle, &smcCoreState->comPortDCB)) {
-    LOG_ERROR(SMC, "UART: GetCommState failed with error {:#x}.", GetLastError());
+    LOG_ERROR(SMC, "UART: GetCommState failed with error {:#x}.",
+              GetLastError());
   }
   // Set The COM Port State as per config value.
   if (!SetCommState(smcCoreState->comPortHandle, &smcCoreState->comPortDCB)) {
-    LOG_ERROR(SMC, "UART: SetCommState failed with error {:#x}.", GetLastError());
+    LOG_ERROR(SMC, "UART: SetCommState failed with error {:#x}.",
+              GetLastError());
   }
 
   LOG_INFO(SMC, "UART Initialized Successfully!");
@@ -329,7 +342,7 @@ void Xe::PCIDev::SMC::SMCCore::setupUART(u32 uartConfig) {
   smcCoreState->uartInitialized = true;
 
 #elif
-    LOG_ERROR(SMC, "UART Initialization is not supported on this platform!");
+  LOG_ERROR(SMC, "UART Initialization is not supported on this platform!");
 #endif // _WIN32
 }
 
@@ -436,7 +449,7 @@ void Xe::PCIDev::SMC::SMCCore::smcMainThread() {
         LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_QUERY_TEMP_SENS");
         break;
       case Xe::PCIDev::SMC::SMC_QUERY_TRAY_STATE:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_QUERY_TRAY_STATE");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_QUERY_TRAY_STATE");
         break;
       case Xe::PCIDev::SMC::SMC_QUERY_AVPACK:
         smcCoreState->fifoDataBuffer[0] = SMC_QUERY_AVPACK;
@@ -466,8 +479,8 @@ void Xe::PCIDev::SMC::SMCCore::smcMainThread() {
               (smcCoreState->fifoDataBuffer[7] << 24);
           break;
         default:
-            LOG_WARNING(SMC, "SMC_I2C_READ_WRITE: Unimplemented command {:#x}", 
-                smcCoreState->fifoDataBuffer[1]);
+          LOG_WARNING(SMC, "SMC_I2C_READ_WRITE: Unimplemented command {:#x}",
+                      smcCoreState->fifoDataBuffer[1]);
           smcCoreState->fifoDataBuffer[0] = SMC_I2C_READ_WRITE;
           smcCoreState->fifoDataBuffer[1] = 0x1; // Set R/W Failed.
         }
@@ -482,71 +495,71 @@ void Xe::PCIDev::SMC::SMCCore::smcMainThread() {
         LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_FIFO_TEST");
         break;
       case Xe::PCIDev::SMC::SMC_QUERY_IR_ADDRESS:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_QUERY_IR_ADDRESS");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_QUERY_IR_ADDRESS");
         break;
       case Xe::PCIDev::SMC::SMC_QUERY_TILT_SENSOR:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_QUERY_TILT_SENSOR");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_QUERY_TILT_SENSOR");
         break;
       case Xe::PCIDev::SMC::SMC_READ_82_INT:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_READ_82_INT");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_READ_82_INT");
         break;
       case Xe::PCIDev::SMC::SMC_READ_8E_INT:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_READ_8E_INT");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_READ_8E_INT");
         break;
       case Xe::PCIDev::SMC::SMC_SET_STANDBY:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_STANDBY");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_STANDBY");
         break;
       case Xe::PCIDev::SMC::SMC_SET_TIME:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_TIME");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_TIME");
         break;
       case Xe::PCIDev::SMC::SMC_SET_FAN_ALGORITHM:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_FAN_ALGORITHM");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_FAN_ALGORITHM");
         break;
       case Xe::PCIDev::SMC::SMC_SET_FAN_SPEED_CPU:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_FAN_SPEED_CPU");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_FAN_SPEED_CPU");
         break;
       case Xe::PCIDev::SMC::SMC_SET_DVD_TRAY:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_DVD_TRAY");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_DVD_TRAY");
         break;
       case Xe::PCIDev::SMC::SMC_SET_POWER_LED:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_POWER_LED");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_POWER_LED");
         break;
       case Xe::PCIDev::SMC::SMC_SET_AUDIO_MUTE:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_AUDIO_MUTE");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_AUDIO_MUTE");
         break;
       case Xe::PCIDev::SMC::SMC_ARGON_RELATED:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_ARGON_RELATED");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_ARGON_RELATED");
         break;
       case Xe::PCIDev::SMC::SMC_SET_FAN_SPEED_GPU:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_FAN_SPEED_GPU");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_FAN_SPEED_GPU");
         break;
       case Xe::PCIDev::SMC::SMC_SET_IR_ADDRESS:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_IR_ADDRESS");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_IR_ADDRESS");
         break;
       case Xe::PCIDev::SMC::SMC_SET_DVD_TRAY_SECURE:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_DVD_TRAY_SECURE");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_DVD_TRAY_SECURE");
         break;
       case Xe::PCIDev::SMC::SMC_SET_FP_LEDS:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_FP_LEDS");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_FP_LEDS");
         break;
       case Xe::PCIDev::SMC::SMC_SET_RTC_WAKE:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_RTC_WAKE");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_RTC_WAKE");
         break;
       case Xe::PCIDev::SMC::SMC_ANA_RELATED:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_ANA_RELATED");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_ANA_RELATED");
         break;
       case Xe::PCIDev::SMC::SMC_SET_ASYNC_OPERATION:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_ASYNC_OPERATION");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_ASYNC_OPERATION");
         break;
       case Xe::PCIDev::SMC::SMC_SET_82_INT:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_82_INT");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_82_INT");
         break;
       case Xe::PCIDev::SMC::SMC_SET_9F_INT:
-          LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_9F_INT");
+        LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_9F_INT");
         break;
       default:
-          LOG_WARNING(SMC, "Unknown SMC_FIFO_CMD: ID = {:#x}", 
-              static_cast<u16>(smcCoreState->fifoDataBuffer[0]));
+        LOG_WARNING(SMC, "Unknown SMC_FIFO_CMD: ID = {:#x}",
+                    static_cast<u16>(smcCoreState->fifoDataBuffer[0]));
         break;
       }
 

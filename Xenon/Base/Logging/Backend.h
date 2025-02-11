@@ -8,7 +8,8 @@ namespace Base::Log {
 
 class Filter;
 
-/// Initializes the logging system. This should be the first thing called in main.
+/// Initializes the logging system. This should be the first thing called in
+/// main.
 void Initialize(std::string_view log_file = "");
 
 bool IsActive();
@@ -19,8 +20,9 @@ void Start();
 /// Explictily stops the logger thread and flushes the buffers
 void Stop();
 
-/// The global filter will prevent any messages from even being processed if they are filtered.
-void SetGlobalFilter(const Filter& filter);
+/// The global filter will prevent any messages from even being processed if
+/// they are filtered.
+void SetGlobalFilter(const Filter &filter);
 
 void SetColorConsoleBackendEnabled(bool enabled);
 

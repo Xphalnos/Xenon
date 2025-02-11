@@ -105,7 +105,8 @@ void PPCInterpreter::ppcDebugLoadImageSymbols(PPU_STATE *hCore,
   Kdinfo.SizeOfImage = MMURead32(hCore, moduleInfoAddress + 12);
 
   LOG_XBOX(Xenon, "[{}]: *** DebugLoadImageSymbols ***", hCore->ppuName);
-  LOG_XBOX(Xenon, "Loaded: {} at address {:#x} - {:#x}", moduleName, Kdinfo.BaseOfDll, (Kdinfo.BaseOfDll + Kdinfo.SizeOfImage));
+  LOG_XBOX(Xenon, "Loaded: {} at address {:#x} - {:#x}", moduleName,
+           Kdinfo.BaseOfDll, (Kdinfo.BaseOfDll + Kdinfo.SizeOfImage));
 }
 
 void PPCInterpreter::ppcDebugUnloadImageSymbols(PPU_STATE *hCore,

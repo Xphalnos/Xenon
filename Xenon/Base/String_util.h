@@ -10,9 +10,9 @@ namespace Base {
 /// Make a string lowercase
 [[nodiscard]] std::string ToLower(std::string_view str);
 
-void ToLowerInPlace(std::string& str);
+void ToLowerInPlace(std::string &str);
 
-std::vector<std::string> SplitString(const std::string& str, char delimiter);
+std::vector<std::string> SplitString(const std::string &str, char delimiter);
 
 std::string_view U8stringToString(std::u8string_view u8str);
 

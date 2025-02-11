@@ -464,7 +464,8 @@ void ODD::processSCSICommand() {
 
     break;
   default:
-    LOG_ERROR(ODD, "Unknown SCSI Command requested: {:#x}", atapiState.scsiCBD.CDB12.OperationCode);
+    LOG_ERROR(ODD, "Unknown SCSI Command requested: {:#x}",
+              atapiState.scsiCBD.CDB12.OperationCode);
   }
 
   atapiState.atapiRegs.interruptReasonReg = IDE_INTERRUPT_REASON_IO;
@@ -572,7 +573,10 @@ void ODD::Read(u64 readAddress, u64 *data, u8 byteCount) {
       memcpy(data, &atapiState.atapiRegs.statusReg, byteCount);
       return;
     default:
-      LOG_ERROR(ODD, "Unknown Command Register Block register being read, command code = {:#x}", atapiCommandReg);
+      LOG_ERROR(ODD,
+                "Unknown Command Register Block register being read, command "
+                "code = {:#x}",
+                atapiCommandReg);
       break;
     }
   } else {
@@ -588,7 +592,10 @@ void ODD::Read(u64 readAddress, u64 *data, u8 byteCount) {
       memcpy(data, &atapiState.atapiRegs.dmaTableOffsetReg, byteCount);
       break;
     default:
-      LOG_ERROR(ODD, "Unknown Control Register Block register being read, command code = {:#x}", atapiControlReg);
+      LOG_ERROR(ODD,
+                "Unknown Control Register Block register being read, command "
+                "code = {:#x}",
+                atapiControlReg);
       break;
     }
   }
@@ -672,7 +679,10 @@ void ODD::Write(u64 writeAddress, u64 data, u8 byteCount) {
       }
       return;
     default:
-      LOG_ERROR(ODD, "Unknown Command Register Block register being written, command code = {:#x}", atapiCommandReg);
+      LOG_ERROR(ODD,
+                "Unknown Command Register Block register being written, "
+                "command code = {:#x}",
+                atapiCommandReg);
       break;
     }
   } else {
@@ -695,7 +705,10 @@ void ODD::Write(u64 writeAddress, u64 data, u8 byteCount) {
       memcpy(&atapiState.atapiRegs.dmaTableOffsetReg, &data, byteCount);
       break;
     default:
-      LOG_ERROR(ODD, "Unknown Control Register Block register being written, command code = {:#x}", atapiControlReg);
+      LOG_ERROR(ODD,
+                "Unknown Control Register Block register being written, "
+                "command code = {:#x}",
+                atapiControlReg);
       break;
     }
   }
@@ -707,7 +720,8 @@ void ODD::ConfigRead(u64 readAddress, u64 *data, u8 byteCount) {
 
 void ODD::ConfigWrite(u64 writeAddress, u64 data, u8 byteCount) {
   // Check if we're being scanned.
-  if (static_cast<u8>(writeAddress) >= 0x10 && static_cast<u8>(writeAddress) < 0x34) {
+  if (static_cast<u8>(writeAddress) >= 0x10 &&
+      static_cast<u8>(writeAddress) < 0x34) {
     const u32 regOffset = (static_cast<u8>(writeAddress) - 0x10) >> 2;
     if (pciDevSizes[regOffset] != 0) {
       if (data == 0xFFFFFFFF) { // PCI BAR Size discovery.
@@ -723,7 +737,7 @@ void ODD::ConfigWrite(u64 writeAddress, u64 data, u8 byteCount) {
       }
     }
     if (static_cast<u8>(writeAddress) == 0x30) { // Expansion ROM Base Address.
-      data = 0; // Register not implemented.
+      data = 0;                                  // Register not implemented.
     }
   }
   memcpy(&pciConfigSpace.data[static_cast<u8>(writeAddress)], &data, byteCount);

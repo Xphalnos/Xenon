@@ -1,7 +1,7 @@
 // Copyright 2025 Xenon Emulator Project
 
-#include "PPCInterpreter.h"
 #include "Core/XCPU/PostBus/PostBus.h"
+#include "PPCInterpreter.h"
 
 //
 // Xbox 360 Memory map, info taken from various sources.
@@ -95,9 +95,9 @@ void PPCInterpreter::PPCInterpreter_slbia(PPU_STATE *hCore) {
 void PPCInterpreter::PPCInterpreter_tlbiel(PPU_STATE *hCore) {
   X_FORM_L_rB
 
-  // The PPU adds two new fields to this instruction, them being LP abd IS.
+      // The PPU adds two new fields to this instruction, them being LP abd IS.
 
-  bool LP = (hCore->ppuThread[hCore->currentThread].GPR[rB] & 0x1000) >> 12;
+      bool LP = (hCore->ppuThread[hCore->currentThread].GPR[rB] & 0x1000) >> 12;
   bool invalSelector =
       (hCore->ppuThread[hCore->currentThread].GPR[rB] & 0x800) >> 11;
   u8 p = mmuGetPageSize(hCore, L, LP);
@@ -177,16 +177,14 @@ void PPCInterpreter::PPCInterpreter_tlbiel(PPU_STATE *hCore) {
   }
 }
 
-void PPCInterpreter::PPCInterpreter_tlbie(PPU_STATE* hCore)
-{
-    // Do nothing.
-    LOG_INFO(Xenon, "tlbie");
+void PPCInterpreter::PPCInterpreter_tlbie(PPU_STATE *hCore) {
+  // Do nothing.
+  LOG_INFO(Xenon, "tlbie");
 }
 
-void PPCInterpreter::PPCInterpreter_tlbsync(PPU_STATE* hCore)
-{
-    // Do nothing.
-    LOG_INFO(Xenon, "tlbsync");
+void PPCInterpreter::PPCInterpreter_tlbsync(PPU_STATE *hCore) {
+  // Do nothing.
+  LOG_INFO(Xenon, "tlbsync");
 }
 
 // Helper function for getting Page Size (p bit).
@@ -1252,11 +1250,12 @@ u64 PPCInterpreter::MMURead(XENON_CONTEXT *cpuContext, PPU_STATE *ppuState,
   }
 
   if (EA >= 0xEC800000 && EA <= 0xEC810000) {
-      xGPU = true;
+    xGPU = true;
   }
 
-  if (socRead && nand != true && pciBridge != true && pciConfigSpace != true && xGPU != true) {
-      LOG_WARNING(Xenon_MMU, "SoC Read from {:#x}, returning 0.", EA);
+  if (socRead && nand != true && pciBridge != true && pciConfigSpace != true &&
+      xGPU != true) {
+    LOG_WARNING(Xenon_MMU, "SoC Read from {:#x}, returning 0.", EA);
     data = 0;
     return data;
   }
@@ -1320,7 +1319,7 @@ void PPCInterpreter::MMUWrite(XENON_CONTEXT *cpuContext, PPU_STATE *ppuState,
 
   // Check if writing to bootloader section
   if (socWrite && EA >= XE_SROM_ADDR && EA < XE_SROM_ADDR + XE_SROM_SIZE) {
-     LOG_ERROR(Xenon_MMU, "Tried to write to XCPU SROM!");
+    LOG_ERROR(Xenon_MMU, "Tried to write to XCPU SROM!");
     return;
   }
 
@@ -1365,11 +1364,13 @@ void PPCInterpreter::MMUWrite(XENON_CONTEXT *cpuContext, PPU_STATE *ppuState,
   }
 
   if (EA >= 0xEC800000 && EA <= 0xEC810000) {
-      xGPU = true;
+    xGPU = true;
   }
 
-  if (socWrite && nand != true && pciBridge != true && pciConfigSpace != true && xGPU != true) {
-    LOG_WARNING(Xenon_MMU, "SoC Write to {:#x}, data = {:#x}, invalidating.", EA, data);
+  if (socWrite && nand != true && pciBridge != true && pciConfigSpace != true &&
+      xGPU != true) {
+    LOG_WARNING(Xenon_MMU, "SoC Write to {:#x}, data = {:#x}, invalidating.",
+                EA, data);
     return;
   }
 
