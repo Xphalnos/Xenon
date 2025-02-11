@@ -12,6 +12,29 @@ env:
   BUILD_TYPE: Release
 
 jobs:
+  clang-format:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@main
+
+    - name: Install clang-format
+      run: sudo apt-get install -y clang-format-19
+
+    - name: Run clang-format
+      run: find . -regex '.*\.\(cpp\|h\)' -exec clang-format-19 -i {} \;
+
+    - name: Check for formatting changes
+      run: git diff --exit-code || (git config --global user.name "github-actions" && git config --global user.email "github-actions@github.com" && git add . && git commit -m "Apply clang-format changes")
+
+    - name: Push changes
+      if: success()
+      uses: ad-m/github-push-action@v0.8.0
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: clang-format-1
+
   Windows:
     runs-on: windows-2025
     steps:
