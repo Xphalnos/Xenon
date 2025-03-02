@@ -66,7 +66,7 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt update
-        sudo apt install -y ninja-build clang19 lld cmake ccache \
+        sudo apt install -y ninja-build clang-19 lld cmake ccache \
                            libx11-dev libxext-dev libxrandr-dev libxcursor-dev \
                            libxi-dev libxinerama-dev libwayland-dev libxkbcommon-dev \
                            wayland-protocols
