@@ -12,102 +12,25 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  Windows:
-    runs-on: windows-2025
-    steps:
-    - uses: actions/checkout@main
-      with:
-        submodules: recursive
-
-    - name: Cache CMake Configuration
-      uses: actions/cache@main
-      env:
-          cache-name: ${{ runner.os }}-xenon-cache-config-windows
-      with:
-          path: | 
-            ${{github.workspace}}/build
-          key: ${{ env.cache-name }}-${{ hashFiles('**/CMakeLists.txt', 'cmake/**') }}
-          restore-keys: |
-            ${{ env.cache-name }}-
-
-    - name: Cache CMake Build
-      uses: hendrikmuhs/ccache-action@v1.2.17
-      env:
-          cache-name: ${{ runner.os }}-xenon-cache-build-windows
-      with:
-        append-timestamp: false
-        key: ${{ env.cache-name }}-${{ hashFiles('**/CMakeLists.txt', 'cmake/**') }}
-
-    - name: Setup VS Environment
-      uses: ilammy/msvc-dev-cmd@v1.13.0
-      with:
-        arch: amd64
-
-    - name: Configure CMake
-      run: cmake --fresh -G Ninja -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-
-    - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --parallel $env:NUMBER_OF_PROCESSORS
-
-    - name: Upload Windows Artifact
-      uses: actions/upload-artifact@main
-      with:
-        name: Xenon-win64
-        path: ${{github.workspace}}/build/Xenon.exe
-
-
-  Linux:
+  clang-format:
     runs-on: ubuntu-24.04
+
     steps:
-    - uses: actions/checkout@main
+    - name: Checkout repository
+      uses: actions/checkout@main
+
+    - name: Install clang-format
+      run: sudo apt-get install -y clang-format-20
+
+    - name: Run clang-format
+      run: find . -regex '.*\.\(cpp\|h\)' -exec clang-format-20 -i {} \;
+
+    - name: Check for formatting changes
+      run: git diff --exit-code || (git config --global user.name "github-actions" && git config --global user.email "github-actions@github.com" && git add . && git commit -m "Apply clang-format changes")
+
+    - name: Push changes
+      if: success()
+      uses: ad-m/github-push-action@v0.8.0
       with:
-        submodules: recursive
-
-    - name: Install Dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y ninja-build clang lld cmake ccache \
-                           libx11-dev libxext-dev libxrandr-dev libxcursor-dev \
-                           libxi-dev libxinerama-dev libwayland-dev libxkbcommon-dev \
-                           wayland-protocols
-
-    - name: Cache CMake Configuration
-      uses: actions/cache@main
-      env:
-          cache-name: ${{ runner.os }}-xenon-cache-config-linux
-      with:
-          path: | 
-            ${{github.workspace}}/build
-          key: ${{ env.cache-name }}-${{ hashFiles('**/CMakeLists.txt', 'cmake/**') }}
-          restore-keys: |
-            ${{ env.cache-name }}-
-
-    - name: Cache CMake Build
-      uses: hendrikmuhs/ccache-action@v1.2.17
-      env:
-          cache-name: ${{ runner.os }}-xenon-cache-build-linux
-      with:
-        append-timestamp: false
-        key: ${{ env.cache-name }}-${{ hashFiles('**/CMakeLists.txt', 'cmake/**') }}
-
-    - name: Configure CMake
-      run: cmake --fresh -G Ninja -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-
-    - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --parallel $(nproc)
-
-    - name: Upload Linux Artifact
-      uses: actions/upload-artifact@main
-      with:
-        name: Xenon-linux64
-        path: ${{github.workspace}}/build/Xenon
-
-  linux_nix:
-    name: Linux (nix)
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@main
-      - uses: cachix/install-nix-action@v27
-      - name: Build Xenon
-        run: nix build .#xenon -L
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: Clang-Format
