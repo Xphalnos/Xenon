@@ -3,12 +3,12 @@
 #include "NAND.h"
 #include "Base/Logging/Log.h"
 
-//#define NAND_DEBUG
+// #define NAND_DEBUG
 
 /********************Responsible for loading the NAND file********************/
-NAND::NAND(const char* deviceName, const std::string filePath,
-  u64 startAddress, u64 endAddress,
-  bool isSOCDevice) : SystemDevice(deviceName, startAddress, endAddress, isSOCDevice) {
+NAND::NAND(const char *deviceName, const std::string filePath, u64 startAddress,
+           u64 endAddress, bool isSOCDevice)
+    : SystemDevice(deviceName, startAddress, endAddress, isSOCDevice) {
   rawNANDData.resize(0x4200000);
 
   LOG_INFO(System, "NAND: Loading file {}", filePath.c_str());
@@ -22,7 +22,9 @@ NAND::NAND(const char* deviceName, const std::string filePath,
   rawFileSize = std::filesystem::file_size(filePath);
 
   if (rawFileSize > 0x4200000) {
-    LOG_ERROR(System, "NAND: Nand size exceeds 64MB! This may cause unintended behaviour");
+    LOG_ERROR(
+        System,
+        "NAND: Nand size exceeds 64MB! This may cause unintended behaviour");
     SYSTEM_PAUSE();
     rawNANDData.resize(rawFileSize);
   }
@@ -32,7 +34,10 @@ NAND::NAND(const char* deviceName, const std::string filePath,
   u8 magic[2]{};
   if (!CheckMagic(magic)) {
     u16 magicLE = (magic[0] << 8) | (magic[1] << 0);
-    LOG_ERROR(System, "NAND: Wrong magic found! Your nand contained {:#x} while the expected is 0xFF4F (retail) or 0x0F4F (devkit)", magicLE);
+    LOG_ERROR(System,
+              "NAND: Wrong magic found! Your nand contained {:#x} while the "
+              "expected is 0xFF4F (retail) or 0x0F4F (devkit)",
+              magicLE);
     SYSTEM_PAUSE();
   }
 
@@ -40,7 +45,8 @@ NAND::NAND(const char* deviceName, const std::string filePath,
 
   for (int currentBlock = 0; currentBlock < rawFileSize;
        currentBlock += blockSize) {
-    inputFile.read(reinterpret_cast<char*>(rawNANDData.data() + currentBlock), blockSize);
+    inputFile.read(reinterpret_cast<char *>(rawNANDData.data() + currentBlock),
+                   blockSize);
   }
 
   inputFile.close();
@@ -55,16 +61,15 @@ NAND::NAND(const char* deviceName, const std::string filePath,
   }
 }
 
-NAND::~NAND() {
-  rawNANDData.clear();
-}
+NAND::~NAND() { rawNANDData.clear(); }
 
 /************Responsible for reading the NAND************/
 void NAND::Read(u64 readAddress, u64 *data, u8 byteCount) {
   u32 offset = static_cast<u32>(readAddress & 0xFFFFFF);
   offset = 1 ? ((offset / 0x200) * 0x210) + offset % 0x200 : offset;
 #ifdef NAND_DEBUG
-    LOG_DEBUG(SFCX, "Reading raw data at {:#x} (offset {:#x}) for {:#x} bytes", readAddress, offset, byteCount);
+  LOG_DEBUG(SFCX, "Reading raw data at {:#x} (offset {:#x}) for {:#x} bytes",
+            readAddress, offset, byteCount);
 #endif // NAND_DEBUG
   memcpy(data, rawNANDData.data() + offset, byteCount);
 }
@@ -74,9 +79,10 @@ void NAND::Write(u64 writeAddress, u64 data, u8 byteCount) {
   u32 offset = static_cast<u32>(writeAddress & 0xFFFFFF);
   offset = 1 ? ((offset / 0x200) * 0x210) + offset % 0x200 : offset;
 #ifdef NAND_DEBUG
-    LOG_DEBUG(SFCX, "Writing raw data at {:#x} (offset {:#x}) for {:#x} bytes", writeAddress, offset, byteCount);
+  LOG_DEBUG(SFCX, "Writing raw data at {:#x} (offset {:#x}) for {:#x} bytes",
+            writeAddress, offset, byteCount);
 #endif // NAND_DEBUG
-  u8* NANDData = rawNANDData.data();
+  u8 *NANDData = rawNANDData.data();
   memcpy(rawNANDData.data() + offset, &data, byteCount);
 }
 
@@ -86,18 +92,16 @@ bool NAND::CheckPageECD(u8 *data, s32 offset) {
   NANDMetadata calculatedMetadata{};
 
   // This directly takes the NAND block's metadata
-  // and calculates the error corrrecting data on the ECC bytes 
+  // and calculates the error corrrecting data on the ECC bytes
   // and checks against what the nand provided
   memcpy(&metadata, rawNANDData.data() + (offset + 0x200), sizeof(metadata));
 
   CalculateECD(data, offset, calculatedMetadata);
 
-  return (
-    metadata.ECC3 == calculatedMetadata.ECC3 &&
-    metadata.ECC2 == calculatedMetadata.ECC2 &&
-    metadata.ECC1 == calculatedMetadata.ECC1 &&
-    metadata.ECC0 == calculatedMetadata.ECC0
-  );
+  return (metadata.ECC3 == calculatedMetadata.ECC3 &&
+          metadata.ECC2 == calculatedMetadata.ECC2 &&
+          metadata.ECC1 == calculatedMetadata.ECC1 &&
+          metadata.ECC0 == calculatedMetadata.ECC0);
 }
 
 //*Calculates the ECD.
@@ -106,12 +110,10 @@ void NAND::CalculateECD(u8 *data, int offset, NANDMetadata &metadata) {
   u32 count = 0;
   for (i = 0; i < 0x1066; i++) {
     if ((i & 31) == 0) {
-      v = ~byteswap<u32>(
-        static_cast<u8>(data[count + offset + 0]) << 24 |
-        static_cast<u8>(data[count + offset + 1]) << 16 |
-        static_cast<u8>(data[count + offset + 2]) << 8  |
-        static_cast<u8>(data[count + offset + 3])
-      );
+      v = ~byteswap<u32>(static_cast<u8>(data[count + offset + 0]) << 24 |
+                         static_cast<u8>(data[count + offset + 1]) << 16 |
+                         static_cast<u8>(data[count + offset + 2]) << 8 |
+                         static_cast<u8>(data[count + offset + 3]));
       count += 4;
     }
     val ^= v & 1;
@@ -132,7 +134,7 @@ void NAND::CalculateECD(u8 *data, int offset, NANDMetadata &metadata) {
 bool NAND::CheckMagic(u8 magicOut[2]) {
   u8 magic[2]{};
 
-  inputFile.read(reinterpret_cast<char*>(magic), sizeof(magic));
+  inputFile.read(reinterpret_cast<char *>(magic), sizeof(magic));
   inputFile.seekg(0, std::ios::beg);
   if (magicOut) {
     memcpy(magicOut, magic, sizeof(magic));
@@ -151,7 +153,7 @@ void NAND::CheckSpare() {
   // and 16 bytes of space (0x210)
   // We are taking those 16 bytes, which is the NAND's metadata structure,
   // and checking the ECD on it
-  // 
+  //
   // We take 3 blocks, and verify that they all have no invalid data
   // If we have no invalid data, then we do not have any spare
   u8 data[0x630]{};
@@ -173,7 +175,10 @@ MetaType NAND::DetectSpareType(bool firstTry) {
   }
 
   u8 tmp[0x10]{};
-  memcpy(tmp, rawNANDData.data() + (firstTry ? 0x4400 : static_cast<u32>(rawFileSize) - 0x4400), sizeof(tmp));
+  memcpy(tmp,
+         rawNANDData.data() +
+             (firstTry ? 0x4400 : static_cast<u32>(rawFileSize) - 0x4400),
+         sizeof(tmp));
 
   return metaTypeNone;
 }

@@ -38,6 +38,7 @@ public:
   Xe::XCPU::IIC::XenonIIC *GetIICPointer() { return &xenonContext.xenonIIC; }
 
   PPU *GetPPU(u8 ppuID);
+
 private:
   // System Bus
   RootBus *mainBus = nullptr;

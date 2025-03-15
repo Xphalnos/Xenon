@@ -2,8 +2,8 @@
 
 #include "Path_util.h"
 
-#include <unordered_map>
 #include <fstream>
+#include <unordered_map>
 
 namespace Base::FS {
 
@@ -16,11 +16,13 @@ static auto UserPaths = [] {
 
   // Vali0004:
   // This is required to play nice when doing Linux builds
-  // What do you think happens if the files directory is Xenon, and the output is also Xenon?
-  // Very confusing errors, that I do not wi  sh to deal with
+  // What do you think happens if the files directory is Xenon, and the output
+  // is also Xenon? Very confusing errors, that I do not wi  sh to deal with
 
-  if (!fs::exists(userDir)) {;
-    // If we have xenon_config in the root of our directory, then just use it and create files there instead.
+  if (!fs::exists(userDir)) {
+    ;
+    // If we have xenon_config in the root of our directory, then just use it
+    // and create files there instead.
     std::ifstream f(fs::current_path() / "xenon_config.toml");
     if (f.is_open()) {
       userDir = fs::current_path();
@@ -31,7 +33,8 @@ static auto UserPaths = [] {
     createUserDir = false;
   }
 
-  const auto insert_path = [&](PathType xenon_path, const fs::path &new_path, bool create = true) {
+  const auto insert_path = [&](PathType xenon_path, const fs::path &new_path,
+                               bool create = true) {
     if (create && !fs::exists(new_path))
       fs::create_directory(new_path);
 

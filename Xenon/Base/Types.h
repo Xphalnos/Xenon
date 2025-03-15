@@ -13,7 +13,9 @@
 #ifdef _WIN32
 #define SYSTEM_PAUSE() system("PAUSE")
 #else
-#define SYSTEM_PAUSE() printf("Press Enter to continue..."); (void)getchar()
+#define SYSTEM_PAUSE()                                                         \
+  printf("Press Enter to continue...");                                        \
+  (void)getchar()
 #endif
 
 // Signed
@@ -35,15 +37,9 @@ using f32 = float;
 using f64 = double;
 
 // UDLs for memory size values
-[[nodiscard]] constexpr u64 operator""_KB(const u64 x) {
-  return 1024ULL * x;
-}
-[[nodiscard]] constexpr u64 operator""_MB(const u64 x) {
-  return 1024_KB * x;
-}
-[[nodiscard]] constexpr u64 operator""_GB(const u64 x) {
-  return 1024_MB * x;
-}
+[[nodiscard]] constexpr u64 operator""_KB(const u64 x) { return 1024ULL * x; }
+[[nodiscard]] constexpr u64 operator""_MB(const u64 x) { return 1024_KB * x; }
+[[nodiscard]] constexpr u64 operator""_GB(const u64 x) { return 1024_MB * x; }
 
 // Byteswap
 template <class T>
@@ -57,8 +53,7 @@ template <class T>
 }
 
 // Min/max value of a typetemplate <typename T>
-template <typename T>
-[[nodiscard]] consteval T min_t() noexcept {
+template <typename T> [[nodiscard]] consteval T min_t() noexcept {
   if constexpr (std::is_unsigned_v<T>) {
     return 0;
   } else if constexpr (std::is_same_v<T, s64>) {
@@ -72,16 +67,13 @@ template <typename T>
   }
 }
 
-template <typename T>
-class min {
+template <typename T> class min {
 public:
   static constexpr T value = min_t<T>();
 };
 
-template <typename T>
-constexpr T min_v = min<T>::value;
-template <typename T>
-[[nodiscard]] consteval T max_t() noexcept {
+template <typename T> constexpr T min_v = min<T>::value;
+template <typename T> [[nodiscard]] consteval T max_t() noexcept {
   if constexpr (std::is_same_v<T, u64>) {
     return 0xFFFFFFFFFFFFFFFFu;
   } else if constexpr (std::is_same_v<T, s64>) {
@@ -101,25 +93,31 @@ template <typename T>
   }
 }
 
-template <typename T>
-class max {
+template <typename T> class max {
 public:
   static constexpr T value = max_t<T>();
 };
 
-template <typename T>
-constexpr T max_v = max<T>::value;
+template <typename T> constexpr T max_v = max<T>::value;
 
-extern void assert_fail_debug_msg(const std::string& msg);
+extern void assert_fail_debug_msg(const std::string &msg);
 
 // Array accessors
 template <typename cT, typename T>
-  requires requires (cT&& x) { std::size(x); std::data(x); } || requires (cT && x) {  std::size(x); x.front(); }
-[[nodiscard]] constexpr auto& c_at(cT&& c, T&& idx) {
+  requires requires(cT &&x) {
+    std::size(x);
+    std::data(x);
+  } || requires(cT &&x) {
+    std::size(x);
+    x.front();
+  }
+[[nodiscard]] constexpr auto &c_at(cT &&c, T &&idx) {
   // Associative container
   size_t cSize = c.size();
   if (cSize <= idx) [[unlikely]] {
-    assert_fail_debug_msg(std::format("Range check failed! (index: {}{})", idx, cSize != max_v<size_t> ? std::format(", size: {}", cSize) : ""));
+    assert_fail_debug_msg(std::format(
+        "Range check failed! (index: {}{})", idx,
+        cSize != max_v<size_t> ? std::format(", size: {}", cSize) : ""));
   }
   auto it = std::begin(std::forward<cT>(c));
   std::advance(it, idx);
@@ -127,15 +125,20 @@ template <typename cT, typename T>
 }
 
 template <typename cT, typename T>
-  requires requires(cT&& x, T&& y) { x.count(y); x.find(y); }
-[[nodiscard]] static constexpr auto& c_at(cT&& c, T&& idx) {
+  requires requires(cT &&x, T &&y) {
+    x.count(y);
+    x.find(y);
+  }
+[[nodiscard]] static constexpr auto &c_at(cT &&c, T &&idx) {
   // Associative container
   const auto found = c.find(std::forward<T>(idx));
   size_t cSize = max_v<size_t>;
   if constexpr ((requires() { c.size(); }))
     cSize = c.size();
   if (found == c.end()) [[unlikely]] {
-    assert_fail_debug_msg(std::format("Range check failed! (index: {}{})", idx, cSize != max_v<size_t> ? std::format(", size: {}", cSize) : ""));
+    assert_fail_debug_msg(std::format(
+        "Range check failed! (index: {}{})", idx,
+        cSize != max_v<size_t> ? std::format(", size: {}", cSize) : ""));
   }
   return found->second;
 }
@@ -147,11 +150,11 @@ using s128 = __int128_t;
 #include <xmmintrin.h>
 
 extern "C" {
-  u8 _addcarry_u64(u8, u64, u64, u64*);
-  u8 _subborrow_u64(u8, u64, u64, u64*);
-  u64 __shiftleft128(u64, u64, u8);
-  u64 __shiftright128(u64, u64, u8);
-  u64 _umul128(u64, u64, u64*);
+u8 _addcarry_u64(u8, u64, u64, u64 *);
+u8 _subborrow_u64(u8, u64, u64, u64 *);
+u64 __shiftleft128(u64, u64, u8);
+u64 __shiftright128(u64, u64, u8);
+u64 _umul128(u64, u64, u64 *);
 }
 
 // Unsigned 128-bit integer implementation.
@@ -160,51 +163,39 @@ public:
   u128() noexcept = default;
 
   template <typename T, std::enable_if_t<std::is_unsigned_v<T>, u64> = 0>
-  constexpr u128(T arg) noexcept :
-    lo(arg), hi(0)
-  {}
+  constexpr u128(T arg) noexcept : lo(arg), hi(0) {}
 
   template <typename T, std::enable_if_t<std::is_signed_v<T>, s64> = 0>
-  constexpr u128(T arg) noexcept :
-    lo(s64{ arg }), hi(s64{ arg } >> 63)
-  {}
+  constexpr u128(T arg) noexcept : lo(s64{arg}), hi(s64{arg} >> 63) {}
 
-  constexpr explicit operator bool() const noexcept {
-    return !!(lo | hi);
-  }
-  constexpr explicit operator u64() const noexcept {
-    return lo;
-  }
-  constexpr explicit operator s64() const noexcept {
-    return lo;
-  }
+  constexpr explicit operator bool() const noexcept { return !!(lo | hi); }
+  constexpr explicit operator u64() const noexcept { return lo; }
+  constexpr explicit operator s64() const noexcept { return lo; }
 
-  constexpr friend u128 operator+(const u128& l, const u128& r) {
+  constexpr friend u128 operator+(const u128 &l, const u128 &r) {
     u128 value = l;
     value += r;
     return value;
   }
 
-  constexpr friend u128 operator-(const u128& l, const u128& r) {
+  constexpr friend u128 operator-(const u128 &l, const u128 &r) {
     u128 value = l;
     value -= r;
     return value;
   }
-  constexpr friend u128 operator*(const u128& l, const u128& r) {
+  constexpr friend u128 operator*(const u128 &l, const u128 &r) {
     u128 value = l;
     value *= r;
     return value;
   }
 
-  constexpr u128 operator+() const {
-    return *this;
-  }
+  constexpr u128 operator+() const { return *this; }
   constexpr u128 operator-() const {
     u128 value{};
     value -= *this;
     return value;
   }
-  constexpr u128& operator++() {
+  constexpr u128 &operator++() {
     *this += 1;
     return *this;
   }
@@ -213,7 +204,7 @@ public:
     *this += 1;
     return value;
   }
-  constexpr u128& operator--() {
+  constexpr u128 &operator--() {
     *this -= 1;
     return *this;
   }
@@ -239,54 +230,53 @@ public:
     value.hi = ~hi;
     return value;
   }
-  constexpr friend u128 operator&(const u128& l, const u128& r) {
+  constexpr friend u128 operator&(const u128 &l, const u128 &r) {
     u128 value{};
     value.lo = l.lo & r.lo;
     value.hi = l.hi & r.hi;
     return value;
   }
-  constexpr friend u128 operator|(const u128& l, const u128& r) {
+  constexpr friend u128 operator|(const u128 &l, const u128 &r) {
     u128 value{};
     value.lo = l.lo | r.lo;
     value.hi = l.hi | r.hi;
     return value;
   }
-  constexpr friend u128 operator^(const u128& l, const u128& r) {
+  constexpr friend u128 operator^(const u128 &l, const u128 &r) {
     u128 value{};
     value.lo = l.lo ^ r.lo;
     value.hi = l.hi ^ r.hi;
     return value;
   }
 
-  constexpr u128& operator+=(const u128& r) {
+  constexpr u128 &operator+=(const u128 &r) {
     if (std::is_constant_evaluated()) {
       lo += r.lo;
       hi += r.hi + (lo < r.lo);
-    }
-    else {
+    } else {
       _addcarry_u64(_addcarry_u64(0, r.lo, lo, &lo), r.hi, hi, &hi);
     }
 
     return *this;
   }
-  constexpr u128& operator-=(const u128& r) {
+  constexpr u128 &operator-=(const u128 &r) {
     if (std::is_constant_evaluated()) {
       hi -= r.hi + (lo < r.lo);
       lo -= r.lo;
-    }
-    else {
+    } else {
       _subborrow_u64(_subborrow_u64(0, lo, r.lo, &lo), hi, r.hi, &hi);
     }
 
     return *this;
   }
-  constexpr u128& operator*=(const u128& r) {
+  constexpr u128 &operator*=(const u128 &r) {
     const u64 _hi = r.hi * lo + r.lo * hi;
     if (std::is_constant_evaluated()) {
-      hi = (lo >> 32) * (r.lo >> 32) + (((lo >> 32) * (r.lo & 0xffffffff)) >> 32) + (((r.lo >> 32) * (lo & 0xffffffff)) >> 32);
+      hi = (lo >> 32) * (r.lo >> 32) +
+           (((lo >> 32) * (r.lo & 0xffffffff)) >> 32) +
+           (((r.lo >> 32) * (lo & 0xffffffff)) >> 32);
       lo = lo * r.lo;
-    }
-    else {
+    } else {
       lo = _umul128(lo, r.lo, &hi);
     }
 
@@ -294,14 +284,13 @@ public:
     return *this;
   }
 
-  constexpr u128& operator<<=(const u128& r) {
+  constexpr u128 &operator<<=(const u128 &r) {
     if (std::is_constant_evaluated()) {
       if (r.hi == 0 && r.lo < 64) {
         hi = (hi << r.lo) | (lo >> (64 - r.lo));
         lo = (lo << r.lo);
         return *this;
-      }
-      else if (r.hi == 0 && r.lo < 128) {
+      } else if (r.hi == 0 && r.lo < 128) {
         hi = (lo << (r.lo - 64));
         lo = 0;
         return *this;
@@ -314,14 +303,13 @@ public:
     hi = (r.lo & 64) ? v0 : v1;
     return *this;
   }
-  constexpr u128& operator>>=(const u128& r) {
+  constexpr u128 &operator>>=(const u128 &r) {
     if (std::is_constant_evaluated()) {
       if (r.hi == 0 && r.lo < 64) {
         lo = (lo >> r.lo) | (hi << (64 - r.lo));
         hi = (hi >> r.lo);
         return *this;
-      }
-      else if (r.hi == 0 && r.lo < 128) {
+      } else if (r.hi == 0 && r.lo < 128) {
         lo = (hi >> (r.lo - 64));
         hi = 0;
         return *this;
@@ -334,17 +322,17 @@ public:
     hi = (r.lo & 64) ? 0 : v0;
     return *this;
   }
-  constexpr u128& operator&=(const u128& r) {
+  constexpr u128 &operator&=(const u128 &r) {
     lo &= r.lo;
     hi &= r.hi;
     return *this;
   }
-  constexpr u128& operator|=(const u128& r) {
+  constexpr u128 &operator|=(const u128 &r) {
     lo |= r.lo;
     hi |= r.hi;
     return *this;
   }
-  constexpr u128& operator^=(const u128& r) {
+  constexpr u128 &operator^=(const u128 &r) {
     lo ^= r.lo;
     hi ^= r.hi;
     return *this;
@@ -363,14 +351,13 @@ public:
     value >>= shift_value;
     return value;
   }
-  constexpr s128& operator>>=(const u128& r) {
+  constexpr s128 &operator>>=(const u128 &r) {
     if (std::is_constant_evaluated()) {
       if (r.hi == 0 && r.lo < 64) {
         lo = (lo >> r.lo) | (hi << (64 - r.lo));
         hi = (static_cast<s64>(hi) >> r.lo);
         return *this;
-      }
-      else if (r.hi == 0 && r.lo < 128) {
+      } else if (r.hi == 0 && r.lo < 128) {
         s64 _lo = static_cast<s64>(hi) >> (r.lo - 64);
         lo = _lo;
         hi = _lo >> 63;

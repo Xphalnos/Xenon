@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <fstream>
 #include <filesystem>
+#include <fstream>
 #include <vector>
 
 #include "Base/SystemDevice.h"
@@ -31,7 +31,8 @@ struct NANDMetadata {
   u8 FsSequence3;
   u8 FsSize1; // ((FsSize0 << 8) + FsSize1) = cert size
   u8 FsSize0;
-  u8 FsPageCount; // Free pages left in block (ie: If 3 pages are used by cert then this would be 29:0x1D)
+  u8 FsPageCount; // Free pages left in block (ie: If 3 pages are used by cert
+                  // then this would be 29:0x1D)
   u8 FsUnused1[0x2];
   u8 FsBlockType : 6;
   u8 ECC3 : 2;
@@ -42,9 +43,8 @@ struct NANDMetadata {
 
 class NAND : public SystemDevice {
 public:
-  NAND(const char *deviceName, const std::string filePath,
-    u64 startAddress, u64 endAddress,
-    bool isSOCDevice);
+  NAND(const char *deviceName, const std::string filePath, u64 startAddress,
+       u64 endAddress, bool isSOCDevice);
   ~NAND();
 
   void Read(u64 readAddress, u64 *data, u8 byteCount) override;
@@ -59,7 +59,7 @@ private:
   bool CheckMagic(u8 magicOut[2] = nullptr);
   void CheckSpare();
   bool CheckPageECD(u8 *data, s32 offset);
-  void CalculateECD(u8 *data, int offset, NANDMetadata& metadata);
+  void CalculateECD(u8 *data, int offset, NANDMetadata &metadata);
   MetaType DetectSpareType(bool firstTry = true);
 
   // void SeekPos(s32 address);

@@ -20,7 +20,9 @@ void ODD::atapiReset() {
   memcpy(&atapiState.atapiInquiryData.vendorIdentification,
          vendorIdentification, sizeof(vendorIdentification));
 
-  atapiState.mountedCDImage = std::make_unique<STRIP_UNIQUE(atapiState.mountedCDImage)>(Config::oddImagePath());
+  atapiState.mountedCDImage =
+      std::make_unique<STRIP_UNIQUE(atapiState.mountedCDImage)>(
+          Config::oddImagePath());
 }
 
 void ODD::atapiIdentifyPacketDeviceCommand() {
@@ -29,7 +31,8 @@ void ODD::atapiIdentifyPacketDeviceCommand() {
   // TODO(bitsh1ft3r): Fill out the struct with data from an actual drive.
 
   if (!atapiState.dataReadBuffer.Initialize(ATAPI_CDROM_SECTOR_SIZE, true)) {
-    LOG_ERROR(ODD, "Failed to initialize data buffer for atapiIdentifyPacketDeviceCommand");
+    LOG_ERROR(ODD, "Failed to initialize data buffer for "
+                   "atapiIdentifyPacketDeviceCommand");
   }
 
   // Set the struct.
@@ -38,7 +41,8 @@ void ODD::atapiIdentifyPacketDeviceCommand() {
   // Reset the pointer.
   atapiState.dataReadBuffer.ResetPtr();
   // Copy the data.
-  memcpy(atapiState.dataReadBuffer.Ptr(), &atapiState.atapiIdentifyData, sizeof(XE_ATA_IDENTIFY_DATA));
+  memcpy(atapiState.dataReadBuffer.Ptr(), &atapiState.atapiIdentifyData,
+         sizeof(XE_ATA_IDENTIFY_DATA));
   // Set the drive status.
   atapiState.atapiRegs.statusReg |= ATA_STATUS_DRQ;
   // Request an interrupt.
@@ -108,7 +112,8 @@ void ODD::processSCSICommand() {
 
     break;
   default:
-    LOG_ERROR(ODD, "Unknown SCSI Command requested: {:#x}", atapiState.scsiCBD.CDB12.OperationCode);
+    LOG_ERROR(ODD, "Unknown SCSI Command requested: {:#x}",
+              atapiState.scsiCBD.CDB12.OperationCode);
   }
 
   atapiState.atapiRegs.interruptReasonReg = IDE_INTERRUPT_REASON_IO;
@@ -139,7 +144,8 @@ void ODD::doDMA() {
 
     if (readOperation) {
       // Reading from us
-      byteCount = fmin(static_cast<u32>(byteCount), atapiState.dataReadBuffer.Space());
+      byteCount =
+          fmin(static_cast<u32>(byteCount), atapiState.dataReadBuffer.Space());
 
       // Buffer overrun?
       if (byteCount == 0)
@@ -148,7 +154,8 @@ void ODD::doDMA() {
       atapiState.dataReadBuffer.Increment(byteCount);
     } else {
       // Writing to us
-      byteCount = fmin(static_cast<u32>(byteCount), atapiState.dataWriteBuffer.Space());
+      byteCount =
+          fmin(static_cast<u32>(byteCount), atapiState.dataWriteBuffer.Space());
       // Buffer overrun?
       if (byteCount == 0)
         return;
@@ -164,19 +171,20 @@ void ODD::doDMA() {
     }
   }
 }
-                                                 
-ODD::ODD(const char* deviceName, u64 size,
-  PCIBridge *parentPCIBridge, RAM *ram) : PCIDevice(deviceName, size) {
+
+ODD::ODD(const char *deviceName, u64 size, PCIBridge *parentPCIBridge, RAM *ram)
+    : PCIDevice(deviceName, size) {
   // Note:
   // The ATA/ATAPI Controller in the Xenon Southbridge contain two BAR's:
-  // The first is for the Command Block (Regs 0-7) + DevCtrl/AltStatus reg at offset 0xA.
-  // The second is for the BMDMA (Bus Master DMA) block.
+  // The first is for the Command Block (Regs 0-7) + DevCtrl/AltStatus reg at
+  // offset 0xA. The second is for the BMDMA (Bus Master DMA) block.
 
   // Set PCI Properties.
   pciConfigSpace.configSpaceHeader.reg0.hexData = 0x58021414;
   pciConfigSpace.configSpaceHeader.reg1.hexData = 0x02300006;
   pciConfigSpace.configSpaceHeader.reg2.hexData = 0x01060000;
-  pciConfigSpace.configSpaceHeader.regD.hexData = 0x00000058; // Capabilites Ptr.
+  pciConfigSpace.configSpaceHeader.regD.hexData =
+      0x00000058; // Capabilites Ptr.
   pciConfigSpace.configSpaceHeader.regF.hexData = 0x00000100; // Int line, pin.
 
   u32 data = 0;
@@ -188,7 +196,8 @@ ODD::ODD(const char* deviceName, u64 size,
   memcpy(&pciConfigSpace.data[0x60], &data, 4);
   data = 0x7F7F7F7F;
   memcpy(&pciConfigSpace.data[0x70], &data, 4);
-  memcpy(&pciConfigSpace.data[0x74], &data, 4); // Field value is the same as above.
+  memcpy(&pciConfigSpace.data[0x74], &data,
+         4); // Field value is the same as above.
   data = 0xC07231BE;
   memcpy(&pciConfigSpace.data[0x80], &data, 4);
   data = 0x100c04cc;
@@ -199,16 +208,17 @@ ODD::ODD(const char* deviceName, u64 size,
   // Set the SCR's at offset 0xC0 (SiS-like).
   // SStatus.
   data = 0x00000113;
-  memcpy(&pciConfigSpace.data[0xC0], &data, 4); // SSTATUS_DET_COM_ESTABLISHED.
-                                                // SSTATUS_SPD_GEN1_COM_SPEED.
-                                                // SSTATUS_IPM_INTERFACE_ACTIVE_STATE.
+  memcpy(&pciConfigSpace.data[0xC0], &data,
+         4); // SSTATUS_DET_COM_ESTABLISHED.
+             // SSTATUS_SPD_GEN1_COM_SPEED.
+             // SSTATUS_IPM_INTERFACE_ACTIVE_STATE.
   // SError.
   data = 0x001f0201;
   memcpy(&pciConfigSpace.data[0xC4], &data, 4);
   // SControl.
   data = 0x00000300;
   memcpy(&pciConfigSpace.data[0xC8], &data, 4); // SCONTROL_IPM_ALL_PM_DISABLED.
-  
+
   // Set our PCI Dev Sizes.
   pciDevSizes[0] = 0x20; // BAR0
   pciDevSizes[1] = 0x10; // BAR1
@@ -269,7 +279,10 @@ void ODD::Read(u64 readAddress, u64 *data, u8 byteCount) {
       memcpy(data, &atapiState.atapiRegs.altStatusReg, byteCount);
       return;
     default:
-      LOG_ERROR(ODD, "Unknown Command Register Block register being read, command code = {:#x}", atapiCommandReg);
+      LOG_ERROR(ODD,
+                "Unknown Command Register Block register being read, command "
+                "code = {:#x}",
+                atapiCommandReg);
       break;
     }
   } else {
@@ -285,7 +298,10 @@ void ODD::Read(u64 readAddress, u64 *data, u8 byteCount) {
       memcpy(data, &atapiState.atapiRegs.dmaTableOffsetReg, byteCount);
       break;
     default:
-      LOG_ERROR(ODD, "Unknown Control Register Block register being read, command code = {:#x}", atapiControlReg);
+      LOG_ERROR(ODD,
+                "Unknown Control Register Block register being read, command "
+                "code = {:#x}",
+                atapiControlReg);
       break;
     }
   }
@@ -375,8 +391,11 @@ void ODD::Write(u64 writeAddress, u64 data, u8 byteCount) {
       memcpy(&atapiState.atapiRegs.devControlReg, &data, byteCount);
       return;
     default:
-      LOG_ERROR(ODD, "Unknown Command Register Block register being written, command reg = {:#x}"
-        ", write address = {:#x}, data = {:#x}", atapiCommandReg, writeAddress, data);
+      LOG_ERROR(ODD,
+                "Unknown Command Register Block register being written, "
+                "command reg = {:#x}"
+                ", write address = {:#x}, data = {:#x}",
+                atapiCommandReg, writeAddress, data);
       break;
     }
   } else {
@@ -399,7 +418,10 @@ void ODD::Write(u64 writeAddress, u64 data, u8 byteCount) {
       memcpy(&atapiState.atapiRegs.dmaTableOffsetReg, &data, byteCount);
       break;
     default:
-      LOG_ERROR(ODD, "Unknown Control Register Block register being written, command code = {:#x}", atapiControlReg);
+      LOG_ERROR(ODD,
+                "Unknown Control Register Block register being written, "
+                "command code = {:#x}",
+                atapiControlReg);
       break;
     }
   }
@@ -407,11 +429,9 @@ void ODD::Write(u64 writeAddress, u64 data, u8 byteCount) {
 
 void ODD::ConfigRead(u64 readAddress, u64 *data, u8 byteCount) {
   const u8 readReg = static_cast<u8>(readAddress);
-  if (readReg >= XE_SIS_SCR_BASE && readReg <= 0xFF)
-  {
+  if (readReg >= XE_SIS_SCR_BASE && readReg <= 0xFF) {
     // Confiduration read to the SATA Status and Control Registers.
-    switch ((readReg - XE_SIS_SCR_BASE) / 4)
-    {
+    switch ((readReg - XE_SIS_SCR_BASE) / 4) {
     case SCR_STATUS_REG:
       LOG_WARNING(ODD, "SCR ConfigRead to SCR_STATUS_REG.");
       break;
@@ -421,10 +441,10 @@ void ODD::ConfigRead(u64 readAddress, u64 *data, u8 byteCount) {
     case SCR_CONTROL_REG:
       LOG_WARNING(ODD, "SCR ConfigRead to SCR_CONTROL_REG.");
       break;
-      case SCR_ACTIVE_REG:
+    case SCR_ACTIVE_REG:
       LOG_WARNING(ODD, "SCR ConfigRead to SCR_ACTIVE_REG.");
       break;
-      case SCR_NOTIFICATION_REG:
+    case SCR_NOTIFICATION_REG:
       LOG_WARNING(ODD, "SCR ConfigRead to SCR_NOTIFICATION_REG.");
       break;
     default:
@@ -438,7 +458,8 @@ void ODD::ConfigRead(u64 readAddress, u64 *data, u8 byteCount) {
 
 void ODD::ConfigWrite(u64 writeAddress, u64 data, u8 byteCount) {
   // Check if we're being scanned.
-  if (static_cast<u8>(writeAddress) >= 0x10 && static_cast<u8>(writeAddress) < 0x34) {
+  if (static_cast<u8>(writeAddress) >= 0x10 &&
+      static_cast<u8>(writeAddress) < 0x34) {
     const u32 regOffset = (static_cast<u8>(writeAddress) - 0x10) >> 2;
     if (pciDevSizes[regOffset] != 0) {
       if (data == 0xFFFFFFFF) { // PCI BAR Size discovery.
@@ -454,16 +475,14 @@ void ODD::ConfigWrite(u64 writeAddress, u64 data, u8 byteCount) {
       }
     }
     if (static_cast<u8>(writeAddress) == 0x30) { // Expansion ROM Base Address.
-      data = 0; // Register not implemented.
+      data = 0;                                  // Register not implemented.
     }
   }
 
   u8 writeReg = static_cast<u8>(writeAddress);
-  if (writeReg >= XE_SIS_SCR_BASE && writeReg <= 0xFF)
-  {
+  if (writeReg >= XE_SIS_SCR_BASE && writeReg <= 0xFF) {
     // Confiduration write to the SATA Status and Control Registers.
-    switch ((writeReg - XE_SIS_SCR_BASE) / 4)
-    {
+    switch ((writeReg - XE_SIS_SCR_BASE) / 4) {
     case SCR_STATUS_REG:
       LOG_WARNING(ODD, "SCR ConfigWrite to SCR_STATUS_REG, data {:#x}", data);
       break;
@@ -477,10 +496,12 @@ void ODD::ConfigWrite(u64 writeAddress, u64 data, u8 byteCount) {
       LOG_WARNING(ODD, "SCR ConfigWrite to SCR_ACTIVE_REG, data {:#x}", data);
       break;
     case SCR_NOTIFICATION_REG:
-      LOG_WARNING(ODD, "SCR ConfigRead to SCR_NOTIFICATION_REG, data {:#x}", data);
+      LOG_WARNING(ODD, "SCR ConfigRead to SCR_NOTIFICATION_REG, data {:#x}",
+                  data);
       break;
     default:
-      LOG_ERROR(ODD, "SCR ConfigWrite to reg {:#x}, data {:#x}", writeReg * 4, data);
+      LOG_ERROR(ODD, "SCR ConfigWrite to reg {:#x}, data {:#x}", writeReg * 4,
+                data);
       break;
     }
   }

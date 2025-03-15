@@ -10,10 +10,10 @@
 #endif
 
 #include "Base/Bounded_threadsafe_queue.h"
-#include "Base/io_file.h"
 #include "Base/Path_util.h"
 #include "Base/String_util.h"
 #include "Base/Thread.h"
+#include "Base/io_file.h"
 
 #include "Log.h"
 #include "Log_entry.h"
@@ -34,7 +34,7 @@ public:
 
   ~ColorConsoleBackend() = default;
 
-  void Write(const Entry& entry) {
+  void Write(const Entry &entry) {
     if (enabled.load(std::memory_order_relaxed)) {
       PrintColoredMessage(entry);
     }
@@ -44,9 +44,7 @@ public:
     // stderr shouldn't be buffered
   }
 
-  void SetEnabled(bool enabled_) {
-    enabled = enabled_;
-  }
+  void SetEnabled(bool enabled_) { enabled = enabled_; }
 
 private:
   std::atomic_bool enabled{true};
@@ -57,19 +55,20 @@ private:
  */
 class FileBackend {
 public:
-  explicit FileBackend(const std::filesystem::path& filename)
-    : file{filename, FS::FileAccessMode::Write, FS::FileType::TextFile} {}
+  explicit FileBackend(const std::filesystem::path &filename)
+      : file{filename, FS::FileAccessMode::Write, FS::FileType::TextFile} {}
 
   ~FileBackend() = default;
 
-  void Write(const Entry& entry) {
+  void Write(const Entry &entry) {
     if (!enabled) {
       return;
     }
 
     bytes_written += file.WriteString(FormatLogMessage(entry).append(1, '\n'));
 
-    // Prevent logs from exceeding a set maximum size in the event that log entries are spammed.
+    // Prevent logs from exceeding a set maximum size in the event that log
+    // entries are spammed.
     constexpr u64 write_limit = 100_MB;
     const bool write_limit_exceeded = bytes_written > write_limit;
     if (entry.log_level >= Level::Error || write_limit_exceeded) {
@@ -82,9 +81,7 @@ public:
     }
   }
 
-  void Flush() {
-    file.Flush();
-  }
+  void Flush() { file.Flush(); }
 
 private:
   Base::FS::IOFile file;
@@ -101,9 +98,10 @@ public:
 
   ~DebuggerBackend() = default;
 
-  void Write(const Entry& entry) {
+  void Write(const Entry &entry) {
 #ifdef _WIN32
-    ::OutputDebugStringW(UTF8ToUTF16W(FormatLogMessage(entry).append(1, '\n')).c_str());
+    ::OutputDebugStringW(
+        UTF8ToUTF16W(FormatLogMessage(entry).append(1, '\n')).c_str());
 #endif
   }
 
@@ -119,9 +117,10 @@ bool initialization_in_progress_suppress_logging = true;
  */
 class Impl {
 public:
-  static Impl& Instance() {
+  static Impl &Instance() {
     if (!instance) {
-      throw std::runtime_error("Using Logging instance before its initialization");
+      throw std::runtime_error(
+          "Using Logging instance before its initialization");
     }
     return *instance;
   }
@@ -131,43 +130,36 @@ public:
       LOG_WARNING(Log, "Reinitializing logging backend");
       return;
     }
-    const auto& log_dir = GetUserPath(PathType::LogDir);
+    const auto &log_dir = GetUserPath(PathType::LogDir);
     std::filesystem::create_directory(log_dir);
     Filter filter;
     // filter.ParseFilterString(/*Config::getLogFilter()*/);
-    instance = std::unique_ptr<Impl, decltype(&Deleter)>(new Impl(log_dir / log_file, filter),
-                               Deleter);
+    instance = std::unique_ptr<Impl, decltype(&Deleter)>(
+        new Impl(log_dir / log_file, filter), Deleter);
     initialization_in_progress_suppress_logging = false;
   }
 
-  static bool IsActive() {
-    return instance != nullptr;
-  }
+  static bool IsActive() { return instance != nullptr; }
 
-  static void Start() {
-    instance->StartBackendThread();
-  }
+  static void Start() { instance->StartBackendThread(); }
 
-  static void Stop() {
-    instance->StopBackendThread();
-  }
+  static void Stop() { instance->StopBackendThread(); }
 
-  Impl(const Impl&) = delete;
-  Impl& operator=(const Impl&) = delete;
+  Impl(const Impl &) = delete;
+  Impl &operator=(const Impl &) = delete;
 
-  Impl(Impl&&) = delete;
-  Impl& operator=(Impl&&) = delete;
+  Impl(Impl &&) = delete;
+  Impl &operator=(Impl &&) = delete;
 
-  void SetGlobalFilter(const Filter& f) {
-    filter = f;
-  }
+  void SetGlobalFilter(const Filter &f) { filter = f; }
 
   void SetColorConsoleBackendEnabled(bool enabled) {
     color_console_backend.SetEnabled(enabled);
   }
 
-  void PushEntry(Class log_class, Level log_level, const char* filename, unsigned int line_num,
-           const char* function, std::string message) {
+  void PushEntry(Class log_class, Level log_level, const char *filename,
+                 unsigned int line_num, const char *function,
+                 std::string message) {
 
     if (!filter.CheckMessage(log_class, log_level)) {
       return;
@@ -178,25 +170,27 @@ public:
     using std::chrono::steady_clock;
 
     const Entry entry = {
-      .timestamp = duration_cast<microseconds>(steady_clock::now() - time_origin),
-      .log_class = log_class,
-      .log_level = log_level,
-      .filename = filename,
-      .line_num = line_num,
-      .function = function,
-      .message = std::move(message),
+        .timestamp =
+            duration_cast<microseconds>(steady_clock::now() - time_origin),
+        .log_class = log_class,
+        .log_level = log_level,
+        .filename = filename,
+        .line_num = line_num,
+        .function = function,
+        .message = std::move(message),
     };
-//    if (Config::getLogType() == "async") {
-//      message_queue.EmplaceWait(entry);
-//    } else {
-      ForEachBackend([&entry](auto& backend) { backend.Write(entry); });
-      std::fflush(stdout);
-//    }
+    //    if (Config::getLogType() == "async") {
+    //      message_queue.EmplaceWait(entry);
+    //    } else {
+    ForEachBackend([&entry](auto &backend) { backend.Write(entry); });
+    std::fflush(stdout);
+    //    }
   }
 
 private:
-  Impl(const std::filesystem::path& file_backend_filename, const Filter& filter_)
-    : filter{filter_}, file_backend{file_backend_filename} {}
+  Impl(const std::filesystem::path &file_backend_filename,
+       const Filter &filter_)
+      : filter{filter_}, file_backend{file_backend_filename} {}
 
   ~Impl() = default;
 
@@ -205,7 +199,7 @@ private:
       Base::SetCurrentThreadName("Xenon:Log");
       Entry entry;
       const auto write_logs = [this, &entry]() {
-        ForEachBackend([&entry](auto& backend) { backend.Write(entry); });
+        ForEachBackend([&entry](auto &backend) { backend.Write(entry); });
       };
       while (!stop_token.stop_requested()) {
         message_queue.PopWait(entry, stop_token);
@@ -213,9 +207,11 @@ private:
           write_logs();
         }
       }
-      // Drain the logging queue. Only writes out up to MAX_LOGS_TO_WRITE to prevent a
-      // case where a system is repeatedly spamming logs even on close.
-      int max_logs_to_write = filter.IsDebug() ? std::numeric_limits<s32>::max() : 100;
+      // Drain the logging queue. Only writes out up to MAX_LOGS_TO_WRITE to
+      // prevent a case where a system is repeatedly spamming logs even on
+      // close.
+      int max_logs_to_write =
+          filter.IsDebug() ? std::numeric_limits<s32>::max() : 100;
       while (max_logs_to_write-- && message_queue.TryPop(entry)) {
         write_logs();
       }
@@ -228,7 +224,7 @@ private:
       backend_thread.join();
     }
 
-    ForEachBackend([](auto& backend) { backend.Flush(); });
+    ForEachBackend([](auto &backend) { backend.Flush(); });
   }
 
   void ForEachBackend(auto lambda) {
@@ -237,11 +233,10 @@ private:
     lambda(file_backend);
   }
 
-  static void Deleter(Impl* ptr) {
-    delete ptr;
-  }
+  static void Deleter(Impl *ptr) { delete ptr; }
 
-  static inline std::unique_ptr<Impl, decltype(&Deleter)> instance{nullptr, Deleter};
+  static inline std::unique_ptr<Impl, decltype(&Deleter)> instance{nullptr,
+                                                                   Deleter};
 
   Filter filter;
   DebuggerBackend debugger_backend{};
@@ -249,20 +244,23 @@ private:
   FileBackend file_backend;
 
   MPSCQueue<Entry> message_queue{};
-  std::chrono::steady_clock::time_point time_origin{std::chrono::steady_clock::now()};
+  std::chrono::steady_clock::time_point time_origin{
+      std::chrono::steady_clock::now()};
   std::jthread backend_thread;
 };
 } // namespace
 
 std::vector<std::filesystem::path> filepaths{};
 
-void DeleteOldLogs(const std::filesystem::path& path, u64 num_logs, u64 log_limit) {
+void DeleteOldLogs(const std::filesystem::path &path, u64 num_logs,
+                   u64 log_limit) {
   const std::string filename = path.filename().string();
   const std::chrono::time_point Now = std::chrono::system_clock::now();
   const time_t timeNow = std::chrono::system_clock::to_time_t(Now);
-  const tm* time = std::localtime(&timeNow);
+  const tm *time = std::localtime(&timeNow);
   // We want to get rid of anything that isn't that current day's date
-  std::string currentDate = fmt::format("{}-{}-{}", time->tm_mon, time->tm_mday, 1900 + time->tm_year);
+  std::string currentDate = fmt::format("{}-{}-{}", time->tm_mon, time->tm_mday,
+                                        1900 + time->tm_year);
   if (filename.find(currentDate) == std::string::npos) {
     std::filesystem::remove_all(path);
     return;
@@ -284,7 +282,7 @@ u64 CreateIntegralTimestamp(const std::string &date) {
     return 0;
   }
   u64 yearPos = date.find('-', dayPos);
-  const std::string day = date.substr(monthPos+1);
+  const std::string day = date.substr(monthPos + 1);
   if (yearPos == std::string::npos) {
     return 0;
   }
@@ -294,7 +292,8 @@ u64 CreateIntegralTimestamp(const std::string &date) {
   return std::stoull(timestamp);
 }
 
-void CleanupOldLogs(const std::string_view &log_file_base, const std::filesystem::path &log_dir, u64 log_limit) {
+void CleanupOldLogs(const std::string_view &log_file_base,
+                    const std::filesystem::path &log_dir, u64 log_limit) {
   const std::filesystem::path LogFile = log_file_base;
   // Track how many logs we have
   size_t numLogs = 0;
@@ -316,7 +315,7 @@ void CleanupOldLogs(const std::string_view &log_file_base, const std::filesystem
   if (filepaths.empty()) {
     return;
   }
-  u64 numToDelete{ log_limit };
+  u64 numToDelete{log_limit};
   std::map<u64, std::filesystem::path> date_sorted_paths{};
   for (const auto &path : filepaths) {
     const std::string stem = path.stem().string();
@@ -327,23 +326,23 @@ void CleanupOldLogs(const std::string_view &log_file_base, const std::filesystem
       std::filesystem::remove_all(path);
     } else {
       std::string base = stem.substr(0, basePos);
-      u64 datePos = base.find('_', basePos+1);
-      const std::string date = base.substr(datePos+1);
+      u64 datePos = base.find('_', basePos + 1);
+      const std::string date = base.substr(datePos + 1);
       u64 dateInt = CreateIntegralTimestamp(date);
       if (datePos == std::string::npos) {
         // If we cannot find the date, just delete it
         numToDelete--;
         std::filesystem::remove_all(path);
       } else {
-        u64 timePos = base.find('_', datePos+1);
-        const std::string time = base.substr(timePos+1);
+        u64 timePos = base.find('_', datePos + 1);
+        const std::string time = base.substr(timePos + 1);
         u64 timestamp = CreateIntegralTimestamp(time);
         if (!timestamp) {
           numToDelete--;
           std::filesystem::remove_all(path);
           continue;
         }
-        date_sorted_paths.insert({ dateInt + timestamp, path });
+        date_sorted_paths.insert({dateInt + timestamp, path});
       }
     }
   }
@@ -355,35 +354,35 @@ void CleanupOldLogs(const std::string_view &log_file_base, const std::filesystem
 
 void Initialize(const std::string_view &log_file) {
   // Create directory vars to so we can use std::filesystem::path::stem
-  const std::filesystem::path LogDir = Base::FS::GetUserPath(Base::FS::PathType::LogDir);
+  const std::filesystem::path LogDir =
+      Base::FS::GetUserPath(Base::FS::PathType::LogDir);
   const std::filesystem::path LogFile = LOG_FILE;
   const std::filesystem::path LogFileStem = LogFile.stem();
-  const std::string LogFileStemStr = LogFileStem.string(); // This is to make string_view happy
+  const std::string LogFileStemStr =
+      LogFileStem.string(); // This is to make string_view happy
   // Setup filename
-  const std::string_view filenameBase = log_file.empty() ? LogFileStemStr : log_file;
+  const std::string_view filenameBase =
+      log_file.empty() ? LogFileStemStr : log_file;
   const std::chrono::time_point now = std::chrono::system_clock::now();
   const time_t timeNow = std::chrono::system_clock::to_time_t(now);
   const tm *time = std::localtime(&timeNow);
-  std::string currentTime = fmt::format("{}-{}-{}", time->tm_hour, time->tm_min, time->tm_sec);
-  std::string currentDate = fmt::format("{}-{}-{}", time->tm_mon + 1, time->tm_mday, 1900 + time->tm_year);
-  std::string filename = fmt::format("{}_{}_{}.txt", filenameBase, currentDate, currentTime);
+  std::string currentTime =
+      fmt::format("{}-{}-{}", time->tm_hour, time->tm_min, time->tm_sec);
+  std::string currentDate = fmt::format("{}-{}-{}", time->tm_mon + 1,
+                                        time->tm_mday, 1900 + time->tm_year);
+  std::string filename =
+      fmt::format("{}_{}_{}.txt", filenameBase, currentDate, currentTime);
   CleanupOldLogs(filenameBase, LogDir);
   Impl::Initialize(log_file.empty() ? filename : log_file);
 }
 
-bool IsActive() {
-  return Impl::IsActive();
-}
+bool IsActive() { return Impl::IsActive(); }
 
-void Start() {
-  Impl::Start();
-}
+void Start() { Impl::Start(); }
 
-void Stop() {
-  Impl::Stop();
-}
+void Stop() { Impl::Stop(); }
 
-void SetGlobalFilter(const Filter& filter) {
+void SetGlobalFilter(const Filter &filter) {
   Impl::Instance().SetGlobalFilter(filter);
 }
 
@@ -391,12 +390,12 @@ void SetColorConsoleBackendEnabled(bool enabled) {
   Impl::Instance().SetColorConsoleBackendEnabled(enabled);
 }
 
-void FmtLogMessageImpl(Class log_class, Level log_level, const char* filename,
-             unsigned int line_num, const char* function, const char* format,
-             const fmt::format_args& args) {
+void FmtLogMessageImpl(Class log_class, Level log_level, const char *filename,
+                       unsigned int line_num, const char *function,
+                       const char *format, const fmt::format_args &args) {
   if (!initialization_in_progress_suppress_logging) [[likely]] {
-    Impl::Instance().PushEntry(log_class, log_level, filename, line_num, function,
-                   fmt::vformat(format, args));
+    Impl::Instance().PushEntry(log_class, log_level, filename, line_num,
+                               function, fmt::vformat(format, args));
   }
 }
 } // namespace Base::Log

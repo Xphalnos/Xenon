@@ -4,8 +4,8 @@
 
 #include "PPCInternal.h"
 
-#include "PPC_Instruction.h"
 #include "PPCOpcodes.h"
+#include "PPC_Instruction.h"
 
 #include "Core/RootBus/RootBus.h"
 #include "Core/XCPU/PPU/PowerPC.h"
@@ -18,20 +18,20 @@ extern XENON_CONTEXT *intXCPUContext;
 //
 //  Helper macros for instructions
 //
-#define curThread     ppuState->ppuThread[ppuState->currentThread]
-#define _instr        curThread.CI
-#define _ex           curThread.exceptReg
-#define GPR(x)        curThread.GPR[x]
-#define GPRi(x)       GPR(_instr.x)
+#define curThread ppuState->ppuThread[ppuState->currentThread]
+#define _instr curThread.CI
+#define _ex curThread.exceptReg
+#define GPR(x) curThread.GPR[x]
+#define GPRi(x) GPR(_instr.x)
 #define XER_SET_CA(v) curThread.SPR.XER.CA = v
-#define XER_GET_CA    curThread.SPR.XER.CA
+#define XER_GET_CA curThread.SPR.XER.CA
 //
 // Floating Point helpers
 //
-#define FPR(x)        curThread.FPR[x]
-#define FPRi(x)        curThread.FPR[_instr.x]
-#define GET_FPSCR     curThread.FPSCR.FPSCR_Hex
-#define SET_FPSCR(x)  curThread.FPSCR.FPSCR_Hex = x
+#define FPR(x) curThread.FPR[x]
+#define FPRi(x) curThread.FPR[_instr.x]
+#define GET_FPSCR curThread.FPSCR.FPSCR_Hex
+#define SET_FPSCR(x) curThread.FPSCR.FPSCR_Hex = x
 
 //
 //  Basic Block Loading, debug symbols and stuff.
@@ -90,7 +90,8 @@ void ppcExternalException(PPU_STATE *ppuState);
 // MMU
 //
 
-bool MMUTranslateAddress(u64 *EA, PPU_STATE *ppuState, bool memWrite, bool speculativeLoad = false);
+bool MMUTranslateAddress(u64 *EA, PPU_STATE *ppuState, bool memWrite,
+                         bool speculativeLoad = false);
 u8 mmuGetPageSize(PPU_STATE *ppuState, bool L, u8 LP);
 void mmuAddTlbEntry(PPU_STATE *ppuState);
 bool mmuSearchTlbEntry(PPU_STATE *ppuState, u64 *RPN, u64 VA, u64 VPN, u8 p,
@@ -108,9 +109,11 @@ u64 MMURead(XENON_CONTEXT *cpuContext, PPU_STATE *ppuState, u64 EA,
 void MMUWrite(XENON_CONTEXT *cpuContext, PPU_STATE *ppuState, u64 data, u64 EA,
               s8 byteCount, bool cacheStore = false);
 
-void MMUMemCpyFromHost(PPU_STATE* ppuState, u32 dest, const void* source, u64 size, bool cacheStore = false);
+void MMUMemCpyFromHost(PPU_STATE *ppuState, u32 dest, const void *source,
+                       u64 size, bool cacheStore = false);
 
-void MMUMemCpy(PPU_STATE* ppuState, u32 dest, u32 source, u64 size, bool cacheStore = false);
+void MMUMemCpy(PPU_STATE *ppuState, u32 dest, u32 source, u64 size,
+               bool cacheStore = false);
 
 // Helper Read Routines.
 u8 MMURead8(PPU_STATE *ppuState, u64 EA, bool speculativeLoad = false);

@@ -2,9 +2,9 @@
 
 #pragma once
 
+#include <fstream>
 #include <thread>
 #include <vector>
-#include <fstream>
 
 #include <SDL3/SDL.h>
 
@@ -25,7 +25,7 @@ extern "C" {
 #include "Render/GUI/GUI.h"
 
 // ARGB (Console is BGRA)
-#define COLOR(r, g, b, a) ((a) << 24 | (r) << 16 | (g) << 8  | (b) << 0)
+#define COLOR(r, g, b, a) ((a) << 24 | (r) << 16 | (g) << 8 | (b) << 0)
 #define TILE(x) ((x + 31) >> 5) << 5
 
 namespace Render {
@@ -63,6 +63,7 @@ public:
   bool threadRunning = true;
 
   int pitch = 0;
+
 private:
   // Thread handle
   std::thread thread;
@@ -80,6 +81,7 @@ private:
   SDL_GLContext context;
   SDL_Event windowEvent;
   SDL_WindowID windowID;
+
 public:
   // OpenGL Handles
   // XeFB Pixel Buffer
@@ -92,7 +94,7 @@ public:
 
 // Shaders
 
-inline constexpr const char* vertexShaderSource = R"(
+inline constexpr const char *vertexShaderSource = R"(
 #version 430 core
 
 out vec2 o_texture_coord;
@@ -103,7 +105,7 @@ void main() {
 }
 )";
 
-inline constexpr const char* fragmentShaderSource = R"(
+inline constexpr const char *fragmentShaderSource = R"(
 #version 430 core
 
 in vec2 o_texture_coord;
@@ -122,7 +124,7 @@ void main() {
 }
 )";
 
-inline constexpr const char* computeShaderSource = R"(
+inline constexpr const char *computeShaderSource = R"(
 #version 430 core
 
 layout (local_size_x = 16, local_size_y = 16) in;

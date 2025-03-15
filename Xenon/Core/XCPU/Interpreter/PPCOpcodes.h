@@ -2,20 +2,27 @@
 
 #pragma once
 
-#include "PPCInternal.h"
 #include "Core/XCPU/PPU/PowerPC.h"
+#include "PPCInternal.h"
 
 namespace PPCInterpreter {
 //
 // Instruction definitions
 //
 
-#define D_STUB(name) static inline void PPCInterpreter_##name(PPU_STATE *ppuState) { return PPCInterpreter_known_unimplemented(#name, ppuState); }
-#define D_STUBRC(name) static inline void PPCInterpreter_##name##x(PPU_STATE *ppuState) { return PPCInterpreter_known_unimplemented(#name "x", ppuState); }
+#define D_STUB(name)                                                           \
+  static inline void PPCInterpreter_##name(PPU_STATE *ppuState) {              \
+    return PPCInterpreter_known_unimplemented(#name, ppuState);                \
+  }
+#define D_STUBRC(name)                                                         \
+  static inline void PPCInterpreter_##name##x(PPU_STATE *ppuState) {           \
+    return PPCInterpreter_known_unimplemented(#name "x", ppuState);            \
+  }
 
 // Stubs
 extern void PPCInterpreter_invalid(PPU_STATE *ppuState);
-extern void PPCInterpreter_known_unimplemented(const char* name, PPU_STATE *ppuState);
+extern void PPCInterpreter_known_unimplemented(const char *name,
+                                               PPU_STATE *ppuState);
 
 D_STUBRC(addc)
 D_STUBRC(addco)
@@ -494,4 +501,4 @@ extern void PPCInterpreter_lfdu(PPU_STATE *ppuState);
 extern void PPCInterpreter_lfdux(PPU_STATE *ppuState);
 extern void PPCInterpreter_lfs(PPU_STATE *ppuState);
 
-}
+} // namespace PPCInterpreter

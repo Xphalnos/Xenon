@@ -121,10 +121,8 @@ static constexpr u64 ExtractBits64(u32 input, u32 begin, u32 end) {
   (dw) &= ~DMASK(b, e);                                                        \
   (dw) |= ((dwSet) << (31 - (e))) & DMASK(b, e);
 
-#define IFIELD(v, b, e)                                                        \
-  u32 v = DGET(curThread.CI.opcode, b, e);
-#define IFIELDQ(v, b, e)                                                       \
-  u64 v = DGET(curThread.CI.opcode, b, e);
+#define IFIELD(v, b, e) u32 v = DGET(curThread.CI.opcode, b, e);
+#define IFIELDQ(v, b, e) u64 v = DGET(curThread.CI.opcode, b, e);
 
 #define I_FORM_LI_AA_LK                                                        \
   IFIELD(LI, 6, 29);                                                           \
@@ -407,8 +405,8 @@ static constexpr u64 ExtractBits64(u32 input, u32 begin, u32 end) {
 #define VX_FORM_rB IFIELD(rB, 16, 20);
 
 #define EXTS(qw, ib)                                                           \
-  (((static_cast<u64>(qw)) & ((static_cast<u64>(1)) << ((ib) - 1)))                                  \
-       ? ((static_cast<u64>(qw)) | QMASK(0, 63 - (ib)))                                   \
+  (((static_cast<u64>(qw)) & ((static_cast<u64>(1)) << ((ib) - 1)))            \
+       ? ((static_cast<u64>(qw)) | QMASK(0, 63 - (ib)))                        \
        : (static_cast<u64>(qw)))
 
 #define BMSK(w, i) ((static_cast<u64>(1)) << ((w) - (i) - (1)))

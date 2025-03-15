@@ -11,7 +11,7 @@
 class PPU {
 public:
   PPU(XENON_CONTEXT *inXenonContext, RootBus *mainBus, u64 resetVector, u32 PVR,
-                  u32 PIR, const char *ppuName);
+      u32 PIR, const char *ppuName);
   ~PPU();
 
   // Start execution
@@ -19,7 +19,7 @@ public:
 
   // Calulate our Clocks Per Instruction
   void CalculateCPI();
-  
+
   // Reset the PPU state
   void Reset();
 
@@ -48,6 +48,7 @@ public:
   // Load a elf image from host memory. Copies into RAM
   // Returns entrypoint
   u64 loadElfImage(u8 *data, u64 size);
+
 private:
   // Thread handle
   std::thread ppuThread;

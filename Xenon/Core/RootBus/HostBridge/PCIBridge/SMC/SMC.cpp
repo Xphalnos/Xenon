@@ -2,8 +2,8 @@
 
 #include "SMC.h"
 
-#include "Base/Logging/Log.h"
 #include "Base/Error.h"
+#include "Base/Logging/Log.h"
 
 #include "HANA_State.h"
 #include "SMC_Config.h"
@@ -61,8 +61,9 @@
 
 // Class Constructor.
 Xe::PCIDev::SMC::SMCCore::SMCCore(const char *deviceName, u64 size,
-  PCIBridge *parentPCIBridge, SMC_CORE_STATE *newSMCCoreState) :
-  PCIDevice(deviceName, size) {
+                                  PCIBridge *parentPCIBridge,
+                                  SMC_CORE_STATE *newSMCCoreState)
+    : PCIDevice(deviceName, size) {
   LOG_INFO(SMC, "Core: Initializing...");
 
   // Assign our parent PCI Bus Ptr.
@@ -97,7 +98,7 @@ Xe::PCIDev::SMC::SMCCore::~SMCCore() {
   smcThreadRunning = false;
   if (smcThread.joinable())
     smcThread.join();
-  // If we are on Linux, or the backup system is running, 
+  // If we are on Linux, or the backup system is running,
   // kill it.
   smcCoreState->uartThreadRunning = false;
 #ifdef SOCKET_UART
@@ -123,7 +124,7 @@ void Xe::PCIDev::SMC::SMCCore::Read(u64 readAddress, u64 *data, u8 byteCount) {
   case UART_CONFIG_REG: // UART Config Register
     memcpy(data, &smcPCIState.uartConfigReg, byteCount);
     break;
-  case UART_BYTE_OUT_REG: // UART Data Out Register  
+  case UART_BYTE_OUT_REG: // UART Data Out Register
 #if defined(_WIN32) && !defined(SOCKET_UART)
     smcCoreState->retVal =
         ReadFile(smcCoreState->comPortHandle, &smcPCIState.uartOutReg, 1,
@@ -139,15 +140,15 @@ void Xe::PCIDev::SMC::SMCCore::Read(u64 readAddress, u64 *data, u8 byteCount) {
           smcCoreState->uartRxBuffer.pop();
           smcCoreState->retVal = true;
         }
-      }     
+      }
     }
     if (smcCoreState->retVal) {
       memcpy(data, &smcPCIState.uartOutReg, byteCount);
     }
     break;
   case UART_STATUS_REG: // UART Status Register
-    // First lets check if the UART has already been setup, if so, proceed to do
-    // the TX/RX.                   
+                        // First lets check if the UART has already been setup,
+                        // if so, proceed to do the TX/RX.
 #if defined(_WIN32) && !defined(SOCKET_UART)
     if (smcCoreState->uartInitialized) {
       // Get current COM Port Status
@@ -167,8 +168,10 @@ void Xe::PCIDev::SMC::SMCCore::Read(u64 readAddress, u64 *data, u8 byteCount) {
     if (smcCoreState->uartBackup) {
       if (smcCoreState->uartInitialized) {
         smcPCIState.uartStatusReg = 0;
-        smcPCIState.uartStatusReg |= smcCoreState->uartTxBuffer.size() <= 16 ? UART_STATUS_EMPTY : 0;
-        smcPCIState.uartStatusReg |= smcCoreState->uartRxBuffer.empty() ? 0 : UART_STATUS_DATA_PRES;
+        smcPCIState.uartStatusReg |=
+            smcCoreState->uartTxBuffer.size() <= 16 ? UART_STATUS_EMPTY : 0;
+        smcPCIState.uartStatusReg |=
+            smcCoreState->uartRxBuffer.empty() ? 0 : UART_STATUS_DATA_PRES;
       }
     }
     // Check if UART is already initialized.
@@ -201,15 +204,18 @@ void Xe::PCIDev::SMC::SMCCore::Read(u64 readAddress, u64 *data, u8 byteCount) {
     smcCoreState->fifoBufferPos += 4;
     break;
   default:
-    LOG_ERROR(SMC, "Unknown register being read, offset {:#x}", static_cast<u16>(regOffset));
+    LOG_ERROR(SMC, "Unknown register being read, offset {:#x}",
+              static_cast<u16>(regOffset));
     break;
   }
   mutex.unlock();
 }
 
 // PCI Config Read
-void Xe::PCIDev::SMC::SMCCore::ConfigRead(u64 readAddress, u64 *data, u8 byteCount) {
-  LOG_INFO(SMC, "ConfigRead: Address = {:#x}, ByteCount = {:#x}.", readAddress, byteCount);
+void Xe::PCIDev::SMC::SMCCore::ConfigRead(u64 readAddress, u64 *data,
+                                          u8 byteCount) {
+  LOG_INFO(SMC, "ConfigRead: Address = {:#x}, ByteCount = {:#x}.", readAddress,
+           byteCount);
   memcpy(data, &pciConfigSpace.data[static_cast<u8>(readAddress)], byteCount);
 }
 
@@ -285,19 +291,23 @@ void Xe::PCIDev::SMC::SMCCore::Write(u64 writeAddress, u64 data, u8 byteCount) {
     smcCoreState->fifoBufferPos += 4;
     break;
   default:
-    LOG_ERROR(SMC, "Unknown register being written, offset {:#x}, data {:#x}", 
-        static_cast<u16>(regOffset), data);
+    LOG_ERROR(SMC, "Unknown register being written, offset {:#x}, data {:#x}",
+              static_cast<u16>(regOffset), data);
     break;
   }
   mutex.unlock();
 }
 
 // PCI Config Write
-void Xe::PCIDev::SMC::SMCCore::ConfigWrite(u64 writeAddress, u64 data, u8 byteCount) {
-  LOG_INFO(SMC, "ConfigWrite: Address = {:#x}, Data = {:#x}, ByteCount = {:#x}.", writeAddress, data, byteCount);
+void Xe::PCIDev::SMC::SMCCore::ConfigWrite(u64 writeAddress, u64 data,
+                                           u8 byteCount) {
+  LOG_INFO(SMC,
+           "ConfigWrite: Address = {:#x}, Data = {:#x}, ByteCount = {:#x}.",
+           writeAddress, data, byteCount);
 
   // Check if we're being scanned.
-  if (static_cast<u8>(writeAddress) >= 0x10 && static_cast<u8>(writeAddress) < 0x34) {
+  if (static_cast<u8>(writeAddress) >= 0x10 &&
+      static_cast<u8>(writeAddress) < 0x34) {
     const u32 regOffset = (static_cast<u8>(writeAddress) - 0x10) >> 2;
     if (pciDevSizes[regOffset] != 0) {
       if (data == 0xFFFFFFFF) { // PCI BAR Size discovery.
@@ -313,10 +323,10 @@ void Xe::PCIDev::SMC::SMCCore::ConfigWrite(u64 writeAddress, u64 data, u8 byteCo
       }
     }
     if (static_cast<u8>(writeAddress) == 0x30) { // Expansion ROM Base Address.
-      data = 0; // Register not implemented.
+      data = 0;                                  // Register not implemented.
     }
   }
-  
+
   memcpy(&pciConfigSpace.data[static_cast<u8>(writeAddress)], &data, byteCount);
 }
 
@@ -326,8 +336,8 @@ void Xe::PCIDev::SMC::SMCCore::setupUART(u32 uartConfig) {
   smcCoreState->uartBackup = true;
   smcCoreState->socketCreated = true;
   constexpr int port = 7000;
-  constexpr const char* ip = "127.0.0.1";
-  //constexpr const char* ip = "10.0.0.201";
+  constexpr const char *ip = "127.0.0.1";
+  // constexpr const char* ip = "10.0.0.201";
 
   smcCoreState->sockAddr.sin_family = AF_INET;
   smcCoreState->sockAddr.sin_port = htons(port);
@@ -336,22 +346,34 @@ void Xe::PCIDev::SMC::SMCCore::setupUART(u32 uartConfig) {
 #ifdef _WIN32
   int start = WSAStartup(MAKEWORD(2, 2), &smcCoreState->wsaData);
   if (start != 0) {
-    LOG_CRITICAL(SMC, "SOCKET_UART failed! WSAStartup returned a non-zero value. Error: {}", start);
+    LOG_CRITICAL(
+        SMC,
+        "SOCKET_UART failed! WSAStartup returned a non-zero value. Error: {}",
+        start);
     smcCoreState->socketCreated = false;
     SYSTEM_PAUSE();
   }
 #endif // _WIN32
   smcCoreState->sockHandle = socket(AF_INET, SOCK_STREAM, 0);
-  int sockert_connect = connect(smcCoreState->sockHandle, (struct sockaddr*)&smcCoreState->sockAddr, sizeof(smcCoreState->sockAddr));
+  int sockert_connect = connect(smcCoreState->sockHandle,
+                                (struct sockaddr *)&smcCoreState->sockAddr,
+                                sizeof(smcCoreState->sockAddr));
   if (sockert_connect != 0) {
-    LOG_CRITICAL(SMC, "SOCKET_UART failed! Failed to connect to socket. Error: {}", Base::GetLastErrorMsg());
+    LOG_CRITICAL(SMC,
+                 "SOCKET_UART failed! Failed to connect to socket. Error: {}",
+                 Base::GetLastErrorMsg());
     smcCoreState->socketCreated = false;
     SYSTEM_PAUSE();
   }
   if (!smcCoreState->socketCreated) {
-    sockert_connect = connect(smcCoreState->sockHandle, (struct sockaddr*)&smcCoreState->sockAddr, sizeof(smcCoreState->sockAddr));
+    sockert_connect = connect(smcCoreState->sockHandle,
+                              (struct sockaddr *)&smcCoreState->sockAddr,
+                              sizeof(smcCoreState->sockAddr));
     if (sockert_connect != 0) {
-      LOG_CRITICAL(SMC, "SOCKET_UART failed! Failed to connect to socket. (x2) Error: {}", Base::GetLastErrorMsg());
+      LOG_CRITICAL(
+          SMC,
+          "SOCKET_UART failed! Failed to connect to socket. (x2) Error: {}",
+          Base::GetLastErrorMsg());
       socketclose(smcCoreState->sockHandle);
       SYSTEM_PAUSE();
     } else {
@@ -369,50 +391,57 @@ void Xe::PCIDev::SMC::SMCCore::setupUART(u32 uartConfig) {
 
   switch (uartConfig) {
   case 0x1e6:
-    LOG_INFO(SMC, " * BaudRate: 115200bps, DataSize: 8, Parity: N, StopBits: 1.");
+    LOG_INFO(SMC,
+             " * BaudRate: 115200bps, DataSize: 8, Parity: N, StopBits: 1.");
     smcCoreState->comPortDCB.BaudRate = CBR_115200;
     smcCoreState->comPortDCB.ByteSize = 8;
     smcCoreState->comPortDCB.Parity = NOPARITY;
     smcCoreState->comPortDCB.StopBits = ONESTOPBIT;
     break;
   case 0x1bb2:
-    LOG_INFO(SMC, " * BaudRate: 38400bps, DataSize: 8, Parity: N, StopBits: 1.");
+    LOG_INFO(SMC,
+             " * BaudRate: 38400bps, DataSize: 8, Parity: N, StopBits: 1.");
     smcCoreState->comPortDCB.BaudRate = CBR_38400;
     smcCoreState->comPortDCB.ByteSize = 8;
     smcCoreState->comPortDCB.Parity = NOPARITY;
     smcCoreState->comPortDCB.StopBits = ONESTOPBIT;
     break;
   case 0x163:
-    LOG_INFO(SMC, " * BaudRate: 19200bps, DataSize: 8, Parity: N, StopBits: 1.");
+    LOG_INFO(SMC,
+             " * BaudRate: 19200bps, DataSize: 8, Parity: N, StopBits: 1.");
     smcCoreState->comPortDCB.BaudRate = CBR_19200;
     smcCoreState->comPortDCB.ByteSize = 8;
     smcCoreState->comPortDCB.Parity = NOPARITY;
     smcCoreState->comPortDCB.StopBits = ONESTOPBIT;
     break;
   default:
-    LOG_WARNING(SMC, "SMCCore: Unknown UART config being set: ConfigValue = {:#x}", uartConfig);
+    LOG_WARNING(SMC,
+                "SMCCore: Unknown UART config being set: ConfigValue = {:#x}",
+                uartConfig);
     break;
   }
 
   // Open COM# port using the CreateFile function.
   smcCoreState->comPortHandle =
-      CreateFileA(smcCoreState->currentCOMPort, GENERIC_READ | GENERIC_WRITE, 0, nullptr,
-                 OPEN_EXISTING, 0, nullptr);
+      CreateFileA(smcCoreState->currentCOMPort, GENERIC_READ | GENERIC_WRITE, 0,
+                  nullptr, OPEN_EXISTING, 0, nullptr);
 
   bool useBackup = false;
   if (smcCoreState->comPortHandle == INVALID_HANDLE_VALUE) {
-    LOG_ERROR(SMC, "CreateFile failed with error {:#x}. Make sure the Selected COM Port is avaliable "
-        "in your system.", GetLastError());
+    LOG_ERROR(SMC,
+              "CreateFile failed with error {:#x}. Make sure the Selected COM "
+              "Port is avaliable "
+              "in your system.",
+              GetLastError());
     smcCoreState->uartPresent = false;
     if (!smcCoreState->uartBackup) {
       printf("[SMC] <Info> Use backup UART system? (Y/N) ");
       char opt = std::tolower(getchar());
-      smcCoreState->uartBackup = opt == 'y';     
+      smcCoreState->uartBackup = opt == 'y';
       if (!smcCoreState->uartBackup) {
         return;
       }
-    }
-    else {
+    } else {
       LOG_INFO(SMC, "Using backup UART. Logging UART to Console");
     }
     useBackup = true;
@@ -421,7 +450,8 @@ void Xe::PCIDev::SMC::SMCCore::setupUART(u32 uartConfig) {
   // Set The COM Port State as per config value.
   if (!useBackup) {
     if (!SetCommState(smcCoreState->comPortHandle, &smcCoreState->comPortDCB)) {
-      LOG_ERROR(SMC, "UART: SetCommState failed with error {:#x}.", GetLastError());
+      LOG_ERROR(SMC, "UART: SetCommState failed with error {:#x}.",
+                GetLastError());
     }
   }
 
@@ -437,7 +467,9 @@ void Xe::PCIDev::SMC::SMCCore::setupUART(u32 uartConfig) {
 
 #else
   smcCoreState->uartBackup = true;
-  LOG_ERROR(SMC, "UART Initialization is fully supported on this platform! User beware.");
+  LOG_ERROR(
+      SMC,
+      "UART Initialization is fully supported on this platform! User beware.");
 #endif // _WIN32
 #endif // SOCKET_UART
   if (smcCoreState->uartBackup && !smcCoreState->uartInitialized) {
@@ -589,7 +621,7 @@ void Xe::PCIDev::SMC::SMCCore::smcMainThread() {
       bool noResponse = false;
 
       // Note that the first byte in the response is always Command ID.
-      // 
+      //
       // Data Buffer[0] is our message ID.
       mutex.lock();
       switch (smcCoreState->fifoDataBuffer[0]) {
@@ -642,7 +674,8 @@ void Xe::PCIDev::SMC::SMCCore::smcMainThread() {
               (smcCoreState->fifoDataBuffer[7] << 24);
           break;
         default:
-          LOG_WARNING(SMC, "SMC_I2C_READ_WRITE: Unimplemented command {:#x}", smcCoreState->fifoDataBuffer[1]);
+          LOG_WARNING(SMC, "SMC_I2C_READ_WRITE: Unimplemented command {:#x}",
+                      smcCoreState->fifoDataBuffer[1]);
           smcCoreState->fifoDataBuffer[0] = SMC_I2C_READ_WRITE;
           smcCoreState->fifoDataBuffer[1] = 0x1; // Set R/W Failed.
         }
@@ -721,8 +754,8 @@ void Xe::PCIDev::SMC::SMCCore::smcMainThread() {
         LOG_WARNING(SMC, "Unimplemented SMC_FIFO_CMD: SMC_SET_9F_INT");
         break;
       default:
-        LOG_WARNING(SMC, "Unknown SMC_FIFO_CMD: ID = {:#x}", 
-            static_cast<u16>(smcCoreState->fifoDataBuffer[0]));
+        LOG_WARNING(SMC, "Unknown SMC_FIFO_CMD: ID = {:#x}",
+                    static_cast<u16>(smcCoreState->fifoDataBuffer[0]));
         break;
       }
       mutex.unlock();
@@ -732,10 +765,11 @@ void Xe::PCIDev::SMC::SMCCore::smcMainThread() {
       smcPCIState.fifoOutStatusReg = FIFO_STATUS_READY;
 
       // If interrupts are active set Int status and issue one.
-      if (smcPCIState.smiIntEnabledReg & SMI_INT_ENABLED && noResponse == false) {
-        // Wait a small delay to mimic hardware. This allows code in xboxkrnl.exe such as
-        // KeWaitForSingleObject to correctly setup waiting code.
-        // This is no longer needed due to mutexes
+      if (smcPCIState.smiIntEnabledReg & SMI_INT_ENABLED &&
+          noResponse == false) {
+        // Wait a small delay to mimic hardware. This allows code in
+        // xboxkrnl.exe such as KeWaitForSingleObject to correctly setup waiting
+        // code. This is no longer needed due to mutexes
         mutex.lock();
         smcPCIState.smiIntPendingReg = SMI_INT_PENDING;
         pciBridge->RouteInterrupt(PRIO_SMM);
@@ -744,7 +778,7 @@ void Xe::PCIDev::SMC::SMCCore::smcMainThread() {
     }
 
     // Check for SMC Clock interrupt register.
-    // 
+    //
     // Clock Int Enabled.
     if (smcPCIState.clockIntEnabledReg == CLCK_INT_ENABLED) {
       // Clock Interrupt Not Taken.

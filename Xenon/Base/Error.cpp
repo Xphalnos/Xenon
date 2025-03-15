@@ -15,10 +15,11 @@ std::string NativeErrorToString(int e) {
 #ifdef _WIN32
   LPSTR err_str;
 
-  DWORD res = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                             FORMAT_MESSAGE_IGNORE_INSERTS,
-                             nullptr, e, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
-                             reinterpret_cast<LPSTR>(&err_str), 1, nullptr);
+  DWORD res = FormatMessageA(
+      FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER |
+          FORMAT_MESSAGE_IGNORE_INSERTS,
+      nullptr, e, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
+      reinterpret_cast<LPSTR>(&err_str), 1, nullptr);
   if (!res) {
     return "(FormatMessageA failed to format error)";
   }
@@ -27,10 +28,11 @@ std::string NativeErrorToString(int e) {
   return ret;
 #else
   char err_str[255];
-#if defined(__GLIBC__) && (_GNU_SOURCE || (_POSIX_C_SOURCE < 200112L && _XOPEN_SOURCE < 600)) ||   \
-  defined(ANDROID)
+#if defined(__GLIBC__) &&                                                      \
+        (_GNU_SOURCE || (_POSIX_C_SOURCE < 200112L && _XOPEN_SOURCE < 600)) || \
+    defined(ANDROID)
   // Thread safe (GNU-specific)
-  const char* str = strerror_r(e, err_str, sizeof(err_str));
+  const char *str = strerror_r(e, err_str, sizeof(err_str));
   return std::string(str);
 #else
   // Thread safe (XSI-compliant)

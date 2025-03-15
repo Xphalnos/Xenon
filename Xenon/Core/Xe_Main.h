@@ -28,7 +28,7 @@
 #include "Render/Renderer.h"
 
 // Global thread state
-inline bool XeRunning{ true };
+inline bool XeRunning{true};
 class XeMain {
 public:
   XeMain();
@@ -44,13 +44,10 @@ public:
 
   void getFuses();
 
-  void shutdown() {
-    XeRunning = false;
-  }
+  void shutdown() { XeRunning = false; }
 
-  Xenon* getCPU() {
-    return xenonCPU.get();
-  }
+  Xenon *getCPU() { return xenonCPU.get(); }
+
 private:
   // Main objects
   //  Base path
@@ -59,9 +56,9 @@ private:
   std::unique_ptr<Base::Log::Filter> logFilter{};
 
   // Main Emulator objects
-  std::unique_ptr<RootBus> rootBus{}; // RootBus Object
+  std::unique_ptr<RootBus> rootBus{};       // RootBus Object
   std::unique_ptr<HostBridge> hostBridge{}; // HostBridge Object
-  std::unique_ptr<PCIBridge> pciBridge{}; // PCIBridge Object
+  std::unique_ptr<PCIBridge> pciBridge{};   // PCIBridge Object
 
 public:
   // Render thread
@@ -70,7 +67,8 @@ public:
 
   // PCI Devices
   //  SMC
-  std::unique_ptr<Xe::PCIDev::SMC::SMC_CORE_STATE> smcCoreState; // SMCCore State for setting diffrent SMC settings.
+  std::unique_ptr<Xe::PCIDev::SMC::SMC_CORE_STATE>
+      smcCoreState; // SMCCore State for setting diffrent SMC settings.
   std::unique_ptr<Xe::PCIDev::SMC::SMCCore> smcCore; // SMCCore Object
   //  Ethernet
   std::unique_ptr<Xe::PCIDev::ETHERNET::ETHERNET> ethernet{};
@@ -86,7 +84,8 @@ public:
   std::unique_ptr<SFCX> sfcx{};
   //  NAND
   std::unique_ptr<NAND> nandDevice{};
-  //  Random Access Memory (All console RAM, excluding Reserved memory which is mainly PCI Devices)
+  //  Random Access Memory (All console RAM, excluding Reserved memory which is
+  //  mainly PCI Devices)
   std::unique_ptr<RAM> ram{};
   //  XMA
   std::unique_ptr<XMA> xma{};
@@ -97,6 +96,7 @@ public:
 
   //  Xenon CPU
   std::unique_ptr<Xenon> xenonCPU{};
+
 private:
   // Console Handles
   //  Xenos GPU

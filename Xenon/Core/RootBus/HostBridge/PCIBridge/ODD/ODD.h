@@ -6,18 +6,18 @@
 #include <windows.h>
 #else
 #include <fcntl.h>
-#include <unistd.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 #endif
 #include <cstring>
 #include <memory>
 #include <string>
 
 #include "Core/RAM/RAM.h"
-#include "Core/RootBus/HostBridge/PCIBridge/SATA.h"
 #include "Core/RootBus/HostBridge/PCIBridge/PCIBridge.h"
 #include "Core/RootBus/HostBridge/PCIBridge/PCIDevice.h"
+#include "Core/RootBus/HostBridge/PCIBridge/SATA.h"
 #include "Core/XCPU/Interpreter/PPCInternal.h"
 
 #define ODD_DEV_SIZE 0x30
@@ -104,9 +104,7 @@ private:
 #else
 class Storage {
 public:
-  Storage(const std::string Filename) {
-    fd = open(Filename.c_str(), O_RDONLY);
-  }
+  Storage(const std::string Filename) { fd = open(Filename.c_str(), O_RDONLY); }
   ~Storage() {
     if (fd != -1)
       close(fd);
@@ -120,7 +118,7 @@ public:
     return static_cast<u32>(st.st_size);
   }
 
-  bool Read(u64 Offset, u8* Destination, u32 cu8s) {
+  bool Read(u64 Offset, u8 *Destination, u32 cu8s) {
     if (lseek(fd, Offset, SEEK_SET) == (off_t)-1)
       return false;
     ssize_t bytesRead = read(fd, Destination, cu8s);
@@ -375,8 +373,7 @@ struct XE_ATAPI_DEV_STATE {
 
 class ODD : public PCIDevice {
 public:
-  ODD(const char* deviceName, u64 size,
-    PCIBridge *parentPCIBridge, RAM *ram);
+  ODD(const char *deviceName, u64 size, PCIBridge *parentPCIBridge, RAM *ram);
 
   void Read(u64 readAddress, u64 *data, u8 u8Count) override;
   void ConfigRead(u64 readAddress, u64 *data, u8 u8Count) override;

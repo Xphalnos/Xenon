@@ -10,8 +10,8 @@
 
 class RAM : public SystemDevice {
 public:
-  RAM(const char* deviceName, u64 startAddress, u64 endAddress,
-    bool isSOCDevice);
+  RAM(const char *deviceName, u64 startAddress, u64 endAddress,
+      bool isSOCDevice);
   ~RAM();
   void Read(u64 readAddress, u64 *data, u8 byteCount) override;
   void Write(u64 writeAddress, u64 data, u8 byteCount) override;

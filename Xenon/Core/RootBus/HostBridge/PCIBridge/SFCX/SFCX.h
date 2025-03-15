@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <thread>
-#include <fstream>
 #include <filesystem>
+#include <fstream>
+#include <thread>
 
 #include "Core/RootBus/HostBridge/PCIBridge/PCIBridge.h"
 #include "Core/RootBus/HostBridge/PCIBridge/PCIDevice.h"
@@ -156,8 +156,8 @@ struct SFCX_STATE {
 
 class SFCX : public PCIDevice {
 public:
-  SFCX(const char* deviceName, const std::string nandLoadPath, u64 size,
-    PCIBridge *parentPCIBridge);
+  SFCX(const char *deviceName, const std::string nandLoadPath, u64 size,
+       PCIBridge *parentPCIBridge);
   ~SFCX();
 
   void Read(u64 readAddress, u64 *data, u8 byteCount) override;

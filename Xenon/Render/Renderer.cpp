@@ -2,18 +2,18 @@
 
 #include "Renderer.h"
 
-#include "Render/Implementations/OGLTexture.h" 
-#include "GUI/Implementations/OpenGL.h"
 #include "Base/Config.h"
+#include "Base/Logging/Log.h"
 #include "Base/Path_util.h"
 #include "Base/Version.h"
-#include "Base/Logging/Log.h"
+#include "GUI/Implementations/OpenGL.h"
+#include "Render/Implementations/OGLTexture.h"
 
 #include "Core/XGPU/XGPU.h"
 #include "Core/Xe_Main.h"
 
 // Shaders
-void compileShaders(GLuint shader, const char* source) {
+void compileShaders(GLuint shader, const char *source) {
   glShaderSource(shader, 1, &source, nullptr);
   glCompileShader(shader);
   // Ensure the shader built
@@ -26,7 +26,7 @@ void compileShaders(GLuint shader, const char* source) {
   }
 }
 
-GLuint createShaderPrograms(const char* vertex, const char* fragment) {
+GLuint createShaderPrograms(const char *vertex, const char *fragment) {
   GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
   compileShaders(vertexShader, vertex);
   GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -40,29 +40,23 @@ GLuint createShaderPrograms(const char* vertex, const char* fragment) {
   return program;
 }
 
-Render::Renderer::Renderer(RAM *ram) :
-  ramPointer(ram),
-  internalWidth(Config::internalWindowWidth()),
-  internalHeight(Config::internalWindowHeight()),
-  width(TILE(Config::windowWidth())),
-  height(TILE(Config::windowHeight())),
-  VSYNC(Config::vsync()),
-  fullscreen(Config::fullscreenMode())
-{
+Render::Renderer::Renderer(RAM *ram)
+    : ramPointer(ram), internalWidth(Config::internalWindowWidth()),
+      internalHeight(Config::internalWindowHeight()),
+      width(TILE(Config::windowWidth())), height(TILE(Config::windowHeight())),
+      VSYNC(Config::vsync()), fullscreen(Config::fullscreenMode()) {
   thread = std::thread(&Render::Renderer::Thread, this);
   thread.detach();
 }
 
-Render::Renderer::~Renderer() {
-  Shutdown();
-}
+Render::Renderer::~Renderer() { Shutdown(); }
 
 // Vali0004:
 // Why did I do this, you may ask?
 // Well, it's because OpenGL fucking sucks.
 // Both SDL and OpenGL use per-thread states.
-// It is not possible to create all of the OpenGL state in a different thread, then pass it over.
-// Just why...
+// It is not possible to create all of the OpenGL state in a different thread,
+// then pass it over. Just why...
 
 void Render::Renderer::Start() {
   // Init SDL Events, Video, Joystick, and Gamepad
@@ -73,19 +67,24 @@ void Render::Renderer::Start() {
   const std::string title = fmt::format("Xenon {}", Base::VERSION);
   // SDL3 window properties.
   SDL_PropertiesID props = SDL_CreateProperties();
-  SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, title.c_str());
+  SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING,
+                        title.c_str());
   // Set starting X and Y position to be centered
-  SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_X_NUMBER, SDL_WINDOWPOS_CENTERED);
-  SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, SDL_WINDOWPOS_CENTERED);
+  SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_X_NUMBER,
+                        SDL_WINDOWPOS_CENTERED);
+  SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER,
+                        SDL_WINDOWPOS_CENTERED);
   // Set width and height
   SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, width);
   SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, height);
-  // For a new Vulkan support, don't forget to change 'SDL_WINDOW_OPENGL' by 'SDL_WINDOW_VULKAN'.
+  // For a new Vulkan support, don't forget to change 'SDL_WINDOW_OPENGL' by
+  // 'SDL_WINDOW_VULKAN'.
   SDL_SetNumberProperty(props, "flags", SDL_WINDOW_OPENGL);
   // Allow resizing
   SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_RESIZABLE_BOOLEAN, true);
   // Enable HiDPI
-  SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_HIGH_PIXEL_DENSITY_BOOLEAN, true);
+  SDL_SetBooleanProperty(
+      props, SDL_PROP_WINDOW_CREATE_HIGH_PIXEL_DENSITY_BOOLEAN, true);
   // Enable OpenGL
   SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_OPENGL_BOOLEAN, true);
   // Create window
@@ -133,19 +132,22 @@ void Render::Renderer::Start() {
   glAttachShader(shaderProgram, computeShader);
   glLinkProgram(shaderProgram);
   glDeleteShader(computeShader);
-  renderShaderProgram = createShaderPrograms(vertexShaderSource, fragmentShaderSource);
+  renderShaderProgram =
+      createShaderPrograms(vertexShaderSource, fragmentShaderSource);
 
   // Create our backbuffer
   backbuffer = std::make_unique<OGLTexture>();
 
   // Init GL texture
-  backbuffer->CreateTextureHandle(width, height,
-    // Set our texture flags
-    Render::eCreationFlags::glTextureWrapS_GL_CLAMP_TO_EDGE | Render::eCreationFlags::glTextureWrapT_GL_CLAMP_TO_EDGE |
-    Render::eCreationFlags::glTextureMinFilter_GL_NEAREST | Render::eCreationFlags::glTextureMagFilter_GL_NEAREST |
-    // Set our texture depth
-    Render::eTextureDepth::R32U
-  );
+  backbuffer->CreateTextureHandle(
+      width, height,
+      // Set our texture flags
+      Render::eCreationFlags::glTextureWrapS_GL_CLAMP_TO_EDGE |
+          Render::eCreationFlags::glTextureWrapT_GL_CLAMP_TO_EDGE |
+          Render::eCreationFlags::glTextureMinFilter_GL_NEAREST |
+          Render::eCreationFlags::glTextureMagFilter_GL_NEAREST |
+          // Set our texture depth
+          Render::eTextureDepth::R32U);
 
   // TODO(Vali0004): Setup a buffer implementation, abstract this away
   // Init pixel buffer
@@ -153,7 +155,8 @@ void Render::Renderer::Start() {
   pixels.resize(pitch, COLOR(30, 30, 30, 255)); // Init with dark grey
   glGenBuffers(1, &pixelBuffer);
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, pixelBuffer);
-  glBufferData(GL_SHADER_STORAGE_BUFFER, pixels.size(), pixels.data(), GL_DYNAMIC_DRAW);
+  glBufferData(GL_SHADER_STORAGE_BUFFER, pixels.size(), pixels.data(),
+               GL_DYNAMIC_DRAW);
 
   // Create a dummy VAO
   glGenVertexArrays(1, &dummyVAO);
@@ -168,7 +171,7 @@ void Render::Renderer::Start() {
 
   // Create our GUI
   gui = std::make_unique<OpenGLGUI>();
-  gui->Init(mainWindow, reinterpret_cast<void*>(context));
+  gui->Init(mainWindow, reinterpret_cast<void *>(context));
 }
 
 void Render::Renderer::Shutdown() {
@@ -199,7 +202,8 @@ void Render::Renderer::Resize(int x, int y, bool resizeViewport) {
   pixels.resize(pitch);
   // Recreate the buffer
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, pixelBuffer);
-  glBufferData(GL_SHADER_STORAGE_BUFFER, pixels.size(), pixels.data(), GL_DYNAMIC_DRAW);
+  glBufferData(GL_SHADER_STORAGE_BUFFER, pixels.size(), pixels.data(),
+               GL_DYNAMIC_DRAW);
   LOG_DEBUG(Xenos, "Resized window to {}x{}", width, height);
 }
 
@@ -244,13 +248,14 @@ void Render::Renderer::Thread() {
         }
         if (windowEvent.key.key == SDLK_F9) {
           LOG_INFO(Xenos, "RenderWindow: Taking a XenosFB snapshot");
-          const auto UserDir = Base::FS::GetUserPath(Base::FS::PathType::UserDir);
-          std::ofstream f(UserDir / "fbmem.bin", std::ios::out | std::ios::binary | std::ios::trunc);
+          const auto UserDir =
+              Base::FS::GetUserPath(Base::FS::PathType::UserDir);
+          std::ofstream f(UserDir / "fbmem.bin",
+                          std::ios::out | std::ios::binary | std::ios::trunc);
           if (!f) {
             LOG_ERROR(Xenos, "Failed to open fbmem.bin for writing");
-          }
-          else {
-            f.write(reinterpret_cast<const char*>(fbPointer), pitch);
+          } else {
+            f.write(reinterpret_cast<const char *>(fbPointer), pitch);
             LOG_INFO(Xenos, "Framebuffer dumped to Xenon/fbmem.bin");
           }
           f.close();
@@ -271,7 +276,7 @@ void Render::Renderer::Thread() {
 
     // Upload buffer
     if (fbPointer) {
-      const u32* ui_fbPointer = reinterpret_cast<u32*>(fbPointer);
+      const u32 *ui_fbPointer = reinterpret_cast<u32 *>(fbPointer);
       glBindBuffer(GL_SHADER_STORAGE_BUFFER, pixelBuffer);
       glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, pitch, ui_fbPointer);
 
@@ -279,12 +284,16 @@ void Render::Renderer::Thread() {
         // Use the compute shader
         glUseProgram(shaderProgram);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, pixelBuffer);
-        glUniform1i(glGetUniformLocation(shaderProgram, "internalWidth"), internalWidth);
-        glUniform1i(glGetUniformLocation(shaderProgram, "internalHeight"), internalHeight);
+        glUniform1i(glGetUniformLocation(shaderProgram, "internalWidth"),
+                    internalWidth);
+        glUniform1i(glGetUniformLocation(shaderProgram, "internalHeight"),
+                    internalHeight);
         glUniform1i(glGetUniformLocation(shaderProgram, "resWidth"), width);
         glUniform1i(glGetUniformLocation(shaderProgram, "resHeight"), height);
         glDispatchCompute(width / 16, height / 16, 1);
-        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_UPDATE_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
+        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT |
+                        GL_TEXTURE_UPDATE_BARRIER_BIT |
+                        GL_TEXTURE_FETCH_BARRIER_BIT);
       }
     }
 

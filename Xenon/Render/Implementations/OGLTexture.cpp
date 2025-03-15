@@ -82,28 +82,31 @@ void Render::OGLTexture::CreateTextureHandle(u32 width, u32 height, int flags) {
   SetHeight(height);
   u32 depth = GetDepthFromFlags(flags);
   SetDepth(depth);
-  glGenTextures(1, (u32*)GetTexture());
+  glGenTextures(1, (u32 *)GetTexture());
   Bind();
   glTexStorage2D(GL_TEXTURE_2D, 1, depth, GetWidth(), GetHeight());
   SetupTextureFlags(flags);
   glBindImageTexture(0, TextureHandle, 0, GL_FALSE, 0, GL_READ_WRITE, depth);
   Unbind();
 }
-void Render::OGLTexture::CreateTextureWithData(u32 width, u32 height, eDataFormat format, u8* data, u32 dataSize, int flags) {
+void Render::OGLTexture::CreateTextureWithData(u32 width, u32 height,
+                                               eDataFormat format, u8 *data,
+                                               u32 dataSize, int flags) {
   SetTexture(&TextureHandle);
   SetWidth(width);
   SetHeight(height);
   u32 depth = GetDepthFromFlags(flags);
   SetDepth(depth);
   SetTexture(&TextureHandle);
-  glGenTextures(1, (u32*)GetTexture());
+  glGenTextures(1, (u32 *)GetTexture());
   Bind();
   glTexStorage2D(GL_TEXTURE_2D, 1, depth, GetWidth(), GetHeight());
   SetupTextureFlags(flags);
   glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
   u32 textureFormat = GetOGLTextureFormat(format);
   u32 internalTextureFormat = GetOGLTextureFormat(format);
-  glTexImage2D(GL_TEXTURE_2D, 0, textureFormat, GetWidth(), GetHeight(), 0, internalTextureFormat, GL_UNSIGNED_BYTE, data);
+  glTexImage2D(GL_TEXTURE_2D, 0, textureFormat, GetWidth(), GetHeight(), 0,
+               internalTextureFormat, GL_UNSIGNED_BYTE, data);
   Unbind();
 }
 void Render::OGLTexture::ResizeTexture(u32 width, u32 height) {
@@ -114,18 +117,15 @@ void Render::OGLTexture::ResizeTexture(u32 width, u32 height) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glBindImageTexture(0, TextureHandle, 0, GL_FALSE, 0, GL_READ_WRITE, GetDepth());
+  glBindImageTexture(0, TextureHandle, 0, GL_FALSE, 0, GL_READ_WRITE,
+                     GetDepth());
   Unbind();
 }
 
-void Render::OGLTexture::Bind() {
-  glBindTexture(GL_TEXTURE_2D, TextureHandle);
-}
-void Render::OGLTexture::Unbind() {
-  glBindTexture(GL_TEXTURE_2D, 0);
-}
+void Render::OGLTexture::Bind() { glBindTexture(GL_TEXTURE_2D, TextureHandle); }
+void Render::OGLTexture::Unbind() { glBindTexture(GL_TEXTURE_2D, 0); }
 
 void Render::OGLTexture::DestroyTexture() {
-  glDeleteTextures(1, (u32*)GetTexture());
+  glDeleteTextures(1, (u32 *)GetTexture());
   SetTexture(nullptr);
 }

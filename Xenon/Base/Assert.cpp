@@ -5,7 +5,7 @@
 
 #include "Logging/Backend.h"
 
-#ifdef  _MSC_VER
+#ifdef _MSC_VER
 #define Crash() __debugbreak()
 #else
 #if defined(ARCH_X86_64)
@@ -30,7 +30,7 @@ void assert_fail_impl() {
   throw std::runtime_error("Unreachable code");
 }
 
-void assert_fail_debug_msg(const std::string& msg) {
+void assert_fail_debug_msg(const std::string &msg) {
   LOG_CRITICAL(Debug, "Assertion Failed!\n{}", msg.data());
   assert_fail_impl();
 }

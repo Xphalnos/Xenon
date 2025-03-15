@@ -11,7 +11,7 @@
 #include "Core/RootBus/HostBridge/PCIBridge/PCIBridge.h"
 #include "Core/RootBus/HostBridge/PCIBridge/PCIDevice.h"
 
-//#define SOCKET_UART
+// #define SOCKET_UART
 
 #ifdef SOCKET_UART
 #ifdef _WIN32
@@ -20,9 +20,9 @@
 #define socketclose closesocket
 #else
 #include <arpa/inet.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
 #include <netinet/in.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
 #include <unistd.h>
 #define socketclose close
 #endif // _WIN32
@@ -246,14 +246,14 @@ struct SMC_CORE_STATE {
   u8 fifoBufferPos = 0;
 
   // Default COM Port for opening.
-  const char* currentCOMPort;
+  const char *currentCOMPort;
   // UART Initialized.
   bool uartInitialized;
   // UART Present. Used to do a one time check on UART COM Port on the host
   // system.
   bool uartPresent;
-  // Use backup UART. If we are on Windows, and it doesn't have the proper COM port,
-  // use this instead
+  // Use backup UART. If we are on Windows, and it doesn't have the proper COM
+  // port, use this instead
   bool uartBackup;
 #ifdef SOCKET_UART
   bool socketCreated;
@@ -295,8 +295,8 @@ struct SMC_CORE_STATE {
 // SMC Core Object.
 class SMCCore : public PCIDevice {
 public:
-  SMCCore(const char* deviceName, u64 size,
-    PCIBridge* parentPCIBridge, SMC_CORE_STATE* newSMCCoreState);
+  SMCCore(const char *deviceName, u64 size, PCIBridge *parentPCIBridge,
+          SMC_CORE_STATE *newSMCCoreState);
   ~SMCCore();
 
   // Read/Write functions.
@@ -306,7 +306,8 @@ public:
   void ConfigWrite(u64 writeAddress, u64 data, u8 byteCount) override;
 
 private:
-  // Mutex, stops other threads from writing to values without the previous one finishing
+  // Mutex, stops other threads from writing to values without the previous one
+  // finishing
   std::recursive_mutex mutex;
 
   // Parent PCI Bridge (Used for interrupts/communication):

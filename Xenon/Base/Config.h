@@ -5,8 +5,8 @@
 #include <cstdlib>
 #include <filesystem>
 
-#include "Types.h"
 #include "Logging/Backend.h"
+#include "Types.h"
 
 namespace Config {
 // General
@@ -19,7 +19,8 @@ inline bool islogAdvanced = false;
 
 // SMC
 inline int smcPowerOnReason = 0x11; // SMC_PWR_REAS_EJECT
-inline int smcAvPackType = 31; // Set to HDMI_NO_AUDIO. See SMC.cpp for a list of values.
+inline int smcAvPackType =
+    31; // Set to HDMI_NO_AUDIO. See SMC.cpp for a list of values.
 inline int comPort = 2;
 inline bool useBackupUart = false;
 inline std::string com = "";
@@ -33,7 +34,8 @@ inline s32 screenWidth = 1280;
 inline s32 screenHeight = 720;
 inline s32 internalWidth = 1280;
 inline s32 internalHeight = 720;
-// inline s32 gpuId = -1; // Vulkan physical device index. Set to negative for auto select
+// inline s32 gpuId = -1; // Vulkan physical device index. Set to negative for
+// auto select
 
 // Filepaths
 #ifdef _WIN32
@@ -80,13 +82,13 @@ bool logAdvanced();
 // SMC Options.
 //
 
-// SMC Detected AV Pack. Tells the system what kind of video output it is connected to.
-// This is used to detect the current resolution.
+// SMC Detected AV Pack. Tells the system what kind of video output it is
+// connected to. This is used to detect the current resolution.
 int smcCurrentAvPack();
 // SMC Power On type (PowerButton, eject button, controller, etc...).
 int smcPowerOnType();
 // Selected COM Port.
-std::string& COMPort();
+std::string &COMPort();
 // Selected COM Port.
 bool useBackupUART();
 
@@ -128,14 +130,15 @@ const std::string oddImagePath();
 
 //
 // ImGui
-// 
+//
 // ImGui Ini path
 const std::string imguiIniPath();
 // ImGui Debug Window
 bool imguiDebug();
 
 //
-// Highly experimental. (things that can either break the emulator or drastically increase performance)
+// Highly experimental. (things that can either break the emulator or
+// drastically increase performance)
 //
 int cpi();
 bool loadElfs();

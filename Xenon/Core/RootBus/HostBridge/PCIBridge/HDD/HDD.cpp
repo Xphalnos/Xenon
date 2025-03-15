@@ -4,18 +4,19 @@
 
 #include "Base/Logging/Log.h"
 
-HDD::HDD(const char *deviceName, u64 size, PCIBridge *parentPCIBridge) :
-  PCIDevice(deviceName, size) {
+HDD::HDD(const char *deviceName, u64 size, PCIBridge *parentPCIBridge)
+    : PCIDevice(deviceName, size) {
   // Note:
-   // The ATA/ATAPI Controller in the Xenon Southbridge contain two BAR's:
-   // The first is for the Command Block (Regs 0-7) + DevCtrl/AltStatus reg at offset 0xA.
-   // The second is for the BMDMA (Bus Master DMA) block.
+  // The ATA/ATAPI Controller in the Xenon Southbridge contain two BAR's:
+  // The first is for the Command Block (Regs 0-7) + DevCtrl/AltStatus reg at
+  // offset 0xA. The second is for the BMDMA (Bus Master DMA) block.
 
-   // Set PCI Properties.
+  // Set PCI Properties.
   pciConfigSpace.configSpaceHeader.reg0.hexData = 0x58031414;
   pciConfigSpace.configSpaceHeader.reg1.hexData = 0x02300006;
   pciConfigSpace.configSpaceHeader.reg2.hexData = 0x01060000;
-  pciConfigSpace.configSpaceHeader.regD.hexData = 0x00000058; // Capabilites Ptr.
+  pciConfigSpace.configSpaceHeader.regD.hexData =
+      0x00000058; // Capabilites Ptr.
   pciConfigSpace.configSpaceHeader.regF.hexData = 0x00000100; // Int line, pin.
 
   u32 data = 0;
@@ -27,7 +28,8 @@ HDD::HDD(const char *deviceName, u64 size, PCIBridge *parentPCIBridge) :
   memcpy(&pciConfigSpace.data[0x60], &data, 4);
   data = 0x7F7F7F7F;
   memcpy(&pciConfigSpace.data[0x70], &data, 4);
-  memcpy(&pciConfigSpace.data[0x74], &data, 4); // Field value is the same as above.
+  memcpy(&pciConfigSpace.data[0x74], &data,
+         4); // Field value is the same as above.
   data = 0xC07231BE;
   memcpy(&pciConfigSpace.data[0x80], &data, 4);
   data = 0x40;
@@ -40,9 +42,10 @@ HDD::HDD(const char *deviceName, u64 size, PCIBridge *parentPCIBridge) :
   // Set the SCR's at offset 0xC0 (SiS-like).
   // SStatus.
   data = 0x00000000;
-  memcpy(&pciConfigSpace.data[0xC0], &data, 4); // SSTATUS_DET_NO_DEVICE_DETECTED.
-                                                // SSTATUS_SPD_NO_SPEED.
-                                                // SSTATUS_IPM_NO_DEVICE.
+  memcpy(&pciConfigSpace.data[0xC0], &data,
+         4); // SSTATUS_DET_NO_DEVICE_DETECTED.
+             // SSTATUS_SPD_NO_SPEED.
+             // SSTATUS_IPM_NO_DEVICE.
   // SError.
   data = 0x001F0201;
   memcpy(&pciConfigSpace.data[0xC4], &data, 4);
@@ -163,7 +166,8 @@ void HDD::Write(u64 writeAddress, u64 data, u8 byteCount) {
       }
     }
 
-    memcpy(reinterpret_cast<u8*>(&ataDeviceState.ataWriteState + regOffset), &data, byteCount);
+    memcpy(reinterpret_cast<u8 *>(&ataDeviceState.ataWriteState + regOffset),
+           &data, byteCount);
   } else {
     LOG_ERROR(HDD, "Unknown register being accessed: (Write) {:#x}", regOffset);
   }
@@ -175,7 +179,8 @@ void HDD::ConfigRead(u64 readAddress, u64 *data, u8 byteCount) {
 
 void HDD::ConfigWrite(u64 writeAddress, u64 data, u8 byteCount) {
   // Check if we're being scanned.
-  if (static_cast<u8>(writeAddress) >= 0x10 && static_cast<u8>(writeAddress) < 0x34) {
+  if (static_cast<u8>(writeAddress) >= 0x10 &&
+      static_cast<u8>(writeAddress) < 0x34) {
     const u32 regOffset = (static_cast<u8>(writeAddress) - 0x10) >> 2;
     if (pciDevSizes[regOffset] != 0) {
       if (data == 0xFFFFFFFF) { // PCI BAR Size discovery.
@@ -191,7 +196,7 @@ void HDD::ConfigWrite(u64 writeAddress, u64 data, u8 byteCount) {
       }
     }
     if (static_cast<u8>(writeAddress) == 0x30) { // Expansion ROM Base Address.
-      data = 0; // Register not implemented.
+      data = 0;                                  // Register not implemented.
     }
   }
   memcpy(&pciConfigSpace.data[static_cast<u8>(writeAddress)], &data, byteCount);

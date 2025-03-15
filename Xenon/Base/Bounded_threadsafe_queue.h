@@ -12,28 +12,23 @@ constexpr size_t DefaultCapacity = 0x1000;
 
 template <typename T, size_t Capacity = detail::DefaultCapacity>
 class SPSCQueue {
-  static_assert((Capacity & (Capacity - 1)) == 0, "Capacity must be a power of two.");
+  static_assert((Capacity & (Capacity - 1)) == 0,
+                "Capacity must be a power of two.");
 
 public:
-  template <typename... Args>
-  bool TryEmplace(Args&&... args) {
+  template <typename... Args> bool TryEmplace(Args &&...args) {
     return Emplace<PushMode::Try>(std::forward<Args>(args)...);
   }
 
-  template <typename... Args>
-  void EmplaceWait(Args&&... args) {
+  template <typename... Args> void EmplaceWait(Args &&...args) {
     Emplace<PushMode::Wait>(std::forward<Args>(args)...);
   }
 
-  bool TryPop(T& t) {
-    return Pop<PopMode::Try>(t);
-  }
+  bool TryPop(T &t) { return Pop<PopMode::Try>(t); }
 
-  void PopWait(T& t) {
-    Pop<PopMode::Wait>(t);
-  }
+  void PopWait(T &t) { Pop<PopMode::Wait>(t); }
 
-  void PopWait(T& t, std::stop_token stop_token) {
+  void PopWait(T &t, std::stop_token stop_token) {
     Pop<PopMode::WaitWithStopToken>(t, stop_token);
   }
 
@@ -63,20 +58,21 @@ private:
     Count,
   };
 
-  template <PushMode Mode, typename... Args>
-  bool Emplace(Args&&... args) {
+  template <PushMode Mode, typename... Args> bool Emplace(Args &&...args) {
     const size_t write_index = m_write_index.load(std::memory_order::relaxed);
 
     if constexpr (Mode == PushMode::Try) {
       // Check if we have free slots to write to.
-      if ((write_index - m_read_index.load(std::memory_order::acquire)) == Capacity) {
+      if ((write_index - m_read_index.load(std::memory_order::acquire)) ==
+          Capacity) {
         return false;
       }
     } else if constexpr (Mode == PushMode::Wait) {
       // Wait until we have free slots to write to.
       std::unique_lock lock{producer_cv_mutex};
       producer_cv.wait(lock, [this, write_index] {
-        return (write_index - m_read_index.load(std::memory_order::acquire)) < Capacity;
+        return (write_index - m_read_index.load(std::memory_order::acquire)) <
+               Capacity;
       });
     } else {
       static_assert(Mode < PushMode::Count, "Invalid PushMode.");
@@ -99,7 +95,7 @@ private:
   }
 
   template <PopMode Mode>
-  bool Pop(T& t, [[maybe_unused]] std::stop_token stop_token = {}) {
+  bool Pop(T &t, [[maybe_unused]] std::stop_token stop_token = {}) {
     const size_t read_index = m_read_index.load(std::memory_order::relaxed);
 
     if constexpr (Mode == PopMode::Try) {
@@ -156,33 +152,25 @@ private:
 template <typename T, size_t Capacity = detail::DefaultCapacity>
 class MPSCQueue {
 public:
-  template <typename... Args>
-  bool TryEmplace(Args&&... args) {
+  template <typename... Args> bool TryEmplace(Args &&...args) {
     std::scoped_lock lock{write_mutex};
     return spsc_queue.TryEmplace(std::forward<Args>(args)...);
   }
 
-  template <typename... Args>
-  void EmplaceWait(Args&&... args) {
+  template <typename... Args> void EmplaceWait(Args &&...args) {
     std::scoped_lock lock{write_mutex};
     spsc_queue.EmplaceWait(std::forward<Args>(args)...);
   }
 
-  bool TryPop(T& t) {
-    return spsc_queue.TryPop(t);
-  }
+  bool TryPop(T &t) { return spsc_queue.TryPop(t); }
 
-  void PopWait(T& t) {
-    spsc_queue.PopWait(t);
-  }
+  void PopWait(T &t) { spsc_queue.PopWait(t); }
 
-  void PopWait(T& t, std::stop_token stop_token) {
+  void PopWait(T &t, std::stop_token stop_token) {
     spsc_queue.PopWait(t, stop_token);
   }
 
-  T PopWait() {
-    return spsc_queue.PopWait();
-  }
+  T PopWait() { return spsc_queue.PopWait(); }
 
   T PopWait(std::stop_token stop_token) {
     return spsc_queue.PopWait(stop_token);
@@ -196,29 +184,27 @@ private:
 template <typename T, size_t Capacity = detail::DefaultCapacity>
 class MPMCQueue {
 public:
-  template <typename... Args>
-  bool TryEmplace(Args&&... args) {
+  template <typename... Args> bool TryEmplace(Args &&...args) {
     std::scoped_lock lock{write_mutex};
     return spsc_queue.TryEmplace(std::forward<Args>(args)...);
   }
 
-  template <typename... Args>
-  void EmplaceWait(Args&&... args) {
+  template <typename... Args> void EmplaceWait(Args &&...args) {
     std::scoped_lock lock{write_mutex};
     spsc_queue.EmplaceWait(std::forward<Args>(args)...);
   }
 
-  bool TryPop(T& t) {
+  bool TryPop(T &t) {
     std::scoped_lock lock{read_mutex};
     return spsc_queue.TryPop(t);
   }
 
-  void PopWait(T& t) {
+  void PopWait(T &t) {
     std::scoped_lock lock{read_mutex};
     spsc_queue.PopWait(t);
   }
 
-  void PopWait(T& t, std::stop_token stop_token) {
+  void PopWait(T &t, std::stop_token stop_token) {
     std::scoped_lock lock{read_mutex};
     spsc_queue.PopWait(t, stop_token);
   }

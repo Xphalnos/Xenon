@@ -10,33 +10,24 @@
 // Based on the work done by the rpcs3 team.
 
 // Add/Add Carrying implementation.
-template <typename T>
-struct addResult {
+template <typename T> struct addResult {
   T result;
   bool carry;
 
   addResult() = default;
 
   // Straighforward ADD with flags
-  addResult(T a, T b) :
-    result(a + b), carry(result < a)
-  {}
+  addResult(T a, T b) : result(a + b), carry(result < a) {}
 
   // Straighforward ADC with flags
-  addResult(T a, T b, bool c) :
-    addResult(a, b)
-  {
+  addResult(T a, T b, bool c) : addResult(a, b) {
     addResult r(result, c);
     result = r.result;
     carry |= r.carry;
   }
-  static addResult<T> addBits(T a, T b) {
-    return { a, b };
-  }
+  static addResult<T> addBits(T a, T b) { return {a, b}; }
 
-  static addResult<T> addBits(T a, T b, bool c) {
-    return { a, b, c };
-  }
+  static addResult<T> addBits(T a, T b, bool c) { return {a, b, c}; }
 };
 
 // Multiply High Sign/Unsigned.
@@ -44,7 +35,7 @@ inline u64 umulh64(u64 x, u64 y) {
 #ifdef _MSC_VER
   return __umulh(x, y);
 #else
-  return static_cast<u64>((u128{ x } *u128{ y }) >> 64);
+  return static_cast<u64>((u128{x} * u128{y}) >> 64);
 #endif
 }
 
@@ -52,7 +43,7 @@ inline s64 mulh64(s64 x, s64 y) {
 #ifdef _MSC_VER
   return __mulh(x, y);
 #else
-  return static_cast<s64>(s128{ x } *s128{ y }) >> 64;
+  return static_cast<s64>(s128{x} * s128{y}) >> 64;
 #endif
 }
 
@@ -106,7 +97,8 @@ void PPCInterpreter::PPCInterpreter_addic(PPU_STATE *ppuState) {
 }
 
 void PPCInterpreter::PPCInterpreter_addis(PPU_STATE *ppuState) {
-  GPRi(rd) = _instr.ra ? GPRi(ra) + (_instr.simm16 * 65536) : (_instr.simm16 * 65536);
+  GPRi(rd) =
+      _instr.ra ? GPRi(ra) + (_instr.simm16 * 65536) : (_instr.simm16 * 65536);
 }
 
 void PPCInterpreter::PPCInterpreter_addzex(PPU_STATE *ppuState) {
@@ -148,7 +140,7 @@ void PPCInterpreter::PPCInterpreter_andi(PPU_STATE *ppuState) {
 }
 
 void PPCInterpreter::PPCInterpreter_andis(PPU_STATE *ppuState) {
-  GPRi(ra) = GPRi(rs) & (u64{ _instr.uimm16 } << 16);
+  GPRi(ra) = GPRi(rs) & (u64{_instr.uimm16} << 16);
 
   u32 CR = CRCompS(ppuState, GPRi(ra), 0);
   ppcUpdateCR(ppuState, 0, CR);
@@ -162,7 +154,8 @@ void PPCInterpreter::PPCInterpreter_cmp(PPU_STATE *ppuState) {
   if (L) {
     CR = CRCompS64(ppuState, GPR(rA), GPR(rB));
   } else {
-    CR = CRCompS32(ppuState, static_cast<s32>(GPR(rA)), static_cast<s32>(GPR(rB)));
+    CR = CRCompS32(ppuState, static_cast<s32>(GPR(rA)),
+                   static_cast<s32>(GPR(rB)));
   }
 
   ppcUpdateCR(ppuState, BF, CR);
@@ -191,7 +184,8 @@ void PPCInterpreter::PPCInterpreter_cmpl(PPU_STATE *ppuState) {
   if (L) {
     CR = CRCompU(ppuState, GPR(rA), GPR(rB));
   } else {
-    CR = CRCompU(ppuState, static_cast<u32>(GPR(rA)), static_cast<u32>(GPR(rB)));
+    CR =
+        CRCompU(ppuState, static_cast<u32>(GPR(rA)), static_cast<u32>(GPR(rB)));
   }
 
   ppcUpdateCR(ppuState, BF, CR);
@@ -416,8 +410,7 @@ void PPCInterpreter::PPCInterpreter_extswx(PPU_STATE *ppuState) {
 void PPCInterpreter::PPCInterpreter_mcrf(PPU_STATE *ppuState) {
   XL_FORM_BF_BFA;
 
-  u32 CR = DGET(curThread.CR.CR_Hex, (BFA) * 4,
-                (BFA) * 4 + 3);
+  u32 CR = DGET(curThread.CR.CR_Hex, (BFA) * 4, (BFA) * 4 + 3);
 
   ppcUpdateCR(ppuState, BF, CR);
 }
@@ -457,7 +450,8 @@ void PPCInterpreter::PPCInterpreter_mtocrf(PPU_STATE *ppuState) {
       Mask |= 0xF;
     }
   }
-  curThread.CR.CR_Hex = (static_cast<u32>(GPR(rS)) & Mask) | (curThread.CR.CR_Hex & ~Mask);
+  curThread.CR.CR_Hex =
+      (static_cast<u32>(GPR(rS)) & Mask) | (curThread.CR.CR_Hex & ~Mask);
 }
 
 void PPCInterpreter::PPCInterpreter_mulli(PPU_STATE *ppuState) {
@@ -476,7 +470,7 @@ void PPCInterpreter::PPCInterpreter_mulldx(PPU_STATE *ppuState) {
 }
 
 void PPCInterpreter::PPCInterpreter_mullwx(PPU_STATE *ppuState) {
-  GPRi(rd) = s64{ static_cast<s32>(GPRi(ra)) } *static_cast<s32>(GPRi(rb));
+  GPRi(rd) = s64{static_cast<s32>(GPRi(ra))} * static_cast<s32>(GPRi(rb));
 
   if (_instr.rc) {
     u32 CR = CRCompS(ppuState, GPRi(rd), 0);
@@ -487,7 +481,7 @@ void PPCInterpreter::PPCInterpreter_mullwx(PPU_STATE *ppuState) {
 void PPCInterpreter::PPCInterpreter_mulhwux(PPU_STATE *ppuState) {
   u32 a = static_cast<u32>(GPRi(ra));
   u32 b = static_cast<u32>(GPRi(rb));
-  GPRi(rd) = (u64{ a } *b) >> 32;
+  GPRi(rd) = (u64{a} * b) >> 32;
 
   if (_instr.rc) {
     u32 CR = CRCompS(ppuState, GPRi(rd), 0);
@@ -532,8 +526,7 @@ void PPCInterpreter::PPCInterpreter_norx(PPU_STATE *ppuState) {
   }
 }
 
-void PPCInterpreter::PPCInterpreter_orcx(PPU_STATE *ppuState)
-{
+void PPCInterpreter::PPCInterpreter_orcx(PPU_STATE *ppuState) {
   GPRi(ra) = GPRi(rs) | ~GPRi(rb);
 
   if (_instr.rc) {
@@ -547,7 +540,7 @@ void PPCInterpreter::PPCInterpreter_ori(PPU_STATE *ppuState) {
 }
 
 void PPCInterpreter::PPCInterpreter_oris(PPU_STATE *ppuState) {
-  GPRi(ra) = GPRi(rs) | (u64{ _instr.uimm16 } << 16);
+  GPRi(ra) = GPRi(rs) | (u64{_instr.uimm16} << 16);
 }
 
 void PPCInterpreter::PPCInterpreter_orx(PPU_STATE *ppuState) {
@@ -651,7 +644,9 @@ void PPCInterpreter::PPCInterpreter_rlwnmx(PPU_STATE *ppuState) {
 
   u32 m = (MB <= ME) ? DMASK(MB, ME) : (DMASK(0, ME) | DMASK(MB, 31));
 
-  GPR(rA) = std::rotl<u32>(static_cast<u32>(GPR(rS)), (static_cast<u32>(GPR(rB))) & 31) & m;
+  GPR(rA) = std::rotl<u32>(static_cast<u32>(GPR(rS)),
+                           (static_cast<u32>(GPR(rB))) & 31) &
+            m;
 
   if (RC) {
     u32 CR = CRCompS(ppuState, GPR(rA), 0);
@@ -897,5 +892,5 @@ void PPCInterpreter::PPCInterpreter_xori(PPU_STATE *ppuState) {
 }
 
 void PPCInterpreter::PPCInterpreter_xoris(PPU_STATE *ppuState) {
-  GPRi(ra) = GPRi(rs) ^ (u64{ _instr.uimm16 } << 16);
+  GPRi(ra) = GPRi(rs) ^ (u64{_instr.uimm16} << 16);
 }

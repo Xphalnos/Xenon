@@ -19,7 +19,8 @@ XeMain::XeMain() {
   xenos = std::make_unique<STRIP_UNIQUE(xenos)>(ram.get());
   createHostBridge();
   createRootBus();
-  xenonCPU = std::make_unique<STRIP_UNIQUE(xenonCPU)>(rootBus.get(), Config::oneBlPath(), cpuFuses);
+  xenonCPU = std::make_unique<STRIP_UNIQUE(xenonCPU)>(
+      rootBus.get(), Config::oneBlPath(), cpuFuses);
   pciBridge->RegisterIIC(xenonCPU->GetIICPointer());
 }
 XeMain::~XeMain() {
@@ -106,20 +107,28 @@ void XeMain::createRootBus() {
 }
 
 void XeMain::createPCIDevices() {
-  ethernet = std::make_unique<STRIP_UNIQUE(ethernet)>("ETHERNET", ETHERNET_DEV_SIZE);
-  audioController = std::make_unique<STRIP_UNIQUE(audioController)>("AUDIOCTRLR", AUDIO_CTRLR_DEV_SIZE);
+  ethernet =
+      std::make_unique<STRIP_UNIQUE(ethernet)>("ETHERNET", ETHERNET_DEV_SIZE);
+  audioController = std::make_unique<STRIP_UNIQUE(audioController)>(
+      "AUDIOCTRLR", AUDIO_CTRLR_DEV_SIZE);
   ohci0 = std::make_unique<STRIP_UNIQUE(ohci0)>("OHCI0", OHCI0_DEV_SIZE);
   ohci1 = std::make_unique<STRIP_UNIQUE(ohci1)>("OHCI1", OHCI1_DEV_SIZE);
   ehci0 = std::make_unique<STRIP_UNIQUE(ehci0)>("EHCI0", EHCI0_DEV_SIZE);
   ehci1 = std::make_unique<STRIP_UNIQUE(ehci1)>("EHCI1", EHCI1_DEV_SIZE);
 
-  ram = std::make_unique<STRIP_UNIQUE(ram)>("RAM", RAM_START_ADDR, RAM_START_ADDR + RAM_SIZE, false);
-  sfcx = std::make_unique<STRIP_UNIQUE(sfcx)>("SFCX", Config::nandPath(), SFCX_DEV_SIZE, pciBridge.get());
+  ram = std::make_unique<STRIP_UNIQUE(ram)>("RAM", RAM_START_ADDR,
+                                            RAM_START_ADDR + RAM_SIZE, false);
+  sfcx = std::make_unique<STRIP_UNIQUE(sfcx)>("SFCX", Config::nandPath(),
+                                              SFCX_DEV_SIZE, pciBridge.get());
   xma = std::make_unique<STRIP_UNIQUE(xma)>("XMA", XMA_DEV_SIZE);
-  odd = std::make_unique<STRIP_UNIQUE(odd)>("CDROM", ODD_DEV_SIZE, pciBridge.get(), ram.get());
-  hdd = std::make_unique<STRIP_UNIQUE(hdd)>("HDD", HDD_DEV_SIZE, pciBridge.get());
-  smcCore = std::make_unique<STRIP_UNIQUE(smcCore)>("SMC", SMC_DEV_SIZE, pciBridge.get(), smcCoreState.get());
-  nandDevice = std::make_unique<STRIP_UNIQUE(nandDevice)>("NAND", Config::nandPath(), NAND_START_ADDR, NAND_END_ADDR, true);
+  odd = std::make_unique<STRIP_UNIQUE(odd)>("CDROM", ODD_DEV_SIZE,
+                                            pciBridge.get(), ram.get());
+  hdd =
+      std::make_unique<STRIP_UNIQUE(hdd)>("HDD", HDD_DEV_SIZE, pciBridge.get());
+  smcCore = std::make_unique<STRIP_UNIQUE(smcCore)>(
+      "SMC", SMC_DEV_SIZE, pciBridge.get(), smcCoreState.get());
+  nandDevice = std::make_unique<STRIP_UNIQUE(nandDevice)>(
+      "NAND", Config::nandPath(), NAND_START_ADDR, NAND_END_ADDR, true);
 }
 
 void XeMain::createSMCState() {
@@ -128,16 +137,17 @@ void XeMain::createSMCState() {
   smcCoreState->currentCOMPort = Config::COMPort().data();
   smcCoreState->uartBackup = Config::useBackupUART();
   smcCoreState->currAVPackType =
-    (Xe::PCIDev::SMC::SMC_AVPACK_TYPE)Config::smcCurrentAvPack();
+      (Xe::PCIDev::SMC::SMC_AVPACK_TYPE)Config::smcCurrentAvPack();
   smcCoreState->currPowerOnReas =
-    (Xe::PCIDev::SMC::SMC_PWR_REAS)Config::smcPowerOnType();
-  smcCoreState->currTrayState = Xe::PCIDev::SMC::SMC_TRAY_STATE::SMC_TRAY_CLOSED;
+      (Xe::PCIDev::SMC::SMC_PWR_REAS)Config::smcPowerOnType();
+  smcCoreState->currTrayState =
+      Xe::PCIDev::SMC::SMC_TRAY_STATE::SMC_TRAY_CLOSED;
 }
 
 void XeMain::getFuses() {
   std::ifstream file(Config::fusesPath());
   if (!file.is_open()) {
-    cpuFuses.fuseLine00 = { 0x9999999999999999 };
+    cpuFuses.fuseLine00 = {0x9999999999999999};
     return;
   }
   std::vector<std::string> fusesets;
@@ -149,7 +159,7 @@ void XeMain::getFuses() {
     fusesets.push_back(fuseset);
   }
   // Got some fuses, let's print them!
-  u64* fuses = reinterpret_cast<u64*>(&cpuFuses);
+  u64 *fuses = reinterpret_cast<u64 *>(&cpuFuses);
   LOG_INFO(System, "Current FuseSet:");
   for (int i = 0; i < 12; i++) {
     fuseset = fusesets[i];

@@ -13,27 +13,29 @@
 
 namespace Base::Log {
 
-std::string FormatLogMessage(const Entry& entry) {
+std::string FormatLogMessage(const Entry &entry) {
   const u32 time_seconds = static_cast<u32>(entry.timestamp.count() / 1000000);
-  const u32 time_fractional = static_cast<u32>(entry.timestamp.count() % 1000000);
+  const u32 time_fractional =
+      static_cast<u32>(entry.timestamp.count() % 1000000);
 
-  const char* class_name = GetLogClassName(entry.log_class);
-  const char* level_name = GetLevelName(entry.log_level);
+  const char *class_name = GetLogClassName(entry.log_class);
+  const char *level_name = GetLevelName(entry.log_level);
 
-if (Config::logAdvanced()) {
-  return fmt::format("[{}] <{}> {}:{}:{}: {}", class_name, level_name, entry.filename,
-    entry.function, entry.line_num, entry.message);
-} else {
-  return fmt::format("[{}] <{}> {}", class_name, level_name, entry.message);
+  if (Config::logAdvanced()) {
+    return fmt::format("[{}] <{}> {}:{}:{}: {}", class_name, level_name,
+                       entry.filename, entry.function, entry.line_num,
+                       entry.message);
+  } else {
+    return fmt::format("[{}] <{}> {}", class_name, level_name, entry.message);
+  }
 }
-}
 
-void PrintMessage(const Entry& entry) {
+void PrintMessage(const Entry &entry) {
   const auto str = FormatLogMessage(entry).append(1, '\n');
   fputs(str.c_str(), stdout);
 }
 
-void PrintColoredMessage(const Entry& entry) {
+void PrintColoredMessage(const Entry &entry) {
 #ifdef _WIN32
   HANDLE console_handle = GetStdHandle(STD_ERROR_HANDLE);
   if (console_handle == INVALID_HANDLE_VALUE) {
@@ -73,7 +75,7 @@ void PrintColoredMessage(const Entry& entry) {
   SetConsoleTextAttribute(console_handle, color);
 #else
 #define ESC "\x1b"
-  const char* color = "";
+  const char *color = "";
   switch (entry.log_level) {
   case Level::Trace: // Grey
     color = ESC "[1;30m";

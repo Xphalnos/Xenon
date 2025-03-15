@@ -4,8 +4,8 @@
 
 #ifdef _WIN32
 
-#include <windows.h>
 #include "Types.h"
+#include <windows.h>
 
 typedef enum _FILE_INFORMATION_CLASS {
   FileDirectoryInformation = 1,
@@ -104,7 +104,7 @@ typedef struct _IO_STATUS_BLOCK {
 } IO_STATUS_BLOCK, *PIO_STATUS_BLOCK;
 
 typedef struct _FILE_DISPOSITION_INFORMATION {
-    BOOLEAN DeleteFile;
+  BOOLEAN DeleteFile;
 } FILE_DISPOSITION_INFORMATION, *PFILE_DISPOSITION_INFORMATION;
 
 typedef struct _UNICODE_STRING {
@@ -113,7 +113,7 @@ typedef struct _UNICODE_STRING {
   PWCH Buffer;
 } UNICODE_STRING, *PUNICODE_STRING;
 
-typedef const UNICODE_STRING* PCUNICODE_STRING;
+typedef const UNICODE_STRING *PCUNICODE_STRING;
 
 typedef struct _OBJECT_ATTRIBUTES {
   ULONG Length;
@@ -124,7 +124,7 @@ typedef struct _OBJECT_ATTRIBUTES {
   PVOID SecurityQualityOfService; // PSECURITY_QUALITY_OF_SERVICE
 } OBJECT_ATTRIBUTES, *POBJECT_ATTRIBUTES;
 
-typedef const OBJECT_ATTRIBUTES* PCOBJECT_ATTRIBUTES;
+typedef const OBJECT_ATTRIBUTES *PCOBJECT_ATTRIBUTES;
 
 typedef struct _CLIENT_ID {
   HANDLE UniqueProcess;
@@ -234,17 +234,17 @@ typedef struct _CHPEV2_PROCESS_INFO {
   USHORT NativeMachineType;                      /* 004 */
   USHORT EmulatedMachineType;                    /* 006 */
   HANDLE SectionHandle;                          /* 008 */
-  CROSS_PROCESS_WORK_LIST* CrossProcessWorkList; /* 010 */
-  void* unknown;                                 /* 018 */
+  CROSS_PROCESS_WORK_LIST *CrossProcessWorkList; /* 010 */
+  void *unknown;                                 /* 018 */
 } CHPEV2_PROCESS_INFO, *PCHPEV2_PROCESS_INFO;
 
-typedef u64(__stdcall* KERNEL_CALLBACK_PROC)(void*, ULONG);
+typedef u64(__stdcall *KERNEL_CALLBACK_PROC)(void *, ULONG);
 
-typedef struct _PEB {                 /* win32/win64 */
-  BOOLEAN InheritedAddressSpace;      /* 000/000 */
-  BOOLEAN ReadImageFileExecOptions;   /* 001/001 */
-  BOOLEAN BeingDebugged;              /* 002/002 */
-  UCHAR ImageUsedLargePages : 1;      /* 003/003 */
+typedef struct _PEB {               /* win32/win64 */
+  BOOLEAN InheritedAddressSpace;    /* 000/000 */
+  BOOLEAN ReadImageFileExecOptions; /* 001/001 */
+  BOOLEAN BeingDebugged;            /* 002/002 */
+  UCHAR ImageUsedLargePages : 1;    /* 003/003 */
   UCHAR IsProtectedProcess : 1;
   UCHAR IsImageDynamicallyRelocated : 1;
   UCHAR SkipPatchingUser32Forwarders : 1;
@@ -255,7 +255,7 @@ typedef struct _PEB {                 /* win32/win64 */
   HANDLE Mutant;                                  /* 004/008 */
   HMODULE ImageBaseAddress;                       /* 008/010 */
   PPEB_LDR_DATA LdrData;                          /* 00c/018 */
-  RTL_USER_PROCESS_PARAMETERS* ProcessParameters; /* 010/020 */
+  RTL_USER_PROCESS_PARAMETERS *ProcessParameters; /* 010/020 */
   PVOID SubSystemData;                            /* 014/028 */
   HANDLE ProcessHeap;                             /* 018/030 */
   PRTL_CRITICAL_SECTION FastPebLock;              /* 01c/038 */
@@ -270,7 +270,7 @@ typedef struct _PEB {                 /* win32/win64 */
   ULONG ProcessCurrentlyThrottled : 1;
   ULONG ProcessImagesHotPatched : 1;
   ULONG ReservedBits0 : 24;
-  KERNEL_CALLBACK_PROC* KernelCallbackTable; /* 02c/058 */
+  KERNEL_CALLBACK_PROC *KernelCallbackTable; /* 02c/058 */
   ULONG Reserved;                            /* 030/060 */
   ULONG AtlThunkSListPtr32;                  /* 034/064 */
   PVOID ApiSetMap;                           /* 038/068 */
@@ -279,7 +279,7 @@ typedef struct _PEB {                 /* win32/win64 */
   ULONG TlsBitmapBits[2];                    /* 044/080 */
   PVOID ReadOnlySharedMemoryBase;            /* 04c/088 */
   PVOID SharedData;                          /* 050/090 */
-  PVOID* ReadOnlyStaticServerData;           /* 054/098 */
+  PVOID *ReadOnlyStaticServerData;           /* 054/098 */
   PVOID AnsiCodePageData;                    /* 058/0a0 */
   PVOID OemCodePageData;                     /* 05c/0a8 */
   PVOID UnicodeCaseTableData;                /* 060/0b0 */
@@ -292,7 +292,7 @@ typedef struct _PEB {                 /* win32/win64 */
   SIZE_T HeapDeCommitFreeBlockThreshold;     /* 084/0e0 */
   ULONG NumberOfHeaps;                       /* 088/0e8 */
   ULONG MaximumNumberOfHeaps;                /* 08c/0ec */
-  PVOID* ProcessHeaps;                       /* 090/0f0 */
+  PVOID *ProcessHeaps;                       /* 090/0f0 */
   PVOID GdiSharedHandleTable;                /* 094/0f8 */
   PVOID ProcessStarterHelper;                /* 098/100 */
   PVOID GdiDCAttributeList;                  /* 09c/108 */
@@ -324,12 +324,12 @@ typedef struct _PEB {                 /* win32/win64 */
   PVOID SystemDefaultActivationData; /* 200/308 */
   PVOID SystemAssemblyStorageMap;    /* 204/310 */
   SIZE_T MinimumStackCommit;         /* 208/318 */
-  PVOID* FlsCallback;                /* 20c/320 */
+  PVOID *FlsCallback;                /* 20c/320 */
   LIST_ENTRY FlsListHead;            /* 210/328 */
   union {
     PRTL_BITMAP FlsBitmap; /* 218/338 */
 #ifdef _WIN64
-    CHPEV2_PROCESS_INFO* ChpeV2ProcessInfo; /*    /338 */
+    CHPEV2_PROCESS_INFO *ChpeV2ProcessInfo; /*    /338 */
 #endif
   };
   ULONG FlsBitmapBits[4];       /* 21c/340 */
@@ -357,13 +357,13 @@ typedef struct _PEB {                 /* win32/win64 */
 } PEB, *PPEB;
 
 typedef struct _RTL_ACTIVATION_CONTEXT_STACK_FRAME {
-  struct _RTL_ACTIVATION_CONTEXT_STACK_FRAME* Previous;
-  struct _ACTIVATION_CONTEXT* ActivationContext;
+  struct _RTL_ACTIVATION_CONTEXT_STACK_FRAME *Previous;
+  struct _ACTIVATION_CONTEXT *ActivationContext;
   ULONG Flags;
 } RTL_ACTIVATION_CONTEXT_STACK_FRAME, *PRTL_ACTIVATION_CONTEXT_STACK_FRAME;
 
 typedef struct _ACTIVATION_CONTEXT_STACK {
-  RTL_ACTIVATION_CONTEXT_STACK_FRAME* ActiveFrame;
+  RTL_ACTIVATION_CONTEXT_STACK_FRAME *ActiveFrame;
   LIST_ENTRY FrameListCache;
   ULONG Flags;
   ULONG NextCookieSequenceNumber;
@@ -378,32 +378,32 @@ typedef struct _GDI_TEB_BATCH {
 
 typedef struct _TEB_ACTIVE_FRAME_CONTEXT {
   ULONG Flags;
-  const char* FrameName;
+  const char *FrameName;
 } TEB_ACTIVE_FRAME_CONTEXT, *PTEB_ACTIVE_FRAME_CONTEXT;
 
 typedef struct _TEB_ACTIVE_FRAME {
   ULONG Flags;
-  struct _TEB_ACTIVE_FRAME* Previous;
-  TEB_ACTIVE_FRAME_CONTEXT* Context;
+  struct _TEB_ACTIVE_FRAME *Previous;
+  TEB_ACTIVE_FRAME_CONTEXT *Context;
 } TEB_ACTIVE_FRAME, *PTEB_ACTIVE_FRAME;
 
-typedef struct _TEB {                             /* win32/win64 */
-  NT_TIB Tib;                                     /* 000/0000 */
-  PVOID EnvironmentPointer;                       /* 01c/0038 */
-  CLIENT_ID ClientId;                             /* 020/0040 */
-  PVOID ActiveRpcHandle;                          /* 028/0050 */
-  PVOID ThreadLocalStoragePointer;                /* 02c/0058 */
-  PPEB Peb;                                       /* 030/0060 */
-  ULONG LastErrorValue;                           /* 034/0068 */
-  ULONG CountOfOwnedCriticalSections;             /* 038/006c */
-  PVOID CsrClientThread;                          /* 03c/0070 */
-  PVOID Win32ThreadInfo;                          /* 040/0078 */
-  ULONG User32Reserved[26];                       /* 044/0080 */
-  ULONG UserReserved[5];                          /* 0ac/00e8 */
-  PVOID WOW32Reserved;                            /* 0c0/0100 */
-  ULONG CurrentLocale;                            /* 0c4/0108 */
-  ULONG FpSoftwareStatusRegister;                 /* 0c8/010c */
-  PVOID ReservedForDebuggerInstrumentation[16];   /* 0cc/0110 */
+typedef struct _TEB {                           /* win32/win64 */
+  NT_TIB Tib;                                   /* 000/0000 */
+  PVOID EnvironmentPointer;                     /* 01c/0038 */
+  CLIENT_ID ClientId;                           /* 020/0040 */
+  PVOID ActiveRpcHandle;                        /* 028/0050 */
+  PVOID ThreadLocalStoragePointer;              /* 02c/0058 */
+  PPEB Peb;                                     /* 030/0060 */
+  ULONG LastErrorValue;                         /* 034/0068 */
+  ULONG CountOfOwnedCriticalSections;           /* 038/006c */
+  PVOID CsrClientThread;                        /* 03c/0070 */
+  PVOID Win32ThreadInfo;                        /* 040/0078 */
+  ULONG User32Reserved[26];                     /* 044/0080 */
+  ULONG UserReserved[5];                        /* 0ac/00e8 */
+  PVOID WOW32Reserved;                          /* 0c0/0100 */
+  ULONG CurrentLocale;                          /* 0c4/0108 */
+  ULONG FpSoftwareStatusRegister;               /* 0c8/010c */
+  PVOID ReservedForDebuggerInstrumentation[16]; /* 0cc/0110 */
 #ifdef _WIN64
   PVOID SystemReserved1[30]; /*    /0190 */
 #else
@@ -416,7 +416,7 @@ typedef struct _TEB {                             /* win32/win64 */
   ACTIVATION_CONTEXT_STACK ActivationContextStack;         /* 184/0290 */
   UCHAR WorkingOnBehalfOfTicket[8];                        /* 19c/02b8 */
   LONG ExceptionCode;                                      /* 1a4/02c0 */
-  ACTIVATION_CONTEXT_STACK* ActivationContextStackPointer; /* 1a8/02c8 */
+  ACTIVATION_CONTEXT_STACK *ActivationContextStackPointer; /* 1a8/02c8 */
   ULONG_PTR InstrumentationCallbackSp;                     /* 1ac/02d0 */
   ULONG_PTR InstrumentationCallbackPreviousPc;             /* 1b0/02d8 */
   ULONG_PTR InstrumentationCallbackPreviousSp;             /* 1b4/02e0 */
@@ -473,11 +473,11 @@ typedef struct _TEB {                             /* win32/win64 */
   PVOID SavedPriorityState;          /* f88/1768 */
   ULONG_PTR ReservedForCodeCoverage; /* f8c/1770 */
   PVOID ThreadPoolData;              /* f90/1778 */
-  PVOID* TlsExpansionSlots;          /* f94/1780 */
+  PVOID *TlsExpansionSlots;          /* f94/1780 */
 #ifdef _WIN64
   union {
     PVOID DeallocationBStore; /*    /1788 */
-    PVOID* ChpeV2CpuAreaInfo; /*    /1788 */
+    PVOID *ChpeV2CpuAreaInfo; /*    /1788 */
   } DUMMYUNIONNAME;
   PVOID BStoreLimit; /*    /1790 */
 #endif
@@ -487,8 +487,8 @@ typedef struct _TEB {                             /* win32/win64 */
   PVOID ShimData;                 /* fa4/17a8 */
   ULONG HeapVirtualAffinity;      /* fa8/17b0 */
   PVOID CurrentTransactionHandle; /* fac/17b8 */
-  TEB_ACTIVE_FRAME* ActiveFrame;  /* fb0/17c0 */
-  PVOID* FlsSlots;                /* fb4/17c8 */
+  TEB_ACTIVE_FRAME *ActiveFrame;  /* fb0/17c0 */
+  PVOID *FlsSlots;                /* fb4/17c8 */
   PVOID PreferredLanguages;       /* fb8/17d0 */
   PVOID UserPrefLanguages;        /* fbc/17d8 */
   PVOID MergedPrefLanguages;      /* fc0/17e0 */
@@ -505,8 +505,8 @@ typedef struct _TEB {                             /* win32/win64 */
   ULONGLONG ReservedForCrt;       /* fe8/1820 */
   GUID EffectiveContainerId;      /* ff0/1828 */
 } TEB, *PTEB;
-//static_assert(offsetof(TEB, DeallocationStack) ==
-//              0x1478); /* The only member we care about at the moment */
+// static_assert(offsetof(TEB, DeallocationStack) ==
+//               0x1478); /* The only member we care about at the moment */
 
 typedef enum _QUEUE_USER_APC_FLAGS {
   QueueUserApcFlagsNone,
@@ -519,26 +519,28 @@ typedef union _USER_APC_OPTION {
   HANDLE MemoryReserveHandle;
 } USER_APC_OPTION, *PUSER_APC_OPTION;
 
-using PPS_APC_ROUTINE = void (*)(PVOID ApcArgument1, PVOID ApcArgument2, PVOID ApcArgument3,
-                                 PCONTEXT Context);
+using PPS_APC_ROUTINE = void (*)(PVOID ApcArgument1, PVOID ApcArgument2,
+                                 PVOID ApcArgument3, PCONTEXT Context);
 
-typedef u64(__stdcall* NtClose_t)(HANDLE Handle);
+typedef u64(__stdcall *NtClose_t)(HANDLE Handle);
 
-typedef u64(__stdcall* NtSetInformationFile_t)(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock,
-                                               PVOID FileInformation, ULONG Length,
-                                               FILE_INFORMATION_CLASS FileInformationClass);
+typedef u64(__stdcall *NtSetInformationFile_t)(
+    HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation,
+    ULONG Length, FILE_INFORMATION_CLASS FileInformationClass);
 
-typedef u64(__stdcall* NtCreateThread_t)(PHANDLE ThreadHandle, ACCESS_MASK DesiredAccess,
-                                         PCOBJECT_ATTRIBUTES ObjectAttributes, HANDLE ProcessHandle,
-                                         PCLIENT_ID ClientId, PCONTEXT ThreadContext,
-                                         PINITIAL_TEB InitialTeb, BOOLEAN CreateSuspended);
+typedef u64(__stdcall *NtCreateThread_t)(
+    PHANDLE ThreadHandle, ACCESS_MASK DesiredAccess,
+    PCOBJECT_ATTRIBUTES ObjectAttributes, HANDLE ProcessHandle,
+    PCLIENT_ID ClientId, PCONTEXT ThreadContext, PINITIAL_TEB InitialTeb,
+    BOOLEAN CreateSuspended);
 
-typedef u64(__stdcall* NtTerminateThread_t)(HANDLE ThreadHandle, u64 ExitStatus);
+typedef u64(__stdcall *NtTerminateThread_t)(HANDLE ThreadHandle,
+                                            u64 ExitStatus);
 
-typedef u64(__stdcall* NtQueueApcThreadEx_t)(HANDLE ThreadHandle,
-                                             USER_APC_OPTION UserApcReserveHandle,
-                                             PPS_APC_ROUTINE ApcRoutine, PVOID ApcArgument1,
-                                             PVOID ApcArgument2, PVOID ApcArgument3);
+typedef u64(__stdcall *NtQueueApcThreadEx_t)(
+    HANDLE ThreadHandle, USER_APC_OPTION UserApcReserveHandle,
+    PPS_APC_ROUTINE ApcRoutine, PVOID ApcArgument1, PVOID ApcArgument2,
+    PVOID ApcArgument3);
 
 extern NtClose_t NtClose;
 extern NtSetInformationFile_t NtSetInformationFile;

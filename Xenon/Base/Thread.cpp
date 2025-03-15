@@ -1,6 +1,6 @@
 // Copyright 2025 Xenon Emulator Project
 
-#include "Thread.h" 
+#include "Thread.h"
 #include "Error.h"
 #include "Logging/Log.h"
 
@@ -11,11 +11,12 @@
 #include <mach/mach_time.h>
 #include <pthread.h>
 #elif defined(_WIN32)
-#include <windows.h>
 #include "String_util.h"
+#include <windows.h>
 #else
 
-#if defined(__Bitrig__) || defined(__DragonFly__) || defined(__FreeBSD__) || defined(__OpenBSD__)
+#if defined(__Bitrig__) || defined(__DragonFly__) || defined(__FreeBSD__) ||   \
+    defined(__OpenBSD__)
 #include <pthread_np.h>
 #else
 #include <pthread.h>
@@ -40,30 +41,32 @@ void SetCurrentThreadRealtime(const std::chrono::nanoseconds period_ns) {
   const std::chrono::nanoseconds computation_ns = period_ns / 2;
 
   // Determine the timebase for converting time to ticks.
-  struct mach_timebase_info timebase {};
+  struct mach_timebase_info timebase{};
   mach_timebase_info(&timebase);
   const auto ticks_per_ns =
-    static_cast<f64>(timebase.denom) / static_cast<f64>(timebase.numer);
+      static_cast<f64>(timebase.denom) / static_cast<f64>(timebase.numer);
 
   const auto period_ticks =
-    static_cast<u32>(static_cast<f64>(period_ns.count()) * ticks_per_ns);
+      static_cast<u32>(static_cast<f64>(period_ns.count()) * ticks_per_ns);
   const auto computation_ticks =
-    static_cast<u32>(static_cast<f64>(computation_ns.count()) * ticks_per_ns);
+      static_cast<u32>(static_cast<f64>(computation_ns.count()) * ticks_per_ns);
 
   thread_time_constraint_policy policy = {
-    .period = period_ticks,
-    .computation = computation_ticks,
-    // Should not matter since preemptible is false, but needs to be >= computation regardless.
-    .constraint = computation_ticks,
-    .preemptible = false,
+      .period = period_ticks,
+      .computation = computation_ticks,
+      // Should not matter since preemptible is false, but needs to be >=
+      // computation regardless.
+      .constraint = computation_ticks,
+      .preemptible = false,
   };
 
-  int ret = thread_policy_set(
-    pthread_mach_thread_np(pthread_self()), THREAD_TIME_CONSTRAINT_POLICY,
-    reinterpret_cast<thread_policy_t>(&policy), THREAD_TIME_CONSTRAINT_POLICY_COUNT);
+  int ret = thread_policy_set(pthread_mach_thread_np(pthread_self()),
+                              THREAD_TIME_CONSTRAINT_POLICY,
+                              reinterpret_cast<thread_policy_t>(&policy),
+                              THREAD_TIME_CONSTRAINT_POLICY_COUNT);
   if (ret != KERN_SUCCESS) {
     LOG_ERROR(Base, "Could not set thread to real-time with period {} ns: {}",
-          period_ns.count(), ret);
+              period_ns.count(), ret);
   }
 }
 
@@ -105,7 +108,7 @@ void SetCurrentThreadPriority(ThreadPriority new_priority) {
 
 static void AccurateSleep(std::chrono::nanoseconds duration) {
   LARGE_INTEGER interval{
-    .QuadPart = -1 * (duration.count() / 100u),
+      .QuadPart = -1 * (duration.count() / 100u),
   };
   HANDLE timer = ::CreateWaitableTimer(nullptr, TRUE, nullptr);
   SetWaitableTimer(timer, &interval, 0, nullptr, nullptr, 0);
@@ -142,11 +145,11 @@ static void AccurateSleep(std::chrono::nanoseconds duration) {
 #ifdef _MSC_VER
 
 // Sets the debugger-visible name of the current thread.
-void SetCurrentThreadName(const char* name) {
+void SetCurrentThreadName(const char *name) {
   SetThreadDescription(GetCurrentThread(), UTF8ToUTF16W(name).data());
 }
 
-void SetThreadName(void* thread, const char* name) {
+void SetThreadName(void *thread, const char *name) {
   SetThreadDescription(thread, UTF8ToUTF16W(name).data());
 }
 
@@ -154,46 +157,47 @@ void SetThreadName(void* thread, const char* name) {
 
 // MinGW with the POSIX threading model does not support pthread_setname_np
 #if !defined(_WIN32) || defined(_MSC_VER)
-void SetCurrentThreadName(const char* name) {
+void SetCurrentThreadName(const char *name) {
 #ifdef __APPLE__
   pthread_setname_np(name);
-#elif defined(__Bitrig__) || defined(__DragonFly__) || defined(__FreeBSD__) || defined(__OpenBSD__)
+#elif defined(__Bitrig__) || defined(__DragonFly__) || defined(__FreeBSD__) || \
+    defined(__OpenBSD__)
   pthread_set_name_np(pthread_self(), name);
 #elif defined(__NetBSD__)
-  pthread_setname_np(pthread_self(), "%s", (void*)name);
+  pthread_setname_np(pthread_self(), "%s", (void *)name);
 #elif defined(__linux__)
   // Linux limits thread names to 15 characters and will outright reject any
   // attempt to set a longer name with ERANGE.
   std::string truncated(name, std::min(strlen(name), static_cast<size_t>(15)));
   if (int e = pthread_setname_np(pthread_self(), truncated.c_str())) {
     errno = e;
-    LOG_ERROR(Base, "Failed to set thread name to '{}': {}", truncated, GetLastErrorMsg());
+    LOG_ERROR(Base, "Failed to set thread name to '{}': {}", truncated,
+              GetLastErrorMsg());
   }
 #else
   pthread_setname_np(pthread_self(), name);
 #endif
 }
 
-void SetThreadName(void* thread, const char* name) {
+void SetThreadName(void *thread, const char *name) {
   // TODO
 }
 #endif
 
 #if defined(_WIN32)
-void SetCurrentThreadName(const char*) {
+void SetCurrentThreadName(const char *) {
   // Do Nothing on MinGW
 }
 
-void SetThreadName(void* thread, const char* name) {
+void SetThreadName(void *thread, const char *name) {
   // Do Nothing on MinGW
 }
 #endif
 
 #endif
 
-AccurateTimer::AccurateTimer(std::chrono::nanoseconds target_interval) :
-  target_interval(target_interval)
-{}
+AccurateTimer::AccurateTimer(std::chrono::nanoseconds target_interval)
+    : target_interval(target_interval) {}
 
 void AccurateTimer::Start() {
   auto begin_sleep = std::chrono::high_resolution_clock::now();
@@ -201,13 +205,15 @@ void AccurateTimer::Start() {
     AccurateSleep(total_wait);
   }
   start_time = std::chrono::high_resolution_clock::now();
-  total_wait -= std::chrono::duration_cast<std::chrono::nanoseconds>(start_time - begin_sleep);
+  total_wait -= std::chrono::duration_cast<std::chrono::nanoseconds>(
+      start_time - begin_sleep);
 }
 
 void AccurateTimer::End() {
   auto now = std::chrono::high_resolution_clock::now();
   total_wait +=
-    target_interval - std::chrono::duration_cast<std::chrono::nanoseconds>(now - start_time);
+      target_interval -
+      std::chrono::duration_cast<std::chrono::nanoseconds>(now - start_time);
 }
 
 } // namespace Base

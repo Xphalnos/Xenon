@@ -28,7 +28,7 @@ public:
 private:
   HostBridge *hostBridge{};
   u32 deviceCount;
-  std::vector<SystemDevice*> conectedDevices;
+  std::vector<SystemDevice *> conectedDevices;
 
-  std::unique_ptr<u8> biuData{ std::make_unique<STRIP_UNIQUE(biuData)>(0x10000) };
+  std::unique_ptr<u8> biuData{std::make_unique<STRIP_UNIQUE(biuData)>(0x10000)};
 };

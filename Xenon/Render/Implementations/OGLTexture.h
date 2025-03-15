@@ -43,11 +43,13 @@ public:
   void SetupTextureFlags(int flags);
 
   void CreateTextureHandle(u32 width, u32 height, int flags) override;
-  void CreateTextureWithData(u32 width, u32 height, eDataFormat format, u8* data, u32 dataSize, int flags) override;
+  void CreateTextureWithData(u32 width, u32 height, eDataFormat format,
+                             u8 *data, u32 dataSize, int flags) override;
   void ResizeTexture(u32 width, u32 height) override;
   void Bind() override;
   void Unbind() override;
   void DestroyTexture() override;
+
 private:
   u32 TextureHandle;
 };

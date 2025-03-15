@@ -12,7 +12,8 @@ void Xe::XCPU::POSTBUS::POST(u64 postCode) {
       LOG_XBOX(Xenon_PostBus, "1BL started.");
       break;
     case 0x11:
-      LOG_XBOX(Xenon_PostBus, "FSB_CONFIG_PHY_CONTROL - Execute FSB function1.");
+      LOG_XBOX(Xenon_PostBus,
+               "FSB_CONFIG_PHY_CONTROL - Execute FSB function1.");
       break;
     case 0x12:
       LOG_XBOX(Xenon_PostBus, "FSB_CONFIG_RX_STATE - Execute FSB function2");
@@ -39,13 +40,15 @@ void Xe::XCPU::POSTBUS::POST(u64 postCode) {
       LOG_XBOX(Xenon_PostBus, "HMACSHA_COMPUTE - Generate CB HMAC key");
       break;
     case 0x1a:
-      LOG_XBOX(Xenon_PostBus, "RC4_INITIALIZE - Initialize CB RC4 decryption key");
+      LOG_XBOX(Xenon_PostBus,
+               "RC4_INITIALIZE - Initialize CB RC4 decryption key");
       break;
     case 0x1b:
       LOG_XBOX(Xenon_PostBus, "RC4_DECRYPT - RC4 decrypt CB");
       break;
     case 0x1c:
-      LOG_XBOX(Xenon_PostBus, "SHA_COMPUTE - Generate hash of CB for verification");
+      LOG_XBOX(Xenon_PostBus,
+               "SHA_COMPUTE - Generate hash of CB for verification");
       break;
     case 0x1d:
       LOG_XBOX(Xenon_PostBus, "SIG_VERIFY - RSA signature check of CB hash");
@@ -111,25 +114,33 @@ void Xe::XCPU::POSTBUS::POST(u64 postCode) {
       LOG_ERROR(Xenon_PostBus, "1BL > PANIC - THERMAL_MANAGEMENT");
       break;
     case 0x92:
-      LOG_ERROR(Xenon_PostBus, "1BL > PANIC - 1BL is executed on wrong CPU thread.");
+      LOG_ERROR(Xenon_PostBus,
+                "1BL > PANIC - 1BL is executed on wrong CPU thread.");
       break;
     case 0x93:
-      LOG_ERROR(Xenon_PostBus, "1BL > PANIC - TOO_MANY_CORES - 1BL is executed on wrong CPU core.");
+      LOG_ERROR(
+          Xenon_PostBus,
+          "1BL > PANIC - TOO_MANY_CORES - 1BL is executed on wrong CPU core.");
       break;
     case 0x94:
-      LOG_ERROR(Xenon_PostBus, "1BL > PANIC - VERIFY_OFFSET - CB offset verification failed.");
+      LOG_ERROR(Xenon_PostBus,
+                "1BL > PANIC - VERIFY_OFFSET - CB offset verification failed.");
       break;
     case 0x95:
-      LOG_ERROR(Xenon_PostBus, "1BL > PANIC - VERIFY_HEADER - CB header verification failed.");
+      LOG_ERROR(Xenon_PostBus,
+                "1BL > PANIC - VERIFY_HEADER - CB header verification failed.");
       break;
     case 0x96:
-      LOG_ERROR(Xenon_PostBus, "1BL > PANIC - SIG_VERIFY - CB RSA signature verification failed.");
+      LOG_ERROR(
+          Xenon_PostBus,
+          "1BL > PANIC - SIG_VERIFY - CB RSA signature verification failed.");
       break;
     case 0x97:
       LOG_ERROR(Xenon_PostBus, "1BL > PANIC - NONHOST_RESUME_STATUS");
       break;
     case 0x98:
-      LOG_ERROR(Xenon_PostBus, "1BL > PANIC - NEXT_STAGE_SIZE - Size of next stage is out-of-bounds.");
+      LOG_ERROR(Xenon_PostBus, "1BL > PANIC - NEXT_STAGE_SIZE - Size of next "
+                               "stage is out-of-bounds.");
       break;
     }
     // Pause the system.
@@ -142,7 +153,8 @@ void Xe::XCPU::POSTBUS::POST(u64 postCode) {
       LOG_XBOX(Xenon_PostBus, "CB > CB entry point. initialize SoC.");
       break;
     case 0x21:
-      LOG_XBOX(Xenon_PostBus, "CB > INIT_SECOTP - Initialize secotp, verify lockdown fuses.");
+      LOG_XBOX(Xenon_PostBus,
+               "CB > INIT_SECOTP - Initialize secotp, verify lockdown fuses.");
       break;
     case 0x22:
       LOG_XBOX(Xenon_PostBus, "CB > INIT_SECENG - Initialize security engine.");
@@ -184,7 +196,8 @@ void Xe::XCPU::POSTBUS::POST(u64 postCode) {
       LOG_XBOX(Xenon_PostBus, "CB > HWINIT - Hardware initialization.");
       break;
     case 0x2f:
-      //LOG_XBOX(Xenon_PostBus, "CB > RELOCATE - Setup TLB entries, relocate to RAM.");
+      // LOG_XBOX(Xenon_PostBus, "CB > RELOCATE - Setup TLB entries, relocate to
+      // RAM.");
       break;
     case 0x30:
       LOG_XBOX(Xenon_PostBus, "CB > VERIFY_OFFSET_4BL_CD - Verify CD offset.");
@@ -196,28 +209,40 @@ void Xe::XCPU::POSTBUS::POST(u64 postCode) {
       LOG_XBOX(Xenon_PostBus, "CB > VERIFY_HEADER_4BL_CD - Verify CD header.");
       break;
     case 0x33:
-      LOG_XBOX(Xenon_PostBus, "CB > FETCH_CONTENTS_4BL_CD - Copy CD from NAND.");
+      LOG_XBOX(Xenon_PostBus,
+               "CB > FETCH_CONTENTS_4BL_CD - Copy CD from NAND.");
       break;
     case 0x34:
-      LOG_XBOX(Xenon_PostBus, "CB > HMACSHA_COMPUTE_4BL_CD - Create HMAC key for CD decryptio.n");
+      LOG_XBOX(
+          Xenon_PostBus,
+          "CB > HMACSHA_COMPUTE_4BL_CD - Create HMAC key for CD decryptio.n");
       break;
     case 0x35:
-      LOG_XBOX(Xenon_PostBus, "CB > RC4_INITIALIZE_4BL_CD - Initialize CD RC4 key using HMAC key.");
+      LOG_XBOX(
+          Xenon_PostBus,
+          "CB > RC4_INITIALIZE_4BL_CD - Initialize CD RC4 key using HMAC key.");
       break;
     case 0x36:
-      LOG_XBOX(Xenon_PostBus, "CB > RC4_DECRYPT_4BL_CD - RC4 decrypt CD with key.");
+      LOG_XBOX(Xenon_PostBus,
+               "CB > RC4_DECRYPT_4BL_CD - RC4 decrypt CD with key.");
       break;
     case 0x37:
-      LOG_XBOX(Xenon_PostBus, "CB > SHA_COMPUTE_4BL_CD - Compute hash of CD for verification.");
+      LOG_XBOX(
+          Xenon_PostBus,
+          "CB > SHA_COMPUTE_4BL_CD - Compute hash of CD for verification.");
       break;
     case 0x38:
-      LOG_XBOX(Xenon_PostBus, "CB > SIG_VERIFY_4BL_CD - RSA signature check of CD hash.");
+      LOG_XBOX(Xenon_PostBus,
+               "CB > SIG_VERIFY_4BL_CD - RSA signature check of CD hash.");
       break;
     case 0x39:
-      LOG_XBOX(Xenon_PostBus, "CB > SHA_VERIFY_4BL_CD - MemCmp cumputed hash with expected one.");
+      LOG_XBOX(
+          Xenon_PostBus,
+          "CB > SHA_VERIFY_4BL_CD - MemCmp cumputed hash with expected one.");
       break;
     case 0x3a:
-      LOG_XBOX(Xenon_PostBus, "CB > BRANCH - Setup memory encryption and jump to CD.");
+      LOG_XBOX(Xenon_PostBus,
+               "CB > BRANCH - Setup memory encryption and jump to CD.");
       break;
     case 0x3b:
       LOG_XBOX(Xenon_PostBus, "CB > PCI_INIT - Initialize PCI.");
@@ -228,22 +253,30 @@ void Xe::XCPU::POSTBUS::POST(u64 postCode) {
   else if (postCode >= 0x9B && postCode <= 0xB0) {
     switch (postCode) {
     case 0x9b:
-      LOG_ERROR(Xenon_PostBus, "CB > PANIC - VERIFY_SECOTP_1 - Secopt fuse verification failed");
+      LOG_ERROR(
+          Xenon_PostBus,
+          "CB > PANIC - VERIFY_SECOTP_1 - Secopt fuse verification failed");
       break;
     case 0x9c:
-      LOG_ERROR(Xenon_PostBus, "CB > PANIC - VERIFY_SECOTP_2 - Secopt fuse verification failed");
+      LOG_ERROR(
+          Xenon_PostBus,
+          "CB > PANIC - VERIFY_SECOTP_2 - Secopt fuse verification failed");
       break;
     case 0x9d:
-      LOG_ERROR(Xenon_PostBus, "CB > PANIC - VERIFY_SECOTP_3 - Secopt fuse verification console type failed.");
+      LOG_ERROR(Xenon_PostBus, "CB > PANIC - VERIFY_SECOTP_3 - Secopt fuse "
+                               "verification console type failed.");
       break;
     case 0x9e:
-      LOG_ERROR(Xenon_PostBus, "CB > PANIC - VERIFY_SECOTP_4 - Secopt fuse verification console type failed.");
+      LOG_ERROR(Xenon_PostBus, "CB > PANIC - VERIFY_SECOTP_4 - Secopt fuse "
+                               "verification console type failed.");
       break;
     case 0x9f:
-      LOG_ERROR(Xenon_PostBus, "CB > PANIC - VERIFY_SECOTP_5 - Secopt fuse verification console type failed.");
+      LOG_ERROR(Xenon_PostBus, "CB > PANIC - VERIFY_SECOTP_5 - Secopt fuse "
+                               "verification console type failed.");
       break;
     case 0xa0:
-      LOG_ERROR(Xenon_PostBus, "CB > PANIC - VERIFY_SECOTP_6 - CB revocation check failed.");
+      LOG_ERROR(Xenon_PostBus,
+                "CB > PANIC - VERIFY_SECOTP_6 - CB revocation check failed.");
       break;
     case 0xa1:
       LOG_ERROR(Xenon_PostBus, "CB > PANIC - VERIFY_SECOTP_7");
@@ -255,7 +288,8 @@ void Xe::XCPU::POSTBUS::POST(u64 postCode) {
       LOG_ERROR(Xenon_PostBus, "CB > PANIC - VERIFY_SECOTP_9");
       break;
     case 0xa4:
-      LOG_ERROR(Xenon_PostBus, "CB > PANIC - VERIFY_SECOTP_10 - Failed SMC HMAC.");
+      LOG_ERROR(Xenon_PostBus,
+                "CB > PANIC - VERIFY_SECOTP_10 - Failed SMC HMAC.");
       break;
     case 0xa5:
       LOG_ERROR(Xenon_PostBus, "CB > PANIC - VERIFY_OFFSET_3BL_CC");
@@ -270,7 +304,8 @@ void Xe::XCPU::POSTBUS::POST(u64 postCode) {
       LOG_ERROR(Xenon_PostBus, "CB > PANIC - SIG_VERIFY_3BL_CC");
       break;
     case 0xa9:
-      LOG_ERROR(Xenon_PostBus, "CB > PANIC - HWINIT - Hardware Initialization failed.");
+      LOG_ERROR(Xenon_PostBus,
+                "CB > PANIC - HWINIT - Hardware Initialization failed.");
       break;
     case 0xaa:
       LOG_ERROR(Xenon_PostBus, "CB > PANIC - VERIFY_OFFSET_4BL_CC");
@@ -300,40 +335,54 @@ void Xe::XCPU::POSTBUS::POST(u64 postCode) {
   else if (postCode >= 0xD0 && postCode <= 0xDB) {
     switch (postCode) {
     case 0xD0:
-      LOG_XBOX(Xenon_PostBus, "CB_A > CB_A_ENTRY - CB_A entry point, copy self to "
+      LOG_XBOX(Xenon_PostBus,
+               "CB_A > CB_A_ENTRY - CB_A entry point, copy self to "
                "0x8000.0200.0001.C000 and continue from there.");
       break;
     case 0xD1:
-      LOG_XBOX(Xenon_PostBus, "CB_A > READ_FUSES - Copy fuses from SoC for CB_B decryption.");
+      LOG_XBOX(Xenon_PostBus,
+               "CB_A > READ_FUSES - Copy fuses from SoC for CB_B decryption.");
       break;
     case 0xD2:
-      LOG_XBOX(Xenon_PostBus, "CB_A > VERIFY_OFFSET_CB_B - Verify CB_B offset.");
+      LOG_XBOX(Xenon_PostBus,
+               "CB_A > VERIFY_OFFSET_CB_B - Verify CB_B offset.");
       break;
     case 0xD3:
-      LOG_XBOX(Xenon_PostBus, "CB_A > FETCH_HEADER_CB_B - Copy CB_B header from NAND for verification.");
+      LOG_XBOX(Xenon_PostBus, "CB_A > FETCH_HEADER_CB_B - Copy CB_B header "
+                              "from NAND for verification.");
       break;
     case 0xD4:
-      LOG_XBOX(Xenon_PostBus, "CB_A > VERIFY_HEADER_CB_B - Verify CB_B header.");
+      LOG_XBOX(Xenon_PostBus,
+               "CB_A > VERIFY_HEADER_CB_B - Verify CB_B header.");
       break;
     case 0xD5:
-      LOG_XBOX(Xenon_PostBus, "CB_A > FETCH_CONTENTS_CB_B - Copy CBB into memory at "
-                              "0x8000.0200.0001.0000 (Old location of CB_A).");
+      LOG_XBOX(Xenon_PostBus,
+               "CB_A > FETCH_CONTENTS_CB_B - Copy CBB into memory at "
+               "0x8000.0200.0001.0000 (Old location of CB_A).");
       break;
     case 0xD6:
-      LOG_XBOX(Xenon_PostBus, "CB_A > HMACSHA_COMPUTE_CB_B - Create HMAC key for CD decryption.");
+      LOG_XBOX(
+          Xenon_PostBus,
+          "CB_A > HMACSHA_COMPUTE_CB_B - Create HMAC key for CD decryption.");
       break;
     case 0xD7:
-      LOG_XBOX(Xenon_PostBus, "CB_A > RC4_INITIALIZE_CB_B - Initialize CD RC4 key using HMAC key.");
+      LOG_XBOX(
+          Xenon_PostBus,
+          "CB_A > RC4_INITIALIZE_CB_B - Initialize CD RC4 key using HMAC key.");
       break;
     case 0xD8:
       LOG_XBOX(Xenon_PostBus, "CB_A > RC4_DECRYPT_CB_B - RC4 decrypt CD.");
       break;
     case 0xD9:
-      LOG_XBOX(Xenon_PostBus, "CB_A > SHA_COMPUTE_CB_B - Compute hash of CD for verification.");
+      LOG_XBOX(
+          Xenon_PostBus,
+          "CB_A > SHA_COMPUTE_CB_B - Compute hash of CD for verification.");
       break;
     case 0xDa:
-      LOG_XBOX(Xenon_PostBus, "CB_A > SHA_VERIFY_CB_B - MemCmp computed hash with expected one "
-                              "(where RGH2 glitches).");
+      LOG_XBOX(
+          Xenon_PostBus,
+          "CB_A > SHA_VERIFY_CB_B - MemCmp computed hash with expected one "
+          "(where RGH2 glitches).");
       break;
     case 0xDb:
       LOG_XBOX(Xenon_PostBus, "CB_A > BRANCH_CB_B - Verify CB_B offset.");
@@ -344,17 +393,23 @@ void Xe::XCPU::POSTBUS::POST(u64 postCode) {
   else if (postCode >= 0xF0 && postCode <= 0xF3) {
     switch (postCode) {
     case 0xF0:
-      LOG_ERROR(Xenon_PostBus, "CB_A > PANIC - VERIFY_OFFSET_CB_B - CB_B offset verification fail.");
+      LOG_ERROR(
+          Xenon_PostBus,
+          "CB_A > PANIC - VERIFY_OFFSET_CB_B - CB_B offset verification fail.");
       break;
     case 0xF1:
-      LOG_ERROR(Xenon_PostBus, "CB_A > PANIC - VERIFY_HEADER_CB_B - CB_B header verification fail");
+      LOG_ERROR(
+          Xenon_PostBus,
+          "CB_A > PANIC - VERIFY_HEADER_CB_B - CB_B header verification fail");
       break;
     case 0xF2:
-      LOG_ERROR(Xenon_PostBus, "CB_A > PANIC - SHA_VERIFY_CB_B - CB_B security hash comparison fail.");
+      LOG_ERROR(Xenon_PostBus, "CB_A > PANIC - SHA_VERIFY_CB_B - CB_B security "
+                               "hash comparison fail.");
       break;
     case 0xF3:
-      LOG_ERROR(Xenon_PostBus, "CB_A > PANIC - ENTRY_SIZE_INVALID_CB_B - CB_B size check fail "
-                                "(must be less than 0xC000).");
+      LOG_ERROR(Xenon_PostBus,
+                "CB_A > PANIC - ENTRY_SIZE_INVALID_CB_B - CB_B size check fail "
+                "(must be less than 0xC000).");
       break;
     }
     SYSTEM_PAUSE();
@@ -369,29 +424,37 @@ void Xe::XCPU::POSTBUS::POST(u64 postCode) {
       LOG_XBOX(Xenon_PostBus, "CD > VERIFY_OFFSET - Verify offset to CE.");
       break;
     case 0x42:
-      LOG_XBOX(Xenon_PostBus, "CD > FETCH_HEADER - Copy CE header from NAND for verification.");
+      LOG_XBOX(
+          Xenon_PostBus,
+          "CD > FETCH_HEADER - Copy CE header from NAND for verification.");
       break;
     case 0x43:
       LOG_XBOX(Xenon_PostBus, "CD > VERIFY_HEADER - Verify CE header.");
       break;
     case 0x44:
-      LOG_XBOX(Xenon_PostBus, "CD > FETCH_CONTENTS - Read CE from NAND into memory.");
+      LOG_XBOX(Xenon_PostBus,
+               "CD > FETCH_CONTENTS - Read CE from NAND into memory.");
       break;
     case 0x45:
-      LOG_XBOX(Xenon_PostBus, "CD > HMACSHA_COMPUTE - Create HMAC key for CE decryption.");
+      LOG_XBOX(Xenon_PostBus,
+               "CD > HMACSHA_COMPUTE - Create HMAC key for CE decryption.");
       break;
     case 0x46:
-      LOG_XBOX(Xenon_PostBus, "CD > RC4_INITIALIZE - Initialize CE RC4 key using HMAC key.");
+      LOG_XBOX(Xenon_PostBus,
+               "CD > RC4_INITIALIZE - Initialize CE RC4 key using HMAC key.");
       break;
     case 0x47:
       LOG_XBOX(Xenon_PostBus, "CD > RC4_DECRYPT - RC4 decrypt CE.");
       break;
     case 0x48:
-      LOG_XBOX(Xenon_PostBus, "CD > SHA_COMPUTE - Compute hash of CE for verification.");
+      LOG_XBOX(Xenon_PostBus,
+               "CD > SHA_COMPUTE - Compute hash of CE for verification.");
       break;
     case 0x49:
-      LOG_XBOX(Xenon_PostBus, "CD > SHA_VERIFY - MemCmp computed hash with expected one. (RGH1 "
-                              "Glitches here)");
+      LOG_XBOX(
+          Xenon_PostBus,
+          "CD > SHA_VERIFY - MemCmp computed hash with expected one. (RGH1 "
+          "Glitches here)");
       break;
     case 0x4a:
       LOG_XBOX(Xenon_PostBus, "LOAD_6BL_CF");
@@ -406,25 +469,29 @@ void Xe::XCPU::POSTBUS::POST(u64 postCode) {
       LOG_XBOX(Xenon_PostBus, "DECODE_FUSES");
       break;
     case 0x4e:
-      LOG_XBOX(Xenon_PostBus, "FETCH_OFFSET_6BL_CF - Load CD (kernel patches) offset.");
+      LOG_XBOX(Xenon_PostBus,
+               "FETCH_OFFSET_6BL_CF - Load CD (kernel patches) offset.");
       break;
     case 0x4f:
       LOG_XBOX(Xenon_PostBus, "VERIFY_OFFSET_6BL_CF - Verify CF offset.");
       break;
     case 0x50:
-      LOG_XBOX(Xenon_PostBus, "LOAD_UPDATE_1 - Load CF1/CG1 (patch slot 1) if version & "
-                              "header check pass.");
+      LOG_XBOX(Xenon_PostBus,
+               "LOAD_UPDATE_1 - Load CF1/CG1 (patch slot 1) if version & "
+               "header check pass.");
       break;
     case 0x51:
-      LOG_XBOX(Xenon_PostBus, "LOAD_UPDATE_2 - Load CF2/CG2 (patch slot 2) if version & "
-                              "header check pass.");
+      LOG_XBOX(Xenon_PostBus,
+               "LOAD_UPDATE_2 - Load CF2/CG2 (patch slot 2) if version & "
+               "header check pass.");
       break;
     case 0x52:
       LOG_XBOX(Xenon_PostBus, "BRANCH - Startup kernel/hypervisor.");
       break;
     case 0x53:
-      LOG_XBOX(Xenon_PostBus, "DECRYPT_VERIFY_HV_CERT - Decrypt and verify hypervisor "
-                              "certificate.");
+      LOG_XBOX(Xenon_PostBus,
+               "DECRYPT_VERIFY_HV_CERT - Decrypt and verify hypervisor "
+               "certificate.");
       break;
     }
   }
@@ -432,25 +499,33 @@ void Xe::XCPU::POSTBUS::POST(u64 postCode) {
   else if (postCode >= 0xB1 && postCode <= 0xB8) {
     switch (postCode) {
     case 0xB1:
-      LOG_ERROR(Xenon_PostBus, "CD > PANIC - VERIFY_OFFSET - CE decryption failed.");
+      LOG_ERROR(Xenon_PostBus,
+                "CD > PANIC - VERIFY_OFFSET - CE decryption failed.");
       break;
     case 0xB2:
-      LOG_ERROR(Xenon_PostBus, "PANIC - VERIFY_HEADER - Failed to verify CE header.");
+      LOG_ERROR(Xenon_PostBus,
+                "PANIC - VERIFY_HEADER - Failed to verify CE header.");
       break;
     case 0xB3:
-      LOG_ERROR(Xenon_PostBus, "PANIC - SHA_VERIFY - CE hash comparison failed.");
+      LOG_ERROR(Xenon_PostBus,
+                "PANIC - SHA_VERIFY - CE hash comparison failed.");
       break;
     case 0xB4:
-      LOG_ERROR(Xenon_PostBus, "PANIC - LZX_EXPAND - CE LZX decompression failed.");
+      LOG_ERROR(Xenon_PostBus,
+                "PANIC - LZX_EXPAND - CE LZX decompression failed.");
       break;
     case 0xB5:
-      LOG_ERROR(Xenon_PostBus, "PANIC - VERIFY_OFFSET_6BL - CF verification failed.");
+      LOG_ERROR(Xenon_PostBus,
+                "PANIC - VERIFY_OFFSET_6BL - CF verification failed.");
       break;
     case 0xB6:
-      LOG_ERROR(Xenon_PostBus, "PANIC - DECODE_FUSES - Fuse decryption/check failed.");
+      LOG_ERROR(Xenon_PostBus,
+                "PANIC - DECODE_FUSES - Fuse decryption/check failed.");
       break;
     case 0xB7:
-      LOG_ERROR(Xenon_PostBus, "PANIC - UPDATE_MISSING - CF decryption failed, patches missing.");
+      LOG_ERROR(
+          Xenon_PostBus,
+          "PANIC - UPDATE_MISSING - CF decryption failed, patches missing.");
       break;
     case 0xB8:
       LOG_ERROR(Xenon_PostBus, "PANIC - CF_HASH_AUTH - CF hash auth failed.");
@@ -462,16 +537,19 @@ void Xe::XCPU::POSTBUS::POST(u64 postCode) {
   else if (postCode >= 0xC1 && postCode <= 0xC8) {
     switch (postCode) {
     case 0xC1:
-      LOG_ERROR(Xenon_PostBus, "CE/F PANIC - LZX_EXPAND_1 - LDICreateDecompression.");
+      LOG_ERROR(Xenon_PostBus,
+                "CE/F PANIC - LZX_EXPAND_1 - LDICreateDecompression.");
       break;
     case 0xC2:
       LOG_ERROR(Xenon_PostBus, "PANIC - LZX_EXPAND_2 - 7BL Size Verification.");
       break;
     case 0xC3:
-      LOG_ERROR(Xenon_PostBus, "PANIC - LZX_EXPAND_3 - Header/Patch Fragment Info.");
+      LOG_ERROR(Xenon_PostBus,
+                "PANIC - LZX_EXPAND_3 - Header/Patch Fragment Info.");
       break;
     case 0xC4:
-      LOG_ERROR(Xenon_PostBus, "PANIC - LZX_EXPAND_4 - Unexpected LDI Fragment.");
+      LOG_ERROR(Xenon_PostBus,
+                "PANIC - LZX_EXPAND_4 - Unexpected LDI Fragment.");
       break;
     case 0xC5:
       LOG_ERROR(Xenon_PostBus, "PANIC - LZX_EXPAND_5 - LDISetWindowData.");
@@ -492,13 +570,15 @@ void Xe::XCPU::POSTBUS::POST(u64 postCode) {
   else if (postCode >= 0x58 && postCode <= 0x5E) {
     switch (postCode) {
     case 0x58:
-      LOG_XBOX(Xenon_PostBus, "HV > INIT_HYPERVISOR - Hypervisor Initialization begin.");
+      LOG_XBOX(Xenon_PostBus,
+               "HV > INIT_HYPERVISOR - Hypervisor Initialization begin.");
       break;
     case 0x59:
       LOG_XBOX(Xenon_PostBus, "HV > INIT_SOC_MMIO - Initialize SoC MMIO.");
       break;
     case 0x5A:
-      LOG_XBOX(Xenon_PostBus, "HV > INIT_XEX_TRAINING - Initialize XEX training.");
+      LOG_XBOX(Xenon_PostBus,
+               "HV > INIT_XEX_TRAINING - Initialize XEX training.");
       break;
     case 0x5B:
       LOG_XBOX(Xenon_PostBus, "HV > INIT_KEYRING - Initialize key ring.");
@@ -510,101 +590,93 @@ void Xe::XCPU::POSTBUS::POST(u64 postCode) {
       LOG_XBOX(Xenon_PostBus, "HV > INIT_SOC_INT - Initialize SoC Interrupts.");
       break;
     case 0x5e:
-      LOG_XBOX(Xenon_PostBus, "HV > INIT_SOC_INT_COMPLETE - Initialization complete.");
+      LOG_XBOX(Xenon_PostBus,
+               "HV > INIT_SOC_INT_COMPLETE - Initialization complete.");
       break;
     }
   }
   /* HYPERVISOR PANICS */
   else if (postCode == 0xFF) {
-      LOG_ERROR(Xenon_PostBus, "HV > PANIC - FATAL!");
+    LOG_ERROR(Xenon_PostBus, "HV > PANIC - FATAL!");
   }
-  /* KERNEL */ // Kernel post codes vary according to each system version. Lets rely
-               // on the DebugPrints for now.
+  /* KERNEL */ // Kernel post codes vary according to each system version. Lets
+               // rely on the DebugPrints for now.
   else if (postCode >= 0x60 && postCode <= 0x79) {
-      /*
-    switch (postCode) {
-    case 0x60:
-      LOG_XBOX(Xenon_PostBus, "INIT_KERNEL - Initialize kernel");
-      break;
-    case 0x61:
-      LOG_XBOX(Xenon_PostBus, "INITIAL_HAL_PHASE_0 - Initialize HAL phase 0");
-      break;
-    case 0x62:
-      LOG_XBOX(Xenon_PostBus, "INIT_PROCESS_OBJECTS - Initialize process objects");
-      break;
-    case 0x63:
-      LOG_XBOX(Xenon_PostBus, "INIT_KERNEL_DEBUGGER - Initialize kernel debugger");
-      break;
-    case 0x64:
-      LOG_XBOX(Xenon_PostBus, "INIT_MEMORY_MANAGER - Initialize memory manager");
-      break;
-    case 0x65:
-      LOG_XBOX(Xenon_PostBus, "INIT_STACKS - Initialize stacks");
-      break;
-    case 0x66:
-      LOG_XBOX(Xenon_PostBus, "INIT_OBJECT_SYSTEM - Initialize object system");
-      break;
-    case 0x67:
-      LOG_XBOX(Xenon_PostBus, "INIT_PHASE1_THREAD - Initialize phase 1 thread");
-      break;
-    case 0x68:
-      LOG_XBOX(Xenon_PostBus, "INIT_PROCESSORS - Initialize processors");
-      break;
-    case 0x69:
-      LOG_XBOX(Xenon_PostBus, "INIT_KEYVAULT - Initialize keyvault");
-      break;
-    case 0x6A:
-      LOG_XBOX(Xenon_PostBus, "INIT_HAL_PHASE_1 - Initialize HAL phase 1");
-      break;
-    case 0x6B:
-      LOG_XBOX(Xenon_PostBus, "INIT_SFC_DRIVER - Initialize flash controller");
-      break;
-    case 0x6C:
-      LOG_XBOX(Xenon_PostBus, "INIT_SECURITY - Initialize security");
-      break;
-    case 0x6D:
-      LOG_XBOX(Xenon_PostBus, "INIT_KEY_EX_VAULT - Initialize extended keyvault");
-      break;
-    case 0x6E:
-      LOG_XBOX(Xenon_PostBus, "INIT_SETTINGS - Initialize settings");
-      break;
-    case 0x6F:
-      LOG_XBOX(Xenon_PostBus, "INIT_POWER_MODE - Initialize power mode");
-      break;
-    case 0x70:
-      LOG_XBOX(Xenon_PostBus, "INIT_VIDEO_DRIVER - Initialize video driver");
-      break;
-    case 0x71:
-      LOG_XBOX(Xenon_PostBus, "INIT_AUDIO_DRIVER - Initialize audio driver");
-      break;
-    case 0x72:
-      LOG_XBOX(Xenon_PostBus, "INIT_BOOT_ANIMATION - Initialize bootanim.xex, XMADecoder, and XAudioRender");
-      break;
-    case 0x73:
-      LOG_XBOX(Xenon_PostBus, "INIT_SATA_DRIVER - Initialize SATA driver");
-      break;
-    case 0x74:
-      LOG_XBOX(Xenon_PostBus, "INIT_SHADOWBOOT - Initialize shadowboot");
-      break;
-    case 0x75:
-      LOG_XBOX(Xenon_PostBus, "INIT_DUMP_SYSTEM - Initialize dump system");
-      break;
-    case 0x76:
-      LOG_XBOX(Xenon_PostBus, "INIT_SYSTEM_ROOT - Initialize system root");
-      break;
-    case 0x77:
-      LOG_XBOX(Xenon_PostBus, "INIT_OTHER_DRIVERS - Initialize other drivers");
-      break;
-    case 0x78:
-      LOG_XBOX(Xenon_PostBus, "INIT_STFS_DRIVER - Initialize STFS driver");
-      break;
-    case 0x79:
-      LOG_XBOX(Xenon_PostBus, "LOAD_XAM - Initialize xam.xex");
-      break;
-    }
-    */
-  } 
-  else {
+    /*
+  switch (postCode) {
+  case 0x60:
+    LOG_XBOX(Xenon_PostBus, "INIT_KERNEL - Initialize kernel");
+    break;
+  case 0x61:
+    LOG_XBOX(Xenon_PostBus, "INITIAL_HAL_PHASE_0 - Initialize HAL phase 0");
+    break;
+  case 0x62:
+    LOG_XBOX(Xenon_PostBus, "INIT_PROCESS_OBJECTS - Initialize process
+  objects"); break; case 0x63: LOG_XBOX(Xenon_PostBus, "INIT_KERNEL_DEBUGGER -
+  Initialize kernel debugger"); break; case 0x64: LOG_XBOX(Xenon_PostBus,
+  "INIT_MEMORY_MANAGER - Initialize memory manager"); break; case 0x65:
+    LOG_XBOX(Xenon_PostBus, "INIT_STACKS - Initialize stacks");
+    break;
+  case 0x66:
+    LOG_XBOX(Xenon_PostBus, "INIT_OBJECT_SYSTEM - Initialize object system");
+    break;
+  case 0x67:
+    LOG_XBOX(Xenon_PostBus, "INIT_PHASE1_THREAD - Initialize phase 1 thread");
+    break;
+  case 0x68:
+    LOG_XBOX(Xenon_PostBus, "INIT_PROCESSORS - Initialize processors");
+    break;
+  case 0x69:
+    LOG_XBOX(Xenon_PostBus, "INIT_KEYVAULT - Initialize keyvault");
+    break;
+  case 0x6A:
+    LOG_XBOX(Xenon_PostBus, "INIT_HAL_PHASE_1 - Initialize HAL phase 1");
+    break;
+  case 0x6B:
+    LOG_XBOX(Xenon_PostBus, "INIT_SFC_DRIVER - Initialize flash controller");
+    break;
+  case 0x6C:
+    LOG_XBOX(Xenon_PostBus, "INIT_SECURITY - Initialize security");
+    break;
+  case 0x6D:
+    LOG_XBOX(Xenon_PostBus, "INIT_KEY_EX_VAULT - Initialize extended keyvault");
+    break;
+  case 0x6E:
+    LOG_XBOX(Xenon_PostBus, "INIT_SETTINGS - Initialize settings");
+    break;
+  case 0x6F:
+    LOG_XBOX(Xenon_PostBus, "INIT_POWER_MODE - Initialize power mode");
+    break;
+  case 0x70:
+    LOG_XBOX(Xenon_PostBus, "INIT_VIDEO_DRIVER - Initialize video driver");
+    break;
+  case 0x71:
+    LOG_XBOX(Xenon_PostBus, "INIT_AUDIO_DRIVER - Initialize audio driver");
+    break;
+  case 0x72:
+    LOG_XBOX(Xenon_PostBus, "INIT_BOOT_ANIMATION - Initialize bootanim.xex,
+  XMADecoder, and XAudioRender"); break; case 0x73: LOG_XBOX(Xenon_PostBus,
+  "INIT_SATA_DRIVER - Initialize SATA driver"); break; case 0x74:
+    LOG_XBOX(Xenon_PostBus, "INIT_SHADOWBOOT - Initialize shadowboot");
+    break;
+  case 0x75:
+    LOG_XBOX(Xenon_PostBus, "INIT_DUMP_SYSTEM - Initialize dump system");
+    break;
+  case 0x76:
+    LOG_XBOX(Xenon_PostBus, "INIT_SYSTEM_ROOT - Initialize system root");
+    break;
+  case 0x77:
+    LOG_XBOX(Xenon_PostBus, "INIT_OTHER_DRIVERS - Initialize other drivers");
+    break;
+  case 0x78:
+    LOG_XBOX(Xenon_PostBus, "INIT_STFS_DRIVER - Initialize STFS driver");
+    break;
+  case 0x79:
+    LOG_XBOX(Xenon_PostBus, "LOAD_XAM - Initialize xam.xex");
+    break;
+  }
+  */
+  } else {
     LOG_ERROR(Xenon_PostBus, "POST: Unrecognized post code: {:#x}", postCode);
   }
 }

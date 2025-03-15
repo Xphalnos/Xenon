@@ -2,8 +2,8 @@
 
 #include "RootBus.h"
 
-#include "Core/Xe_Main.h"
 #include "Base/Logging/Log.h"
+#include "Core/Xe_Main.h"
 
 #define PCI_CONFIG_SPACE_BEGIN 0xD0000000
 #define PCI_CONFIG_SPACE_END 0xD1000000
@@ -16,9 +16,7 @@ RootBus::RootBus() {
   conectedDevices.resize(deviceCount);
 }
 
-RootBus::~RootBus() {
-  biuData.reset();
-}
+RootBus::~RootBus() { biuData.reset(); }
 
 void RootBus::AddHostBridge(HostBridge *newHostBridge) {
   hostBridge = newHostBridge;
@@ -30,8 +28,8 @@ void RootBus::AddDevice(SystemDevice *device) {
   conectedDevices.push_back(device);
 }
 
-void RootBus::Read(u64 readAddress, u64 *data, u8 byteCount) {\
-  // Configuration Read?
+void RootBus::Read(u64 readAddress, u64 *data,
+                   u8 byteCount) { // Configuration Read?
   if (readAddress >= PCI_CONFIG_REGION_ADDRESS &&
       readAddress <= PCI_CONFIG_REGION_ADDRESS + PCI_CONFIG_REGION_SIZE) {
     ConfigRead(readAddress, data, byteCount);
@@ -82,7 +80,8 @@ void RootBus::Write(u64 writeAddress, u64 data, u8 byteCount) {
   }
 
   // Device or address not found.
-  LOG_ERROR(RootBus, "Write failed at address: {:#x} data: {:#x}", writeAddress, data);
+  LOG_ERROR(RootBus, "Write failed at address: {:#x} data: {:#x}", writeAddress,
+            data);
 }
 
 //

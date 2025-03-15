@@ -1,7 +1,7 @@
 // Copyright 2025 Xenon Emulator Project
 
-#include "PPCInterpreter.h"
 #include "Core/XCPU/PostBus/PostBus.h"
+#include "PPCInterpreter.h"
 
 //
 // Xbox 360 Memory map, info taken from various sources.
@@ -98,11 +98,10 @@ void PPCInterpreter::PPCInterpreter_slbia(PPU_STATE *ppuState) {
 void PPCInterpreter::PPCInterpreter_tlbiel(PPU_STATE *ppuState) {
   X_FORM_L_rB
 
-  // The PPU adds two new fields to this instruction, them being LP abd IS.
+      // The PPU adds two new fields to this instruction, them being LP abd IS.
 
-  bool LP = (curThread.GPR[rB] & 0x1000) >> 12;
-  bool invalSelector =
-      (curThread.GPR[rB] & 0x800) >> 11;
+      bool LP = (curThread.GPR[rB] & 0x1000) >> 12;
+  bool invalSelector = (curThread.GPR[rB] & 0x800) >> 11;
   u8 p = mmuGetPageSize(ppuState, L, LP);
   u64 VA, VPN = 0;
 
@@ -147,8 +146,7 @@ void PPCInterpreter::PPCInterpreter_tlbiel(PPU_STATE *ppuState) {
     // Index to one of the 256 rows of the tlb. Possible entire tlb
     // invalidation.
     u8 tlbCongruenceClass = 0;
-    u64 rb_44_51 =
-        (curThread.GPR[rB] & 0xFF000) >> 12;
+    u64 rb_44_51 = (curThread.GPR[rB] & 0xFF000) >> 12;
 
     ppuState->TLB.tlbSet0[rb_44_51].V = false;
     ppuState->TLB.tlbSet0[rb_44_51].VPN = 0;
@@ -185,21 +183,19 @@ void PPCInterpreter::PPCInterpreter_tlbiel(PPU_STATE *ppuState) {
   curThread.dERAT.invalidateAll();
 }
 
-void PPCInterpreter::PPCInterpreter_tlbie(PPU_STATE* ppuState)
-{
-    // Do nothing.
-    LOG_INFO(Xenon, "tlbie");
+void PPCInterpreter::PPCInterpreter_tlbie(PPU_STATE *ppuState) {
+  // Do nothing.
+  LOG_INFO(Xenon, "tlbie");
 
-    // Should only invalidate entries for a specific set of addresses.
-    // Invalidate both ERAT's *** BUG *** !!!
-    curThread.iERAT.invalidateAll();
-    curThread.dERAT.invalidateAll();
+  // Should only invalidate entries for a specific set of addresses.
+  // Invalidate both ERAT's *** BUG *** !!!
+  curThread.iERAT.invalidateAll();
+  curThread.dERAT.invalidateAll();
 }
 
-void PPCInterpreter::PPCInterpreter_tlbsync(PPU_STATE* ppuState)
-{
-    // Do nothing.
-    LOG_INFO(Xenon, "tlbsync");
+void PPCInterpreter::PPCInterpreter_tlbsync(PPU_STATE *ppuState) {
+  // Do nothing.
+  LOG_INFO(Xenon, "tlbsync");
 }
 
 // Helper function for getting Page Size (p bit).
@@ -325,7 +321,8 @@ void PPCInterpreter::mmuAddTlbEntry(PPU_STATE *ppuState) {
   u16 TI = MMU_GET_TLB_INDEX_TI(tlbIndex);
   u16 TS = MMU_GET_TLB_INDEX_TS(tlbIndex);
 
-  // std::cout << "XCPU[" << ppuState->ppuName << "(Thrd"<< ppuState->currentThread
+  // std::cout << "XCPU[" << ppuState->ppuName << "(Thrd"<<
+  // ppuState->currentThread
   //     << ")](MMU) : Adding tlb entry : (" << TI * TS << ")" << std::endl;
   // std::cout << " *** RPN:         0x" << RPN << std::endl;
   // std::cout << " *** VPN:         0x" << VPN << std::endl;
@@ -415,7 +412,8 @@ bool PPCInterpreter::mmuSearchTlbEntry(PPU_STATE *ppuState, u64 *RPN, u64 VA,
   }
 
   if (ppuState->TLB.tlbSet0[tlbIndex].V) {
-    if (static_cast<u16>(ppuState->TLB.tlbSet0[tlbIndex].VPN) == static_cast<u16>(VPN)) {
+    if (static_cast<u16>(ppuState->TLB.tlbSet0[tlbIndex].VPN) ==
+        static_cast<u16>(VPN)) {
       // Check to see if its this entry!
       // Need to have a tag
       if (ppuState->TLB.tlbSet0[tlbIndex].p == p) {
@@ -437,7 +435,8 @@ bool PPCInterpreter::mmuSearchTlbEntry(PPU_STATE *ppuState, u64 *RPN, u64 VA,
     tlbSet = 0b1000;
   }
   if (ppuState->TLB.tlbSet1[tlbIndex].V) {
-    if (static_cast<u16>(ppuState->TLB.tlbSet1[tlbIndex].VPN) == static_cast<u16>(VPN)) {
+    if (static_cast<u16>(ppuState->TLB.tlbSet1[tlbIndex].VPN) ==
+        static_cast<u16>(VPN)) {
       // Check to see if its this entry!
       // Need to have a tag
       if (ppuState->TLB.tlbSet1[tlbIndex].p == p) {
@@ -459,7 +458,8 @@ bool PPCInterpreter::mmuSearchTlbEntry(PPU_STATE *ppuState, u64 *RPN, u64 VA,
     tlbSet = 0b0100;
   }
   if (ppuState->TLB.tlbSet2[tlbIndex].V) {
-    if (static_cast<u16>(ppuState->TLB.tlbSet2[tlbIndex].VPN) == static_cast<u16>(VPN)) {
+    if (static_cast<u16>(ppuState->TLB.tlbSet2[tlbIndex].VPN) ==
+        static_cast<u16>(VPN)) {
       // Check to see if its this entry!
       // Need to have a tag
       if (ppuState->TLB.tlbSet2[tlbIndex].p == p) {
@@ -481,7 +481,8 @@ bool PPCInterpreter::mmuSearchTlbEntry(PPU_STATE *ppuState, u64 *RPN, u64 VA,
     tlbSet = 0b0010;
   }
   if (ppuState->TLB.tlbSet3[tlbIndex].V) {
-    if (static_cast<u16>(ppuState->TLB.tlbSet3[tlbIndex].VPN) == static_cast<u16>(VPN)) {
+    if (static_cast<u16>(ppuState->TLB.tlbSet3[tlbIndex].VPN) ==
+        static_cast<u16>(VPN)) {
       // Check to see if its this entry!
       // Need to have a tag
       if (ppuState->TLB.tlbSet3[tlbIndex].p == p) {
@@ -513,8 +514,7 @@ bool PPCInterpreter::mmuSearchTlbEntry(PPU_STATE *ppuState, u64 *RPN, u64 VA,
   bool tlbSoftwareManaged = ((ppuState->SPR.LPCR & 0x400) >> 10);
 
   if (tlbSoftwareManaged) {
-    u64 tlbIndexHint =
-        curThread.SPR.PPE_TLB_Index_Hint;
+    u64 tlbIndexHint = curThread.SPR.PPE_TLB_Index_Hint;
     u8 currentTlbSet = tlbIndexHint & 0xF;
     u8 currentTlbIndex = static_cast<u8>(tlbIndexHint & 0xFF0) >> 4;
     currentTlbSet = tlbSet;
@@ -531,8 +531,7 @@ bool PPCInterpreter::mmuSearchTlbEntry(PPU_STATE *ppuState, u64 *RPN, u64 VA,
 
     tlbIndex = tlbIndex << 4;
     tlbIndexHint = tlbIndex |= currentTlbSet;
-    curThread.SPR.PPE_TLB_Index_Hint =
-        tlbIndexHint;
+    curThread.SPR.PPE_TLB_Index_Hint = tlbIndexHint;
   }
   return false;
 }
@@ -672,18 +671,20 @@ bool PPCInterpreter::MMUTranslateAddress(u64 *EA, PPU_STATE *ppuState,
   // ERAT's
   //
 
-  // Each ERAT entry holds the EA-to-RA translation for an aligned 4 KB area of memory. When 
-  // using a 4 KB page size, each ERAT entry holds the information for exactly one page.When
-  // using large pages, each ERAT entry contains a 4 KB section of the page, meaning that large
-  // pages can occupy several ERAT entries.All EA - to - RA mappings are kept in the ERAT including
-  // both real - mode and virtual - mode addresses(that is, addresses accessed with MSR[IR] equal to
-  // 0 or 1).
+  // Each ERAT entry holds the EA-to-RA translation for an aligned 4 KB area of
+  // memory. When using a 4 KB page size, each ERAT entry holds the information
+  // for exactly one page.When using large pages, each ERAT entry contains a 4
+  // KB section of the page, meaning that large pages can occupy several ERAT
+  // entries.All EA - to - RA mappings are kept in the ERAT including both real
+  // - mode and virtual - mode addresses(that is, addresses accessed with
+  // MSR[IR] equal to 0 or 1).
   // TODO:
-  // The ERATs identify each translation entry with some combination of the MSR[SF, IR, DR, 
-  // PR, and HV] bits, depending on whether the entry is in the I - ERAT or D - ERAT.This allows the
-  // ERATs to distinguish between translations that are valid for the various modes of operation.
-  // See IBM_CBE_Handbook_v1.1 Page 82.
-  
+  // The ERATs identify each translation entry with some combination of the
+  // MSR[SF, IR, DR, PR, and HV] bits, depending on whether the entry is in the
+  // I - ERAT or D - ERAT.This allows the ERATs to distinguish between
+  // translations that are valid for the various modes of operation. See
+  // IBM_CBE_Handbook_v1.1 Page 82.
+
   // Search ERAT's
   if (!speculativeLoad) {
     if (curThread.iFetch) {
@@ -694,8 +695,7 @@ bool PPCInterpreter::MMUTranslateAddress(u64 *EA, PPU_STATE *ppuState,
         *EA = RA;
         return true;
       }
-    }
-    else {
+    } else {
       // dERAT
       RA = curThread.dERAT.getElement((*EA & ~0xFFF));
       if (RA != -1) {
@@ -837,8 +837,7 @@ bool PPCInterpreter::MMUTranslateAddress(u64 *EA, PPU_STATE *ppuState,
           } else {
             _ex |= PPU_EX_DATASTOR;
             curThread.SPR.DAR = *EA;
-            curThread.SPR.DSISR =
-                DSISR_NOPTE;
+            curThread.SPR.DSISR = DSISR_NOPTE;
           }
           return false;
         } else {
@@ -935,7 +934,8 @@ bool PPCInterpreter::MMUTranslateAddress(u64 *EA, PPU_STATE *ppuState,
             */
 
             // L?
-            if (static_cast<u8>((pteg0[i].pte0 & PPC_HPTE64_LARGE) >> 2) != static_cast<u8>(L)) {
+            if (static_cast<u8>((pteg0[i].pte0 & PPC_HPTE64_LARGE) >> 2) !=
+                static_cast<u8>(L)) {
               continue;
             }
 
@@ -1021,12 +1021,14 @@ bool PPCInterpreter::MMUTranslateAddress(u64 *EA, PPU_STATE *ppuState,
             */
 
             // L?
-            if (static_cast<u8>((pteg1[i].pte0 & PPC_HPTE64_LARGE) >> 2) != static_cast<u8>(L)) {
+            if (static_cast<u8>((pteg1[i].pte0 & PPC_HPTE64_LARGE) >> 2) !=
+                static_cast<u8>(L)) {
               continue;
             }
 
             // L & LP?
-            if (L && static_cast<u8>((pteg1[i].pte1 & PPC_HPTE64_LP) >> 12) != LP) {
+            if (L &&
+                static_cast<u8>((pteg1[i].pte1 & PPC_HPTE64_LP) >> 12) != LP) {
               continue;
             }
 
@@ -1111,8 +1113,7 @@ bool PPCInterpreter::MMUTranslateAddress(u64 *EA, PPU_STATE *ppuState,
     if (curThread.iFetch) {
       // iERAT
       curThread.iERAT.putElement((*EA & ~0xFFF), (RA & ~0xFFF));
-    }
-    else {
+    } else {
       // dERAT
       curThread.dERAT.putElement((*EA & ~0xFFF), (RA & ~0xFFF));
     }
@@ -1301,11 +1302,12 @@ u64 PPCInterpreter::MMURead(XENON_CONTEXT *cpuContext, PPU_STATE *ppuState,
   }
 
   if (EA >= 0xEC800000 && EA <= 0xEC810000) {
-      xGPU = true;
+    xGPU = true;
   }
 
-  if (socRead && nand != true && pciBridge != true && pciConfigSpace != true && xGPU != true) {
-      LOG_WARNING(Xenon_MMU, "SoC Read from {:#x}, returning 0.", EA);
+  if (socRead && nand != true && pciBridge != true && pciConfigSpace != true &&
+      xGPU != true) {
+    LOG_WARNING(Xenon_MMU, "SoC Read from {:#x}, returning 0.", EA);
     data = 0;
     return data;
   }
@@ -1324,7 +1326,10 @@ void PPCInterpreter::MMUWrite(XENON_CONTEXT *cpuContext, PPU_STATE *ppuState,
                               u64 data, u64 EA, s8 byteCount, bool cacheStore) {
   u64 oldEA = EA;
   if (false) {
-    LOG_INFO(Xenon_MMU, "context, state, data=0x{:08x}, EA=0x{:08x}, byteCount={:d}, cachestore)", data, EA, byteCount);
+    LOG_INFO(Xenon_MMU,
+             "context, state, data=0x{:08x}, EA=0x{:08x}, byteCount={:d}, "
+             "cachestore)",
+             data, EA, byteCount);
   }
 
   if (MMUTranslateAddress(&EA, ppuState, true) == false)
@@ -1418,11 +1423,13 @@ void PPCInterpreter::MMUWrite(XENON_CONTEXT *cpuContext, PPU_STATE *ppuState,
   }
 
   if (EA >= 0xEC800000 && EA <= 0xEC810000) {
-      xGPU = true;
+    xGPU = true;
   }
 
-  if (socWrite && nand != true && pciBridge != true && pciConfigSpace != true && xGPU != true) {
-    LOG_WARNING(Xenon_MMU, "SoC Write to {:#x}, data = {:#x}, invalidating.", EA, data);
+  if (socWrite && nand != true && pciBridge != true && pciConfigSpace != true &&
+      xGPU != true) {
+    LOG_WARNING(Xenon_MMU, "SoC Write to {:#x}, data = {:#x}, invalidating.",
+                EA, data);
     return;
   }
 
@@ -1432,40 +1439,50 @@ void PPCInterpreter::MMUWrite(XENON_CONTEXT *cpuContext, PPU_STATE *ppuState,
   intXCPUContext->xenonRes.Check(EA);
 }
 
-void PPCInterpreter::MMUMemCpyFromHost(PPU_STATE *ppuState,
-                                       u32 dest, const void* source, u64 size, bool cacheStore) {
+void PPCInterpreter::MMUMemCpyFromHost(PPU_STATE *ppuState, u32 dest,
+                                       const void *source, u64 size,
+                                       bool cacheStore) {
   for (u64 i = 0; i != size; ++i) {
-    MMUWrite(intXCPUContext, ppuState, reinterpret_cast<const u8*>(source)[i], dest + i, 1, cacheStore);
+    MMUWrite(intXCPUContext, ppuState, reinterpret_cast<const u8 *>(source)[i],
+             dest + i, 1, cacheStore);
   }
 }
 
-void PPCInterpreter::MMUMemCpy(PPU_STATE *ppuState,
-                               u32 dest, u32 source, u64 size, bool cacheStore) {
+void PPCInterpreter::MMUMemCpy(PPU_STATE *ppuState, u32 dest, u32 source,
+                               u64 size, bool cacheStore) {
   for (u64 i = 0; i != size; ++i) {
-    MMUWrite(intXCPUContext, ppuState, MMURead(intXCPUContext, ppuState, source + i, 1), dest + i, 1, cacheStore);
+    MMUWrite(intXCPUContext, ppuState,
+             MMURead(intXCPUContext, ppuState, source + i, 1), dest + i, 1,
+             cacheStore);
   }
 }
 
 // Reads 1 Byte of memory.
 u8 PPCInterpreter::MMURead8(PPU_STATE *ppuState, u64 EA, bool speculativeLoad) {
   u8 data = 0;
-  data = static_cast<u8>(MMURead(intXCPUContext, ppuState, EA, 1, speculativeLoad));
+  data = static_cast<u8>(
+      MMURead(intXCPUContext, ppuState, EA, 1, speculativeLoad));
   return data;
 }
 // Reads 2 Bytes of memory.
-u16 PPCInterpreter::MMURead16(PPU_STATE *ppuState, u64 EA, bool speculativeLoad) {
+u16 PPCInterpreter::MMURead16(PPU_STATE *ppuState, u64 EA,
+                              bool speculativeLoad) {
   u16 data = 0;
-  data = static_cast<u16>(MMURead(intXCPUContext, ppuState, EA, 2, speculativeLoad));
+  data = static_cast<u16>(
+      MMURead(intXCPUContext, ppuState, EA, 2, speculativeLoad));
   return byteswap<u16>(data);
 }
 // Reads 4 Bytes of memory.
-u32 PPCInterpreter::MMURead32(PPU_STATE *ppuState, u64 EA, bool speculativeLoad) {
+u32 PPCInterpreter::MMURead32(PPU_STATE *ppuState, u64 EA,
+                              bool speculativeLoad) {
   u32 data = 0;
-  data = static_cast<u32>(MMURead(intXCPUContext, ppuState, EA, 4, speculativeLoad));
+  data = static_cast<u32>(
+      MMURead(intXCPUContext, ppuState, EA, 4, speculativeLoad));
   return byteswap<u32>(data);
 }
 // Reads 8 Bytes of memory.
-u64 PPCInterpreter::MMURead64(PPU_STATE *ppuState, u64 EA, bool speculativeLoad) {
+u64 PPCInterpreter::MMURead64(PPU_STATE *ppuState, u64 EA,
+                              bool speculativeLoad) {
   u64 data = 0;
   data = MMURead(intXCPUContext, ppuState, EA, 8, speculativeLoad);
   return byteswap<u64>(data);

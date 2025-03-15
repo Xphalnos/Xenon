@@ -9,9 +9,9 @@ namespace Base::FS {
 namespace fs = std::filesystem;
 
 enum class PathType {
-  UserDir,   // Where Xenon stores its data.
-  LogDir,    // Where log files are stored.
-  FontDir    // Where fonts are stored.
+  UserDir, // Where Xenon stores its data.
+  LogDir,  // Where log files are stored.
+  FontDir  // Where fonts are stored.
 };
 
 constexpr auto PORTABLE_DIR = "Xenon";

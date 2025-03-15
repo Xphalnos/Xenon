@@ -97,7 +97,8 @@ void PPCInterpreter::PPCInterpreter_rfid(PPU_STATE *ppuState) {
   b3 = BGET(curThread.SPR.MSR.MSR_Hex, 64, 3);
 
   // MSR.51 = (MSR.3 & SRR1.51) | ((~MSR.3) & MSR.51)
-  if ((b3 && BGET(srr1, 64, 51)) || (!b3 && BGET(curThread.SPR.MSR.MSR_Hex, 64, 51))) {
+  if ((b3 && BGET(srr1, 64, 51)) ||
+      (!b3 && BGET(curThread.SPR.MSR.MSR_Hex, 64, 51))) {
     BSET(new_msr, 64, 51);
   }
 
@@ -149,7 +150,8 @@ void PPCInterpreter::PPCInterpreter_tw(PPU_STATE *ppuState) {
   sl32 b = static_cast<sl32>(GPR(rB));
 
   if ((a < b && BGET(TO, 5, 0)) || (a > b && BGET(TO, 5, 1)) ||
-      (a == b && BGET(TO, 5, 2)) || (static_cast<u32>(a) < static_cast<u32>(b) && BGET(TO, 5, 3)) ||
+      (a == b && BGET(TO, 5, 2)) ||
+      (static_cast<u32>(a) < static_cast<u32>(b) && BGET(TO, 5, 3)) ||
       (static_cast<u32>(a) > static_cast<u32>(b) && BGET(TO, 5, 4))) {
     ppcInterpreterTrap(ppuState, b);
   }
@@ -161,8 +163,10 @@ void PPCInterpreter::PPCInterpreter_twi(PPU_STATE *ppuState) {
 
   sl32 a = static_cast<s32>(GPR(rA));
 
-  if ((a < static_cast<s32>(SI) && BGET(TO, 5, 0)) || (a > static_cast<s32>(SI) && BGET(TO, 5, 1)) ||
-      (a == static_cast<s32>(SI) && BGET(TO, 5, 2)) || (static_cast<u32>(a) < SI && BGET(TO, 5, 3)) ||
+  if ((a < static_cast<s32>(SI) && BGET(TO, 5, 0)) ||
+      (a > static_cast<s32>(SI) && BGET(TO, 5, 1)) ||
+      (a == static_cast<s32>(SI) && BGET(TO, 5, 2)) ||
+      (static_cast<u32>(a) < SI && BGET(TO, 5, 3)) ||
       (static_cast<u32>(a) > SI && BGET(TO, 5, 4))) {
     ppcInterpreterTrap(ppuState, static_cast<u32>(SI));
   }
@@ -292,7 +296,9 @@ void PPCInterpreter::PPCInterpreter_mfspr(PPU_STATE *ppuState) {
     value = ppuState->SPR.CTRL;
     break;
   default:
-    LOG_ERROR(Xenon, "{}(Thrd{:#d}) mfspr: Unknown SPR: 0x{:#x}", ppuState->ppuName, static_cast<u8>(ppuState->currentThread), sprNum);
+    LOG_ERROR(Xenon, "{}(Thrd{:#d}) mfspr: Unknown SPR: 0x{:#x}",
+              ppuState->ppuName, static_cast<u8>(ppuState->currentThread),
+              sprNum);
     break;
   }
 
@@ -413,7 +419,8 @@ void PPCInterpreter::PPCInterpreter_mtspr(PPU_STATE *ppuState) {
     ppuState->SPR.TB = ppuState->SPR.TB |= (GPR(rD) << 32);
     break;
   default:
-    LOG_ERROR(Xenon, "{}(Thrd{:#d}) SPR {:#x} ={:#x}", ppuState->ppuName, static_cast<u8>(ppuState->currentThread), spr, GPR(rD));
+    LOG_ERROR(Xenon, "{}(Thrd{:#d}) SPR {:#x} ={:#x}", ppuState->ppuName,
+              static_cast<u8>(ppuState->currentThread), spr, GPR(rD));
     break;
   }
 }
@@ -455,7 +462,8 @@ void PPCInterpreter::PPCInterpreter_mtmsrd(PPU_STATE *ppuState) {
     curThread.SPR.MSR.MSR_Hex = regRS;
 
     // MSR0 = (RS)0 | (RS)1
-    curThread.SPR.MSR.SF = (regRS & 0x8000000000000000) || (regRS & 0x4000000000000000) ? 1 : 0;
+    curThread.SPR.MSR.SF =
+        (regRS & 0x8000000000000000) || (regRS & 0x4000000000000000) ? 1 : 0;
 
     // MSR48 = (RS)48 | (RS)49
     curThread.SPR.MSR.EE = (regRS & 0x8000) || (regRS & 0x4000) ? 1 : 0;

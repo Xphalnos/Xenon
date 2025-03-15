@@ -2,11 +2,11 @@
 
 #include "OpenGL.h"
 
-#include "Core/Xe_Main.h"
-#include "Core/XCPU/Interpreter/PPCInterpreter.h"
 #include "Base/Config.h"
-#include "Render/Renderer.h"
+#include "Core/XCPU/Interpreter/PPCInterpreter.h"
+#include "Core/Xe_Main.h"
 #include "Render/Implementations/OGLTexture.h"
+#include "Render/Renderer.h"
 
 void Render::OpenGLGUI::InitBackend(void *context) {
   if (!ImGui_ImplSDL3_InitForOpenGL(mainWindow, context)) {
@@ -30,9 +30,9 @@ void Render::OpenGLGUI::BeginSwap() {
 }
 
 void Render::OpenGLGUI::EndSwap() {
-  ImGuiIO& io = ImGui::GetIO();
+  ImGuiIO &io = ImGui::GetIO();
   if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-    SDL_Window* backupCurrentWindow = SDL_GL_GetCurrentWindow();
+    SDL_Window *backupCurrentWindow = SDL_GL_GetCurrentWindow();
     SDL_GLContext backupCurrentContext = SDL_GL_GetCurrentContext();
     ImGui::UpdatePlatformWindows();
     ImGui::RenderPlatformWindowsDefault();

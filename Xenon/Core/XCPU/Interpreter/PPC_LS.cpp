@@ -17,8 +17,7 @@ void PPCInterpreter::PPCInterpreter_dcbst(PPU_STATE *ppuState) {
 void PPCInterpreter::PPCInterpreter_dcbz(PPU_STATE *ppuState) {
   X_FORM_rA_rB;
 
-  u64 EA = (rA ? GPR(rA) : 0) +
-           GPR(rB);
+  u64 EA = (rA ? GPR(rA) : 0) + GPR(rB);
   EA = EA & ~(128 - 1); // Cache line size
 
   // Temporarely diasable caching.
@@ -399,9 +398,9 @@ void PPCInterpreter::PPCInterpreter_stdcx(PPU_STATE *ppuState) {
 
     intXCPUContext->xenonRes.AcquireLock();
     if (ppuState->ppuThread[ppuState->currentThread].ppuRes->V) {
-      if (ppuState->ppuThread[ppuState->currentThread].ppuRes->resAddr == (RA & ~7)) {
-        u64 data =
-            byteswap<u64>(GPRi(rs));
+      if (ppuState->ppuThread[ppuState->currentThread].ppuRes->resAddr ==
+          (RA & ~7)) {
+        u64 data = byteswap<u64>(GPRi(rs));
         bool soc = false;
         RA = mmuContructEndAddressFromSecEngAddr(RA, &soc);
         sysBus->Write(RA, data, 8);
@@ -803,7 +802,7 @@ void PPCInterpreter::PPCInterpreter_lwarx(PPU_STATE *ppuState) {
   if (_ex & PPU_EX_DATASEGM || _ex & PPU_EX_DATASTOR)
     return;
 
-    GPRi(rd) = data;
+  GPRi(rd) = data;
 }
 
 // Load Word Algebraic Indexed (x'7C00 02AA')
@@ -829,7 +828,8 @@ void PPCInterpreter::PPCInterpreter_lwbrx(PPU_STATE *ppuState) {
   if rA = 0 then b <- 0
   else b <- (rA)
   EA <- b + (rB)
-  rD <- (32)0 || MEM(EA + 3, 1) || MEM(EA + 2, 1) || MEM(EA + 1, 1) || MEM(EA, 1)
+  rD <- (32)0 || MEM(EA + 3, 1) || MEM(EA + 2, 1) || MEM(EA + 1, 1) || MEM(EA,
+  1)
   */
   const u64 EA = _instr.ra ? GPRi(ra) + GPRi(rb) : GPRi(rb);
   u32 data = MMURead32(ppuState, EA);

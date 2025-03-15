@@ -3,9 +3,10 @@
 #include "SFCX.h"
 
 #include "Base/Logging/Log.h"
-                                                                          
-SFCX::SFCX(const char* deviceName, const std::string nandLoadPath, u64 size,
-  PCIBridge *parentPCIBridge) : PCIDevice(deviceName, size) {
+
+SFCX::SFCX(const char *deviceName, const std::string nandLoadPath, u64 size,
+           PCIBridge *parentPCIBridge)
+    : PCIDevice(deviceName, size) {
   // Asign parent PCI Bridge pointer.
   parentBus = parentPCIBridge;
 
@@ -15,7 +16,7 @@ SFCX::SFCX(const char* deviceName, const std::string nandLoadPath, u64 size,
   pciConfigSpace.configSpaceHeader.reg2.hexData = 0x05010001;
 
   // Set our PCI Dev Sizes.
-  pciDevSizes[0] = 0x400; // BAR0
+  pciDevSizes[0] = 0x400;     // BAR0
   pciDevSizes[1] = 0x1000000; // BAR1
 
   LOG_INFO(SFCX, "Xenon Secure Flash Controller for Xbox.");
@@ -43,25 +44,30 @@ SFCX::SFCX(const char* deviceName, const std::string nandLoadPath, u64 size,
   LOG_INFO(SFCX, "Loading NAND from path: {}", nandLoadPath);
 
   nandFile.open(nandLoadPath, std::ios_base::in | std::ios_base::binary);
-                  
+
   if (!nandFile.is_open()) {
-    LOG_CRITICAL(SFCX, "Fatal error! Please make sure your NAND (or NAND path) is valid!");
+    LOG_CRITICAL(
+        SFCX,
+        "Fatal error! Please make sure your NAND (or NAND path) is valid!");
     SYSTEM_PAUSE();
   }
 
   // Check file magic.
   if (!checkMagic()) {
-    LOG_CRITICAL(SFCX, "Fatal error! The loaded 'nand.bin' doesn't correspond to a Xbox 360 NAND.");
+    LOG_CRITICAL(SFCX, "Fatal error! The loaded 'nand.bin' doesn't correspond "
+                       "to a Xbox 360 NAND.");
     SYSTEM_PAUSE();
   }
 
   // Load NAND header and display info about it.
   nandFile.seekg(0, std::ios::beg);
-  nandFile.read(reinterpret_cast<char*>(&sfcxState.nandHeader), sizeof(sfcxState.nandHeader));
+  nandFile.read(reinterpret_cast<char *>(&sfcxState.nandHeader),
+                sizeof(sfcxState.nandHeader));
   nandFile.close();
 
   // Fix Endiannes
-  sfcxState.nandHeader.nandMagic = byteswap<u16>(sfcxState.nandHeader.nandMagic);
+  sfcxState.nandHeader.nandMagic =
+      byteswap<u16>(sfcxState.nandHeader.nandMagic);
   LOG_INFO(SFCX, " * NAND Magic: {:#x}", sfcxState.nandHeader.nandMagic);
 
   sfcxState.nandHeader.build = byteswap<u16>(sfcxState.nandHeader.build);
@@ -79,31 +85,44 @@ SFCX::SFCX(const char* deviceName, const std::string nandLoadPath, u64 size,
   sfcxState.nandHeader.size = byteswap<u32>(sfcxState.nandHeader.size);
   LOG_INFO(SFCX, " * Size: {:#x}", sfcxState.nandHeader.size);
 
-  sfcxState.nandHeader.keyvaultSize = byteswap<u32>(sfcxState.nandHeader.keyvaultSize);
+  sfcxState.nandHeader.keyvaultSize =
+      byteswap<u32>(sfcxState.nandHeader.keyvaultSize);
   LOG_INFO(SFCX, " * Keyvault Size: {:#x}", sfcxState.nandHeader.keyvaultSize);
 
-  sfcxState.nandHeader.sysUpdateAddr = byteswap<u32>(sfcxState.nandHeader.sysUpdateAddr);
-  LOG_INFO(SFCX, " * System Update Addr: {:#x}", sfcxState.nandHeader.sysUpdateAddr);
+  sfcxState.nandHeader.sysUpdateAddr =
+      byteswap<u32>(sfcxState.nandHeader.sysUpdateAddr);
+  LOG_INFO(SFCX, " * System Update Addr: {:#x}",
+           sfcxState.nandHeader.sysUpdateAddr);
 
-  sfcxState.nandHeader.sysUpdateCount = byteswap<u16>(sfcxState.nandHeader.sysUpdateCount);
-  LOG_INFO(SFCX, " * System Update Count: {:#x}", sfcxState.nandHeader.sysUpdateCount);
+  sfcxState.nandHeader.sysUpdateCount =
+      byteswap<u16>(sfcxState.nandHeader.sysUpdateCount);
+  LOG_INFO(SFCX, " * System Update Count: {:#x}",
+           sfcxState.nandHeader.sysUpdateCount);
 
-  sfcxState.nandHeader.keyvaultVer = byteswap<u16>(sfcxState.nandHeader.keyvaultVer);
+  sfcxState.nandHeader.keyvaultVer =
+      byteswap<u16>(sfcxState.nandHeader.keyvaultVer);
   LOG_INFO(SFCX, " * Keyvault Ver: {:#x}", sfcxState.nandHeader.keyvaultVer);
 
-  sfcxState.nandHeader.keyvaultAddr = byteswap<u32>(sfcxState.nandHeader.keyvaultAddr);
+  sfcxState.nandHeader.keyvaultAddr =
+      byteswap<u32>(sfcxState.nandHeader.keyvaultAddr);
   LOG_INFO(SFCX, " * Keyvault Addr: {:#x}", sfcxState.nandHeader.keyvaultAddr);
 
-  sfcxState.nandHeader.sysUpdateSize = byteswap<u32>(sfcxState.nandHeader.sysUpdateSize);
-  LOG_INFO(SFCX, " * System Update Size: {:#x}", sfcxState.nandHeader.sysUpdateSize);
+  sfcxState.nandHeader.sysUpdateSize =
+      byteswap<u32>(sfcxState.nandHeader.sysUpdateSize);
+  LOG_INFO(SFCX, " * System Update Size: {:#x}",
+           sfcxState.nandHeader.sysUpdateSize);
 
-  sfcxState.nandHeader.smcConfigAddr = byteswap<u32>(sfcxState.nandHeader.smcConfigAddr);  
-  LOG_INFO(SFCX, " * SMC Config Addr: {:#x}", sfcxState.nandHeader.smcConfigAddr);
+  sfcxState.nandHeader.smcConfigAddr =
+      byteswap<u32>(sfcxState.nandHeader.smcConfigAddr);
+  LOG_INFO(SFCX, " * SMC Config Addr: {:#x}",
+           sfcxState.nandHeader.smcConfigAddr);
 
-  sfcxState.nandHeader.smcBootSize = byteswap<u32>(sfcxState.nandHeader.smcBootSize);
+  sfcxState.nandHeader.smcBootSize =
+      byteswap<u32>(sfcxState.nandHeader.smcBootSize);
   LOG_INFO(SFCX, " * SMC Boot Size: {:#x}", sfcxState.nandHeader.smcBootSize);
 
-  sfcxState.nandHeader.smcBootAddr = byteswap<u32>(sfcxState.nandHeader.smcBootAddr);
+  sfcxState.nandHeader.smcBootAddr =
+      byteswap<u32>(sfcxState.nandHeader.smcBootAddr);
   LOG_INFO(SFCX, " * SMC Boot Addr: {:#x}", sfcxState.nandHeader.smcBootAddr);
 
   // Check Image size and Meta type.
@@ -212,7 +231,8 @@ void SFCX::ConfigWrite(u64 writeAddress, u64 data, u8 byteCount) {
   const u8 offset = writeAddress & 0xFF;
 
   // Check if we're being scanned.
-  if (static_cast<u8>(writeAddress) >= 0x10 && static_cast<u8>(writeAddress) < 0x34) {
+  if (static_cast<u8>(writeAddress) >= 0x10 &&
+      static_cast<u8>(writeAddress) < 0x34) {
     const u32 regOffset = (static_cast<u8>(writeAddress) - 0x10) >> 2;
     if (pciDevSizes[regOffset] != 0) {
       if (data == 0xFFFFFFFF) { // PCI BAR Size discovery.
@@ -228,7 +248,7 @@ void SFCX::ConfigWrite(u64 writeAddress, u64 data, u8 byteCount) {
       }
     }
     if (static_cast<u8>(writeAddress) == 0x30) { // Expansion ROM Base Address.
-      data = 0; // Register not implemented.
+      data = 0;                                  // Register not implemented.
     }
   }
 
@@ -260,9 +280,11 @@ void SFCX::sfcxMainLoop() {
         // Read Phyisical page into page buffer.
         // Physical pages are 0x210 bytes long, logical page (0x200) + meta data
         // (0x10).
-        LOG_DEBUG(SFCX, "Reading from address {:#x} (reading {:#x} bytes)", sfcxState.addressReg, sizeof(sfcxState.pageBuffer));
+        LOG_DEBUG(SFCX, "Reading from address {:#x} (reading {:#x} bytes)",
+                  sfcxState.addressReg, sizeof(sfcxState.pageBuffer));
         nandFile.seekg(sfcxState.addressReg);
-        nandFile.read(reinterpret_cast<char*>(sfcxState.pageBuffer), sizeof(sfcxState.pageBuffer));
+        nandFile.read(reinterpret_cast<char *>(sfcxState.pageBuffer),
+                      sizeof(sfcxState.pageBuffer));
         // Issue Interrupt.
         if (sfcxState.configReg & CONFIG_INT_EN) {
           // Set a delay for our interrupt?
@@ -286,7 +308,8 @@ void SFCX::sfcxMainLoop() {
       // case UNLOCK_CMD_1:
       //	break;
       default:
-        LOG_ERROR(SFCX, "Unrecognized command was issued. {:#x}", sfcxState.commandReg);
+        LOG_ERROR(SFCX, "Unrecognized command was issued. {:#x}",
+                  sfcxState.commandReg);
         break;
       }
 
@@ -304,7 +327,7 @@ void SFCX::sfcxMainLoop() {
 bool SFCX::checkMagic() {
   char magic[2];
 
-  nandFile.read(reinterpret_cast<char*>(magic), sizeof(magic));
+  nandFile.read(reinterpret_cast<char *>(magic), sizeof(magic));
 
   // Retail Nand Magic is 0xFF4F.
   // Devkit Nand Magic is 0x0F4F.

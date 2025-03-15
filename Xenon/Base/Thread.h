@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <chrono>
 #include "Types.h"
+#include <chrono>
 
 namespace Base {
 
@@ -19,9 +19,9 @@ void SetCurrentThreadRealtime(std::chrono::nanoseconds period_ns);
 
 void SetCurrentThreadPriority(ThreadPriority new_priority);
 
-void SetCurrentThreadName(const char* name);
+void SetCurrentThreadName(const char *name);
 
-void SetThreadName(void* thread, const char* name);
+void SetThreadName(void *thread, const char *name);
 
 class AccurateTimer {
   std::chrono::nanoseconds target_interval{};
@@ -36,9 +36,7 @@ public:
 
   void End();
 
-  std::chrono::nanoseconds GetTotalWait() const {
-    return total_wait;
-  }
+  std::chrono::nanoseconds GetTotalWait() const { return total_wait; }
 };
 
 } // namespace Base

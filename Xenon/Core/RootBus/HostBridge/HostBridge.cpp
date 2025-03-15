@@ -2,7 +2,7 @@
 
 #include "HostBridge.h"
 
-#include "Base/Logging/Log.h" 
+#include "Base/Logging/Log.h"
 #include "Core/Xe_Main.h"
 
 HostBridge::HostBridge() {
@@ -58,8 +58,8 @@ bool HostBridge::Read(u64 readAddress, u64 *data, u8 byteCount) {
       *data = biuRegs.REG_E1040000;
       break;
     default:
-        LOG_ERROR(HostBridge, "Unknown register being read at address: {:#x}.",
-            readAddress);
+      LOG_ERROR(HostBridge, "Unknown register being read at address: {:#x}.",
+                readAddress);
       *data = 0;
       break;
     }
@@ -160,8 +160,10 @@ bool HostBridge::Write(u64 writeAddress, u64 data, u8 byteCount) {
       biuRegs.REG_E1040078 = static_cast<u32>(data);
       break;
     default:
-        LOG_ERROR(HostBridge, "Unknown register being written at address: {:#x}, data: {:#x}.",
-            writeAddress, data);
+      LOG_ERROR(
+          HostBridge,
+          "Unknown register being written at address: {:#x}, data: {:#x}.",
+          writeAddress, data);
       break;
     }
     return true;
@@ -202,8 +204,10 @@ void HostBridge::ConfigRead(u64 readAddress, u64 *data, u8 byteCount) {
       xGPU->ConfigRead(readAddress, data, byteCount);
       break;
     default:
-        LOG_ERROR(HostBridge, "BUS0: Configuration read to inexistant PCI Device at address: {:#x}.",
-            readAddress);
+      LOG_ERROR(HostBridge,
+                "BUS0: Configuration read to inexistant PCI Device at address: "
+                "{:#x}.",
+                readAddress);
       break;
     }
     return;
@@ -233,8 +237,10 @@ void HostBridge::ConfigWrite(u64 writeAddress, u64 data, u8 byteCount) {
       xGPU->ConfigWrite(writeAddress, data, byteCount);
       break;
     default:
-        LOG_ERROR(HostBridge, "BUS0: Configuration Write to inexistant PCI Device at address: {:#x}, data: {:#x}.",
-            writeAddress, data);
+      LOG_ERROR(HostBridge,
+                "BUS0: Configuration Write to inexistant PCI Device at "
+                "address: {:#x}, data: {:#x}.",
+                writeAddress, data);
       break;
     }
     return;
@@ -246,14 +252,20 @@ void HostBridge::ConfigWrite(u64 writeAddress, u64 data, u8 byteCount) {
 }
 
 bool HostBridge::isAddressMappedinBAR(u32 address) {
-  #define ADDRESS_BOUNDS_CHECK(a, b) (address >= a && address <= (a + b))
+#define ADDRESS_BOUNDS_CHECK(a, b) (address >= a && address <= (a + b))
 
-  if (ADDRESS_BOUNDS_CHECK(hostBridgeConfigSpace.configSpaceHeader.BAR0, XGPU_DEVICE_SIZE) ||
-      ADDRESS_BOUNDS_CHECK(hostBridgeConfigSpace.configSpaceHeader.BAR1, XGPU_DEVICE_SIZE) ||
-      ADDRESS_BOUNDS_CHECK(hostBridgeConfigSpace.configSpaceHeader.BAR2, XGPU_DEVICE_SIZE) ||
-      ADDRESS_BOUNDS_CHECK(hostBridgeConfigSpace.configSpaceHeader.BAR3, XGPU_DEVICE_SIZE) ||
-      ADDRESS_BOUNDS_CHECK(hostBridgeConfigSpace.configSpaceHeader.BAR4, XGPU_DEVICE_SIZE) ||
-      ADDRESS_BOUNDS_CHECK(hostBridgeConfigSpace.configSpaceHeader.BAR5, XGPU_DEVICE_SIZE)) {
+  if (ADDRESS_BOUNDS_CHECK(hostBridgeConfigSpace.configSpaceHeader.BAR0,
+                           XGPU_DEVICE_SIZE) ||
+      ADDRESS_BOUNDS_CHECK(hostBridgeConfigSpace.configSpaceHeader.BAR1,
+                           XGPU_DEVICE_SIZE) ||
+      ADDRESS_BOUNDS_CHECK(hostBridgeConfigSpace.configSpaceHeader.BAR2,
+                           XGPU_DEVICE_SIZE) ||
+      ADDRESS_BOUNDS_CHECK(hostBridgeConfigSpace.configSpaceHeader.BAR3,
+                           XGPU_DEVICE_SIZE) ||
+      ADDRESS_BOUNDS_CHECK(hostBridgeConfigSpace.configSpaceHeader.BAR4,
+                           XGPU_DEVICE_SIZE) ||
+      ADDRESS_BOUNDS_CHECK(hostBridgeConfigSpace.configSpaceHeader.BAR5,
+                           XGPU_DEVICE_SIZE)) {
     return true;
   }
 

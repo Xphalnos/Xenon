@@ -3,8 +3,8 @@
 #pragma once
 
 #include <iostream>
-#include <unordered_map>
 #include <list>
+#include <unordered_map>
 
 #include "Base/Types.h"
 
@@ -42,7 +42,7 @@ public:
   void putElement(u64 key, u64 value) {
     if (capacity == 0)
       return;
-    
+
     auto it = cache.find(key);
     if (it != cache.end()) {
       // Key exists, move it to front and update value

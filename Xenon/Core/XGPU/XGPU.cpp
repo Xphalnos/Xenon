@@ -8,9 +8,9 @@
 #include "Core/Xe_Main.h"
 
 #include "Base/Config.h"
+#include "Base/Logging/Log.h"
 #include "Base/Path_util.h"
 #include "Base/Version.h"
-#include "Base/Logging/Log.h"
 
 #define XE_DEBUG
 
@@ -27,7 +27,8 @@ Xe::Xenos::XGPU::XGPU(RAM *ram) {
   // Set our PCI Dev Sizes.
   pciDevSizes[0] = 0x20000; // BAR0
 
-  xenosState.Regs = std::make_unique<STRIP_UNIQUE_ARR(xenosState.Regs)>(0xFFFFF);
+  xenosState.Regs =
+      std::make_unique<STRIP_UNIQUE_ARR(xenosState.Regs)>(0xFFFFF);
   memset(xenosState.Regs.get(), 0, 0xFFFFF);
 
   // Set Clocks speeds.
@@ -41,9 +42,7 @@ Xe::Xenos::XGPU::XGPU(RAM *ram) {
   memcpy(&xenosState.Regs[REG_MEM_CLK], &reg, 4);
 }
 
-Xe::Xenos::XGPU::~XGPU() {
-  xenosState.Regs.reset();
-}
+Xe::Xenos::XGPU::~XGPU() { xenosState.Regs.reset(); }
 
 bool Xe::Xenos::XGPU::Read(u64 readAddress, u64 *data, u8 byteCount) {
   std::lock_guard lck(mutex);
@@ -51,7 +50,8 @@ bool Xe::Xenos::XGPU::Read(u64 readAddress, u64 *data, u8 byteCount) {
     const u32 regIndex = (readAddress & 0xFFFFF) / 4;
 
 #ifdef XE_DEBUG
-    LOG_DEBUG(Xenos, "Read to {}, index {:#x}", GetRegisterNameById(regIndex), regIndex);
+    LOG_DEBUG(Xenos, "Read to {}, index {:#x}", GetRegisterNameById(regIndex),
+              regIndex);
 #endif
 
     LOG_TRACE(Xenos, "Read Addr = {:#x}, reg: {:#x}.", readAddress, regIndex);
@@ -63,14 +63,14 @@ bool Xe::Xenos::XGPU::Read(u64 readAddress, u64 *data, u8 byteCount) {
 
     // Switch for properly return the requested amount of data.
     switch (byteCount) {
-      case 2:
-        regData = regData >> 16;
-        break;
-      case 1:
-        regData = regData >> 24;
-        break;
-      default:
-        break;
+    case 2:
+      regData = regData >> 16;
+      break;
+    case 1:
+      regData = regData >> 24;
+      break;
+    default:
+      break;
     }
 
     *data = regData;
@@ -96,24 +96,27 @@ bool Xe::Xenos::XGPU::Write(u64 writeAddress, u64 data, u8 byteCount) {
     const u32 regIndex = (writeAddress & 0xFFFFF) / 4;
 
 #ifdef XE_DEBUG
-    LOG_DEBUG(Xenos, "Write to {}, index {:#x}, data = {:#x}", GetRegisterNameById(regIndex), regIndex,
-      byteswap<u32>(static_cast<u32>(data)));
+    LOG_DEBUG(Xenos, "Write to {}, index {:#x}, data = {:#x}",
+              GetRegisterNameById(regIndex), regIndex,
+              byteswap<u32>(static_cast<u32>(data)));
 #endif
 
-    LOG_TRACE(Xenos, "Write Addr = {:#x}, reg: {:#x}, data = {:#x}.", writeAddress, regIndex,
-      byteswap<u32>(static_cast<u32>(data)));
+    LOG_TRACE(Xenos, "Write Addr = {:#x}, reg: {:#x}, data = {:#x}.",
+              writeAddress, regIndex, byteswap<u32>(static_cast<u32>(data)));
 
     XeRegister reg = static_cast<XeRegister>(regIndex);
 
     // Set our internal width.
     if (reg == XeRegister::D1GRPH_X_END) {
       Xe_Main->renderer->internalWidth = byteswap<u32>(static_cast<u32>(data));
-      LOG_INFO(Xenos, "Setting new Internal Width: {:#x}", Xe_Main->renderer->internalWidth);
+      LOG_INFO(Xenos, "Setting new Internal Width: {:#x}",
+               Xe_Main->renderer->internalWidth);
     }
     // Set our internal height.
     if (reg == XeRegister::D1GRPH_Y_END) {
       Xe_Main->renderer->internalHeight = byteswap<u32>(static_cast<u32>(data));
-      LOG_INFO(Xenos, "Setting new Internal Height: {:#x}", Xe_Main->renderer->internalHeight);
+      LOG_INFO(Xenos, "Setting new Internal Height: {:#x}",
+               Xe_Main->renderer->internalHeight);
     }
 
     memcpy(&xenosState.Regs[regIndex * 4], &data, byteCount);
@@ -123,7 +126,7 @@ bool Xe::Xenos::XGPU::Write(u64 writeAddress, u64 data, u8 byteCount) {
   return false;
 }
 
-void Xe::Xenos::XGPU::ConfigRead(u64 readAddress, u64* data, u8 byteCount) {
+void Xe::Xenos::XGPU::ConfigRead(u64 readAddress, u64 *data, u8 byteCount) {
   std::lock_guard lck(mutex);
   memcpy(data, &xgpuConfigSpace.data[readAddress & 0xFF], byteCount);
   return;
@@ -132,7 +135,8 @@ void Xe::Xenos::XGPU::ConfigRead(u64 readAddress, u64* data, u8 byteCount) {
 void Xe::Xenos::XGPU::ConfigWrite(u64 writeAddress, u64 data, u8 byteCount) {
   std::lock_guard lck(mutex);
   // Check if we're being scanned.
-  if (static_cast<u8>(writeAddress) >= 0x10 && static_cast<u8>(writeAddress) < 0x34) {
+  if (static_cast<u8>(writeAddress) >= 0x10 &&
+      static_cast<u8>(writeAddress) < 0x34) {
     const u32 regOffset = (static_cast<u8>(writeAddress) - 0x10) >> 2;
     if (pciDevSizes[regOffset] != 0) {
       if (data == 0xFFFFFFFF) { // PCI BAR Size discovery.
@@ -148,7 +152,7 @@ void Xe::Xenos::XGPU::ConfigWrite(u64 writeAddress, u64 data, u8 byteCount) {
       }
     }
     if (static_cast<u8>(writeAddress) == 0x30) { // Expansion ROM Base Address.
-      data = 0; // Register not implemented.
+      data = 0;                                  // Register not implemented.
     }
   }
 
@@ -157,14 +161,19 @@ void Xe::Xenos::XGPU::ConfigWrite(u64 writeAddress, u64 data, u8 byteCount) {
 }
 
 bool Xe::Xenos::XGPU::isAddressMappedInBAR(u32 address) {
-  #define ADDRESS_BOUNDS_CHECK(a, b) (address >= a && address <= (a + b))
-  if (ADDRESS_BOUNDS_CHECK(xgpuConfigSpace.configSpaceHeader.BAR0, XGPU_DEVICE_SIZE) ||
-    ADDRESS_BOUNDS_CHECK(xgpuConfigSpace.configSpaceHeader.BAR1, XGPU_DEVICE_SIZE) ||
-    ADDRESS_BOUNDS_CHECK(xgpuConfigSpace.configSpaceHeader.BAR2, XGPU_DEVICE_SIZE) ||
-    ADDRESS_BOUNDS_CHECK(xgpuConfigSpace.configSpaceHeader.BAR3, XGPU_DEVICE_SIZE) ||
-    ADDRESS_BOUNDS_CHECK(xgpuConfigSpace.configSpaceHeader.BAR4, XGPU_DEVICE_SIZE) ||
-    ADDRESS_BOUNDS_CHECK(xgpuConfigSpace.configSpaceHeader.BAR5, XGPU_DEVICE_SIZE))
-  {
+#define ADDRESS_BOUNDS_CHECK(a, b) (address >= a && address <= (a + b))
+  if (ADDRESS_BOUNDS_CHECK(xgpuConfigSpace.configSpaceHeader.BAR0,
+                           XGPU_DEVICE_SIZE) ||
+      ADDRESS_BOUNDS_CHECK(xgpuConfigSpace.configSpaceHeader.BAR1,
+                           XGPU_DEVICE_SIZE) ||
+      ADDRESS_BOUNDS_CHECK(xgpuConfigSpace.configSpaceHeader.BAR2,
+                           XGPU_DEVICE_SIZE) ||
+      ADDRESS_BOUNDS_CHECK(xgpuConfigSpace.configSpaceHeader.BAR3,
+                           XGPU_DEVICE_SIZE) ||
+      ADDRESS_BOUNDS_CHECK(xgpuConfigSpace.configSpaceHeader.BAR4,
+                           XGPU_DEVICE_SIZE) ||
+      ADDRESS_BOUNDS_CHECK(xgpuConfigSpace.configSpaceHeader.BAR5,
+                           XGPU_DEVICE_SIZE)) {
     return true;
   }
 

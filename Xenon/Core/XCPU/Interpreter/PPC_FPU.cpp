@@ -37,10 +37,11 @@ void PPCInterpreter::PPCInterpreter_mtfsfx(PPU_STATE *ppuState) {
   for (; b; b >>= 1) {
     mask <<= 4;
 
-    if (FLM & b){
+    if (FLM & b) {
       mask |= 0xF;
     }
   }
 
-  SET_FPSCR((static_cast<u32>(FPR(FrB).valueAsU64 & mask)) | (GET_FPSCR & ~mask));
+  SET_FPSCR((static_cast<u32>(FPR(FrB).valueAsU64 & mask)) |
+            (GET_FPSCR & ~mask));
 }
