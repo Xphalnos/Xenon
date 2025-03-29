@@ -19,6 +19,9 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Install Git
+        run: choco install git
+
     - name: Cache CMake Configuration
       uses: actions/cache@main
       env:
@@ -66,7 +69,7 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt update
-        sudo apt install -y ninja-build clang lld cmake ccache \
+        sudo apt install -y git ninja-build clang lld cmake ccache \
                            libx11-dev libxext-dev libxrandr-dev libxcursor-dev \
                            libxi-dev libxinerama-dev libwayland-dev libxkbcommon-dev \
                            wayland-protocols
