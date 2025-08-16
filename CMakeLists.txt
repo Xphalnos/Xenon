@@ -27,7 +27,11 @@ endif()
 
 # Optimizations
 if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
+  if (NOT Clang)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
+  else()
+    add_compile_options(-flto=full)
+  endif()
   if (MSVC)
     add_compile_options($<$<CONFIG:Release>:/Oi> $<$<CONFIG:Release>:/Ot>)
   endif()
