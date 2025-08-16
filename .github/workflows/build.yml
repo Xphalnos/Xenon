@@ -41,6 +41,11 @@ jobs:
         submodules: recursive
         fetch-depth: 0
 
+    - name: Use LLVM 20
+      run: |
+        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+        sudo add-apt-repository 'deb http://apt.llvm.org/noble/ llvm-toolchain-noble-20 main'
+
     - name: Install Dependencies
       run: |
         sudo apt update
@@ -69,7 +74,7 @@ jobs:
 
     - name: Configure CMake (Clang)
       run: cmake -G Ninja -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-                 -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+                 -DCMAKE_C_COMPILER=clang-20 -DCMAKE_CXX_COMPILER=clang++-20
                  -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
     - name: Build
